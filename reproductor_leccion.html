@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mundo Braille - Video Player</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link rel="stylesheet" href="assets/css/shared.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="assets/js/tailwind-config.js"></script>
+<style>
+        .braille-bg {
+            background-image: radial-gradient(circle, #74777f 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.05;
+        }
+        .video-gradient {
+            background: linear-gradient(0deg, rgba(0,6,19,0.8) 0%, rgba(0,6,19,0) 40%);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f0eded;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #74777f;
+            border-radius: 10px;
+        }
+        @media (max-width: 768px) {
+            .mobile-padding-bottom { padding-bottom: 96px; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- Top App Bar -->
+<header class="fixed top-0 z-50 flex justify-between items-center w-full px-container-margin h-16 bg-surface border-b border-outline-variant shadow-sm">
+<div class="flex items-center gap-4">
+<a href="index.html" class="flex items-center gap-2 text-on-surface hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</a>
+<h1 class="text-title-md font-title-md font-extrabold text-primary">Mundo Braille</h1>
+</div>
+</header>
+<main class="pt-16 mobile-padding-bottom min-h-screen relative">
+<!-- Subtle Braille Texture -->
+<div class="absolute inset-0 braille-bg pointer-events-none"></div>
+<!-- Video Player Section -->
+<section class="relative bg-primary overflow-hidden w-full aspect-video md:max-h-[618px]">
+<div class="absolute inset-0 w-full h-full flex items-center justify-center">
+<div id="video-background" class="w-full h-full bg-cover bg-center" data-alt="A cinematic close-up shot of hands gently touching raised Braille dots on heavy white paper. The lighting is soft and directional, casting subtle shadows that emphasize the tactile texture. The scene is shot with a shallow depth of field, creating a professional educational video aesthetic. The color palette is composed of soft whites, deep charcoals, and a warm amber glow." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAByJviF9o43voRr_6aCzC-1zCSODe3wkjRyJxtp7-v_ozp5Vw8IDMKa71XFcmYmqQw8F8yKB3YD589sRDoMuWF99IsgmpP-Ky_DmBUTTdo09WZgRS7G1QEDuQjnc__NqkrfOzeJH6saNJvmZratbrFTiqtFQpIhysgejulN4muBFcCdw7VR_7kzqRngYSd4sL3H_ldU9aym63sn8Q8VQVGTdNPAJLw32SNBvS8YWyZRz2mxhbJ2Z5RTQ')"></div>
+<div class="absolute inset-0 video-gradient"></div>
+</div>
+<!-- Video Controls -->
+<div class="absolute bottom-0 left-0 w-full p-4 md:p-8 flex flex-col gap-4">
+<!-- Progress Bar -->
+<div class="w-full bg-surface-variant/30 h-2 rounded-full overflow-hidden cursor-pointer group">
+<div id="progress-bar" class="bg-secondary-container h-full w-2/3 relative">
+<div class="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-secondary rounded-full shadow-lg scale-0 group-hover:scale-100 transition-transform"></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4 md:gap-8">
+<button class="text-on-secondary material-symbols-outlined text-[32px] hover:text-secondary-fixed-dim transition-colors" style="font-variation-settings: 'FILL' 1;">replay_10</button>
+<button class="text-on-secondary material-symbols-outlined text-[48px] hover:scale-110 active:scale-90 transition-all" style="font-variation-settings: 'FILL' 1;">play_arrow</button>
+<button class="text-on-secondary material-symbols-outlined text-[32px] hover:text-secondary-fixed-dim transition-colors" style="font-variation-settings: 'FILL' 1;">forward_10</button>
+<div class="hidden md:flex items-center gap-2 text-on-secondary font-label-sm">
+<span id="time-current">04:12</span>
+<span>/</span>
+<span id="time-total">08:45</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-secondary material-symbols-outlined hover:text-secondary-fixed-dim transition-colors">subtitles</button>
+<button class="text-on-secondary material-symbols-outlined hover:text-secondary-fixed-dim transition-colors">settings</button>
+<button class="text-on-secondary material-symbols-outlined hover:text-secondary-fixed-dim transition-colors">fullscreen</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Content Canvas -->
+<div class="max-w-7xl mx-auto px-container-margin py-stack-md flex flex-col lg:grid lg:grid-cols-12 lg:gap-gutter">
+<!-- Left Column: Transcription & Actions -->
+<div class="lg:col-span-8 flex flex-col gap-stack-md">
+<!-- Title & Meta -->
+<div>
+<h1 id="lesson-title" class="text-headline-lg-mobile md:text-headline-lg font-headline-lg text-primary leading-tight">Introducción al Alfabeto Braille</h1>
+<p id="lesson-meta" class="text-body-md font-body-md text-on-surface-variant mt-1">Curso: <span id="course-name">Braille Básico</span> • Prof. Elena Santos</p>
+</div>
+<!-- Action Buttons Cluster -->
+<div class="flex flex-wrap gap-4">
+<!-- Botón Descripción de Audio eliminado -->
+<button class="flex-1 min-w-[180px] bg-surface-container-high text-on-surface font-label-sm py-4 px-6 rounded-xl flex items-center justify-center gap-2 border border-outline-variant hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined">download</span>
+                        Descargar Lección
+                    </button>
+</div>
+</div>
+<!-- Right Column: Related Videos (Bento Style) -->
+<aside class="lg:col-span-4 mt-stack-lg lg:mt-0 flex flex-col gap-stack-sm">
+<h3 class="text-title-md font-title-md text-primary px-2">Lecciones Relacionadas</h3>
+<div id="related-lessons" class="grid grid-cols-1 gap-4">
+</div>
+<button id="view-course-btn" class="mt-4 w-full py-3 rounded-xl border-2 border-dotted border-outline text-on-surface-variant font-label-sm hover:bg-surface-container-high transition-colors">
+                    Ver todo el curso
+                </button>
+</aside>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-surface-container shadow-[0_-4px_12px_rgba(0,0,0,0.1)] rounded-t-xl md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="index.html">
+<span class="material-symbols-outlined text-[24px]">home</span>
+<span class="text-label-sm font-label-sm">Inicio</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="reproductor_leccion.html">
+<span class="material-symbols-outlined text-[24px]">smart_display</span>
+<span class="text-label-sm font-label-sm">Videos</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="ejercicios_interactivos.html">
+<span class="material-symbols-outlined text-[24px]">assignment</span>
+<span class="text-label-sm font-label-sm">Ejercicios</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="perfil_usuario.html">
+<span class="material-symbols-outlined text-[24px]">person</span>
+<span class="text-label-sm font-label-sm">Perfil</span>
+</a>
+</nav>
+<script src="assets/js/app.js"></script>
+<script>
+(function() {
+  // --- Course Data ---
+  var COURSES = {
+    'braille-basico': {
+      name: 'Braille Básico',
+      instructor: 'Elena Santos',
+      lessons: {
+        'introduccion-alfabeto': {
+          title: 'Introducción al Alfabeto Braille',
+          duration: '08:45',
+          progress: 60,
+          youtube: 'https://www.youtube.com/watch?v=dwv-Q9iBOJ4',
+          background: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAByJviF9o43voRr_6aCzC-1zCSODe3wkjRyJxtp7-v_ozp5Vw8IDMKa71XFcmYmqQw8F8yKB3YD589sRDoMuWF99IsgmpP-Ky_DmBUTTdo09WZgRS7G1QEDuQjnc__NqkrfOzeJH6saNJvmZratbrFTiqtFQpIhysgejulN4muBFcCdw7VR_7kzqRngYSd4sL3H_ldU9aym63sn8Q8VQVGTdNPAJLw32SNBvS8YWyZRz2mxhbJ2Z5RTQ'
+        },
+        'escritura-regleta': {
+          title: 'Escritura con Regleta y Punzón',
+          duration: '12:20',
+          progress: 0,
+          youtube: 'https://www.youtube.com/watch?v=Gw4LFp9YN78',
+          background: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDagdBHmrZt6XPYfHdPHsF_EfwPns0gjzYx9BIB9JDgzPSxYdFnKcjpHIjle9jziX1XJC3DE0PS8M6l0PC44KFqyrTxCN0QvEUG4rlPBFmd0nEQsvPWV6BjYZkiI843OddfaF54Xgl68OhjNkqU5mqS0bi6JnqHto9llG19_V50StftWn1Q8WLlX6_6RRGzUiVpRJUmSyXxSYBd37aZTfqDsYoU8bdYiu3sTshA0Zn7X2x50htrCVMr4A'
+        }
+      },
+      related: [
+        { course: 'braille-basico', lesson: 'escritura-regleta', title: 'Uso de la Regleta y el Punzón', duration: '12:05', level: 'Intermedio', module: 'Módulo 2', background: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDagdBHmrZt6XPYfHdPHsF_EfwPns0gjzYx9BIB9JDgzPSxYdFnKcjpHIjle9jziX1XJC3DE0PS8M6l0PC44KFqyrTxCN0QvEUG4rlPBFmd0nEQsvPWV6BjYZkiI843OddfaF54Xgl68OhjNkqU5mqS0bi6JnqHto9llG19_V50StftWn1Q8WLlX6_6RRGzUiVpRJUmSyXxSYBd37aZTfqDsYoU8bdYiu3sTshA0Zn7X2x50htrCVMr4A' },
+        { course: 'historia-braille', lesson: 'historia-digital', title: 'Historia del Braille Digital', duration: '15:40', level: 'Avanzado', module: 'Módulo 5', background: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDveI_v_xuJw-aSaljsp07g3IqZsWcnICdkbn1Og0nNC5l8ip6dAtHXren4ZToeEPf7cwizcuulHKJbJdSI3Z6CQWiMJhMIrj9nu7RdaN2miLxhum0r6XQIuWIxjWAGgBCH1U-TphL1w_JBiQp6VCbq47srgzi37Ta43InlU2Cv8RpgxduhETBBlrjHuZLr9rgQcT6di5o2-1yVdkN37l4kxwMXkBgYQxHoZ-mtyrgXFIeW1z2JESILRw' }
+      ]
+    },
+    'historia-braille': {
+      name: 'Historia del Braille Digital',
+      instructor: 'Carlos Mendoza',
+      lessons: {
+        'historia-digital': {
+          title: 'Historia del Braille Digital',
+          duration: '15:40',
+          progress: 0,
+          youtube: 'https://www.youtube.com/watch?v=-4KlIkeQNDM',
+          background: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDveI_v_xuJw-aSaljsp07g3IqZsWcnICdkbn1Og0nNC5l8ip6dAtHXren4ZToeEPf7cwizcuulHKJbJdSI3Z6CQWiMJhMIrj9nu7RdaN2miLxhum0r6XQIuWIxjWAGgBCH1U-TphL1w_JBiQp6VCbq47srgzi37Ta43InlU2Cv8RpgxduhETBBlrjHuZLr9rgQcT6di5o2-1yVdkN37l4kxwMXkBgYQxHoZ-mtyrgXFIeW1z2JESILRw'
+        }
+      },
+      related: [
+        { course: 'braille-basico', lesson: 'introduccion-alfabeto', title: 'Introducción al Alfabeto Braille', duration: '08:45', level: 'Principiante', module: 'Módulo 1', background: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAByJviF9o43voRr_6aCzC-1zCSODe3wkjRyJxtp7-v_ozp5Vw8IDMKa71XFcmYmqQw8F8yKB3YD589sRDoMuWF99IsgmpP-Ky_DmBUTTdo09WZgRS7G1QEDuQjnc__NqkrfOzeJH6saNJvmZratbrFTiqtFQpIhysgejulN4muBFcCdw7VR_7kzqRngYSd4sL3H_ldU9aym63sn8Q8VQVGTdNPAJLw32SNBvS8YWyZRz2mxhbJ2Z5RTQ' },
+        { course: 'historia-braille', lesson: 'dispositivos-tactiles', title: 'Dispositivos de Salida Táctil', duration: '15:40', level: 'Avanzado', module: 'Módulo 5', background: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCyAuYpY76d2gE8youpLbhhKfVpavRcoJuOmmVHyLU4XD6Keszf73Tkq8Frm1g9R9Js71bry6Hn1QvjhlOmS3AF8vZET_kf8x9U_FKpuPvgKxXKAzp8pEhSmQZixb1e1eL3JdVEJhcvAxsZCYL1qRUOihVJ-ALTkwUjfYy7qc2p9LxyUyVr-Ylkf9ptdV6QfOvOsGvy_Uzo2SQgwHFPNfJ46WpGhaWiqdjcBf_jdkD_XpaxF-cPHCd0tg' }
+      ]
+    }
+  };
+
+  var DEFAULT_COURSE = 'braille-basico';
+  var DEFAULT_LESSON = 'introduccion-alfabeto';
+
+  // --- Parse URL params ---
+  var params = new URLSearchParams(window.location.search);
+  var courseSlug = params.get('course') || DEFAULT_COURSE;
+  var lessonSlug = params.get('lesson') || DEFAULT_LESSON;
+  var progressOverride = parseInt(params.get('progress'), 10);
+  var youtubeUrl = params.get('youtube');
+
+  // --- Lookup data ---
+  var course = COURSES[courseSlug] || COURSES[DEFAULT_COURSE];
+  var lesson = (course.lessons && course.lessons[lessonSlug]) || course.lessons[DEFAULT_LESSON];
+
+  // --- Determine YouTube URL: prefer lesson data, fall back to query param ---
+  var effectiveYoutubeUrl = lesson.youtube || youtubeUrl || null;
+  var youtubeId = null;
+  if (effectiveYoutubeUrl) {
+    var m = effectiveYoutubeUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    youtubeId = m ? m[1] : null;
+  }
+
+  var playerSection = document.querySelector('.relative.bg-primary.overflow-hidden');
+  if (playerSection && youtubeId) {
+    playerSection.innerHTML = '<iframe class="absolute inset-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/' + youtubeId + '?autoplay=1" allow="autoplay; fullscreen" allowfullscreen style="border:0"></iframe>';
+  }
+
+  // --- Render ---
+  document.title = lesson.title + ' - Mundo Braille';
+
+  document.getElementById('lesson-title').textContent = lesson.title;
+  document.getElementById('course-name').textContent = course.name;
+  document.getElementById('lesson-meta').innerHTML = 'Curso: <span id="course-name">' + course.name + '</span> • Prof. ' + course.instructor;
+
+  // Background
+  var bgEl = document.getElementById('video-background');
+  if (bgEl && lesson.background) {
+    bgEl.style.backgroundImage = 'url(' + lesson.background + ')';
+  }
+
+  // Duration & progress
+  var timeTotalEl = document.getElementById('time-total');
+  if (timeTotalEl) timeTotalEl.textContent = lesson.duration;
+  var pct = !isNaN(progressOverride) ? Math.min(100, Math.max(0, progressOverride)) : lesson.progress;
+  var progressBarEl = document.getElementById('progress-bar');
+  if (progressBarEl) progressBarEl.style.width = pct + '%';
+
+  // Related lessons
+  var relatedBox = document.getElementById('related-lessons');
+  relatedBox.innerHTML = '';
+  course.related.forEach(function(r) {
+    var div = document.createElement('div');
+    div.className = 'group flex gap-4 p-3 rounded-2xl bg-surface hover:bg-surface-container transition-all cursor-pointer border border-transparent hover:border-outline-variant shadow-sm';
+    div.innerHTML =
+      '<div class="relative w-32 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-tertiary">' +
+        '<div class="w-full h-full bg-cover bg-center" style="background-image: url(' + r.background + ')"></div>' +
+        '<span class="absolute bottom-1 right-1 bg-primary/80 text-white text-[10px] px-1 rounded">' + r.duration + '</span>' +
+      '</div>' +
+      '<div class="flex flex-col justify-center">' +
+        '<h4 class="text-body-md font-bold text-on-surface line-clamp-2 group-hover:text-secondary transition-colors">' + r.title + '</h4>' +
+        '<p class="text-label-sm text-on-surface-variant">' + r.level + ' • ' + r.module + '</p>' +
+      '</div>';
+    div.addEventListener('click', function() {
+      window.location.href = 'reproductor_leccion.html?course=' + encodeURIComponent(r.course) + '&lesson=' + encodeURIComponent(r.lesson);
+    });
+    relatedBox.appendChild(div);
+  });
+
+  // "Ver todo el curso" button
+  document.getElementById('view-course-btn').addEventListener('click', function() {
+    window.location.href = 'ejercicios_interactivos.html?course=' + encodeURIComponent(courseSlug);
+  });
+
+  // --- Micro-interactions ---
+  document.querySelectorAll('button').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      this.classList.add('scale-95');
+      setTimeout(function() { btn.classList.remove('scale-95'); }, 150);
+    });
+  });
+})();
+</script>
+</body></html>

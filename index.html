@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Mundo Braille - Educación Inclusiva</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="assets/js/tailwind-config.js"></script>
+<link rel="stylesheet" href="assets/css/shared.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    .search-highlight {
+      background: #d4e3ff;
+      color: #001c3a;
+      padding: 0 2px;
+      border-radius: 2px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen braille-pattern-bg">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline shadow-sm flex items-center w-full px-container-margin h-16">
+<div class="flex items-center gap-4">
+<h1 class="text-title-md font-title-md font-extrabold text-primary dark:text-primary-fixed-dim">Mundo Braille</h1>
+</div>
+</header>
+<main class="pt-20 pb-32">
+<!-- Welcome Message Section -->
+<section class="px-container-margin mt-stack-md">
+<div class="flex flex-col gap-1">
+<span class="text-label-sm font-label-sm text-secondary uppercase tracking-wider">¡Hola, Aprendiz!</span>
+<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-primary">Continúa tu camino</h2>
+</div>
+</section>
+<!-- Search Bar Section -->
+<section class="px-container-margin mt-stack-md">
+<div class="relative group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">search</span>
+</div>
+<input id="searchInput" class="w-full h-14 pl-12 pr-4 bg-surface-container-lowest border-2 border-outline-variant rounded-xl focus:border-primary focus:ring-0 text-body-md font-body-md transition-all placeholder:text-on-surface-variant" placeholder="&#xBF;Qu&#xE9; quieres aprender hoy?" type="text" autocomplete="off"/>
+</div>
+<div id="searchResults" class="hidden mt-4 space-y-4"></div>
+<div id="noResults" class="hidden px-4 py-8 text-center text-on-surface-variant">
+<p class="text-body-md font-body-md">No se encontraron resultados para "<span id="searchQuery"></span>"</p>
+<p class="text-label-md font-label-md mt-2">Intenta con otras palabras clave</p>
+</div>
+</section>
+<!-- Categories Horizontal Scroll (Interactive Carousel) -->
+<section class="mt-stack-lg">
+<div class="flex items-center justify-between px-container-margin mb-stack-sm">
+<h3 class="text-title-md font-title-md text-primary">Categorías</h3>
+<button class="text-label-sm font-label-sm text-secondary hover:underline">Ver todas</button>
+</div>
+<div class="carousel-container relative overflow-hidden px-container-margin">
+<div class="carousel-track flex gap-gutter cursor-grab active:cursor-grabbing select-none">
+<!-- Category 1 -->
+<div class="carousel-item flex-shrink-0 w-40 active-scale group cursor-pointer" data-category="basico">
+<div class="w-full aspect-square bg-secondary-container rounded-2xl flex items-center justify-center mb-2 custom-shadow group-hover:shadow-md transition-shadow">
+<span class="material-symbols-outlined text-on-secondary-container text-[48px]" style="font-variation-settings: 'FILL' 1;">apps</span>
+</div>
+<p class="text-body-md font-body-md font-bold text-center text-on-surface">Braille Básico</p>
+</div>
+<!-- Category 2 -->
+<div class="carousel-item flex-shrink-0 w-40 active-scale group cursor-pointer" data-category="numeros">
+<div class="w-full aspect-square bg-primary-fixed rounded-2xl flex items-center justify-center mb-2 custom-shadow group-hover:shadow-md transition-shadow">
+<span class="material-symbols-outlined text-on-primary-fixed text-[48px]" style="font-variation-settings: 'FILL' 1;">123</span>
+</div>
+<p class="text-body-md font-body-md font-bold text-center text-on-surface">Números</p>
+</div>
+<!-- Category 4 -->
+<div class="carousel-item flex-shrink-0 w-40 active-scale group cursor-pointer" data-category="escritura">
+<div class="w-full aspect-square bg-surface-container-low rounded-2xl flex items-center justify-center mb-2 custom-shadow group-hover:shadow-md transition-shadow">
+<span class="material-symbols-outlined text-primary text-[48px]" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+</div>
+<p class="text-body-md font-body-md font-bold text-center text-on-surface">Escritura</p>
+</div>
+<!-- Category: Alfabeto Braille -->
+<div class="carousel-item flex-shrink-0 w-40 active-scale group cursor-pointer" onclick="window.location.href='alfabeto_braille.html'">
+<div class="w-full aspect-square bg-secondary-container rounded-2xl flex items-center justify-center mb-2 custom-shadow group-hover:shadow-md transition-shadow">
+<span class="material-symbols-outlined text-on-secondary-container text-[48px]" style="font-variation-settings: 'FILL' 1;">abc</span>
+</div>
+<p class="text-body-md font-body-md font-bold text-center text-on-surface">Alfabeto Braille</p>
+</div>
+</div>
+<div class="carousel-fade-right pointer-events-none absolute top-0 right-0 h-full w-12 bg-gradient-to-l from-background to-transparent"></div>
+</div>
+</section>
+<!-- Continue Learning Section -->
+<section class="mt-stack-lg px-container-margin">
+      <div class="bg-surface-container-lowest rounded-2xl overflow-hidden custom-shadow border border-outline-variant/30 active-scale cursor-pointer group" data-course="braille-basico" data-lesson="introduccion-alfabeto" data-progress="60">
+<div class="relative w-full h-44 bg-surface-dim">
+<div class="w-full h-full bg-cover bg-center" style="background-image: url('https://img.youtube.com/vi/dwv-Q9iBOJ4/hqdefault.jpg')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/30 to-transparent"></div>
+<div class="absolute bottom-3 left-4 right-4 flex items-end justify-between">
+<div>
+<span class="inline-block bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">En curso</span>
+</div>
+<span class="text-white text-label-sm font-label-sm bg-tertiary/60 px-2 py-1 rounded">Lección 6/10</span>
+</div>
+</div>
+<div class="p-4 space-y-3">
+<div>
+      <h3 class="text-title-md font-title-md text-primary leading-tight">Introducción al Alfabeto Braille</h3>
+      <p class="text-body-md font-body-md text-on-surface-variant mt-0.5">Curso: Braille Básico • Prof. Elena Santos</p>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between items-center">
+<span class="text-label-sm font-label-sm text-on-surface-variant">Progreso</span>
+<span class="text-label-sm font-label-sm font-bold text-secondary">60%</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-2.5 overflow-hidden">
+<div class="h-full bg-secondary-container w-[60%] rounded-full shadow-inner transition-all duration-1000 ease-out"></div>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary font-bold py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg hover:brightness-110 transition-all active:scale-[0.98] duration-150" data-course="braille-basico" data-lesson="introduccion-alfabeto" data-progress="60">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+        Continuar aprendizaje
+</button>
+</div>
+</div>
+</section>
+<!-- Recommended Videos -->
+<section class="mt-stack-lg px-container-margin">
+<div class="flex items-center justify-between mb-stack-md">
+<h3 class="text-title-md font-title-md text-primary">Recomendados para ti</h3>
+<button class="text-label-sm font-label-sm text-secondary hover:underline">Ver todos</button>
+</div>
+<div class="flex flex-col gap-gutter">
+<!-- Video Card 1 -->
+      <div class="bg-surface-container-lowest rounded-2xl overflow-hidden custom-shadow border border-outline-variant/30 active-scale cursor-pointer group" data-course="braille-basico" data-lesson="escritura-regleta" data-progress="0">
+<div class="relative w-full h-40 bg-surface-dim">
+<div class="w-full h-full bg-cover bg-center" data-alt="A bright and airy overhead shot of a modern educational workspace with a Braille slate and stylus on a light wood desk." style="background-image: url('https://img.youtube.com/vi/Gw4LFp9YN78/maxresdefault.jpg')"></div>
+<div class="absolute inset-0 bg-primary/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="w-12 h-12 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+<div class="absolute bottom-3 right-3 bg-tertiary/80 text-white px-2 py-1 rounded text-label-sm font-label-sm">12:20</div>
+</div>
+<div class="p-3 flex justify-between items-start">
+<div class="flex-1 min-w-0">
+<h4 class="text-body-lg font-bold text-primary leading-tight truncate">Escritura con Regleta y Punzón</h4>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-0.5">Nivel: Intermedio • 5.4k vistas</p>
+</div>
+<button class="w-9 h-9 flex items-center justify-center text-primary-fixed-dim hover:text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Video Card 2 -->
+      <div class="bg-surface-container-lowest rounded-2xl overflow-hidden custom-shadow border border-outline-variant/30 active-scale cursor-pointer group" data-course="historia-braille" data-lesson="historia-digital" data-progress="0">
+<div class="relative w-full h-40 bg-surface-dim">
+<div class="w-full h-full bg-cover bg-center" data-alt="A close-up photograph of fingers reading Braille dots on a modern tablet device." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDveI_v_xuJw-aSaljsp07g3IqZsWcnICdkbn1Og0nNC5l8ip6dAtHXren4ZToeEPf7cwizcuulHKJbJdSI3Z6CQWiMJhMIrj9nu7RdaN2miLxhum0r6XQIuWIxjWAGgBCH1U-TphL1w_JBiQp6VCbq47srgzi37Ta43InlU2Cv8RpgxduhETBBlrjHuZLr9rgQcT6di5o2-1yVdkN37l4kxwMXkBgYQxHoZ-mtyrgXFIeW1z2JESILRw')"></div>
+<div class="absolute inset-0 bg-primary/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="w-12 h-12 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+<div class="absolute bottom-3 right-3 bg-tertiary/80 text-white px-2 py-1 rounded text-label-sm font-label-sm">15:40</div>
+</div>
+<div class="p-3 flex justify-between items-start">
+<div class="flex-1 min-w-0">
+<h4 class="text-body-lg font-bold text-primary leading-tight truncate">Historia del Braille Digital</h4>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-0.5">Nivel: Avanzado • 3.2k vistas</p>
+</div>
+<button class="w-9 h-9 flex items-center justify-center text-primary-fixed-dim hover:text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-surface-container dark:bg-tertiary shadow-[0_-4px_12px_rgba(0,0,0,0.1)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="index.html">
+<span class="material-symbols-outlined text-[24px]">home</span>
+<span class="text-label-sm font-label-sm">Inicio</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="reproductor_leccion.html">
+<span class="material-symbols-outlined text-[24px]">smart_display</span>
+<span class="text-label-sm font-label-sm">Videos</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="ejercicios_interactivos.html">
+<span class="material-symbols-outlined text-[24px]">assignment</span>
+<span class="text-label-sm font-label-sm">Ejercicios</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="perfil_usuario.html">
+<span class="material-symbols-outlined text-[24px]">person</span>
+<span class="text-label-sm font-label-sm">Perfil</span>
+</a>
+</nav>
+<!-- FAB eliminado -->
+<script src="assets/js/app.js"></script>
+  <script>
+    (function() {
+      // --- Carousel ---
+      var track = document.querySelector('.carousel-track');
+      if (track) {
+        var isDragging = false;
+        var startX = 0;
+        var currentTranslate = 0;
+        var prevTranslate = 0;
+        var animationID = 0;
+        var dragStarted = false;
+        var movedDistance = 0;
+
+        function getTranslateX() {
+          var style = window.getComputedStyle(track);
+          var matrix = style.transform;
+          if (matrix === 'none') return 0;
+          var values = matrix.match(/matrix.*\((.+)\)/);
+          if (!values) return 0;
+          var parts = values[1].split(', ');
+          return parseFloat(parts[4] || 0);
+        }
+
+        function setTranslateX(x) {
+          var maxScroll = 0;
+          var minScroll = -(track.scrollWidth - track.parentElement.clientWidth);
+          var clamped = Math.max(minScroll, Math.min(maxScroll, x));
+          track.style.transform = 'translateX(' + clamped + 'px)';
+          prevTranslate = clamped;
+          return clamped;
+        }
+
+        function onStart(clientX) {
+          isDragging = true;
+          dragStarted = false;
+          movedDistance = 0;
+          startX = clientX;
+          currentTranslate = getTranslateX();
+          track.classList.add('dragging');
+          if (animationID) cancelAnimationFrame(animationID);
+        }
+
+        function onMove(clientX) {
+          if (!isDragging) return;
+          var delta = clientX - startX;
+          movedDistance = Math.abs(delta);
+          if (movedDistance > 5) dragStarted = true;
+          currentTranslate = prevTranslate + delta;
+          track.style.transform = 'translateX(' + currentTranslate + 'px)';
+          track.style.transition = 'none';
+        }
+
+        function onEnd() {
+          isDragging = false;
+          track.classList.remove('dragging');
+          track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+          var finalX = getTranslateX();
+          var itemWidth = 176;
+          var gap = 16;
+          var snapStep = itemWidth + gap;
+          var nearestSnap = Math.round(finalX / snapStep) * snapStep;
+          var maxScroll = 0;
+          var minScroll = -(track.scrollWidth - track.parentElement.clientWidth);
+          var clampedSnap = Math.max(minScroll, Math.min(maxScroll, nearestSnap));
+          setTranslateX(clampedSnap);
+          setTimeout(function() { dragStarted = false; movedDistance = 0; }, 50);
+        }
+
+        track.addEventListener('touchstart', function(e) { onStart(e.touches[0].clientX); }, { passive: true });
+        document.addEventListener('touchmove', function(e) { if (!isDragging) return; onMove(e.touches[0].clientX); }, { passive: true });
+        document.addEventListener('touchend', function() { if (isDragging) onEnd(); }, { passive: true });
+        track.addEventListener('mousedown', function(e) { e.preventDefault(); onStart(e.clientX); });
+        document.addEventListener('mousemove', function(e) { if (!isDragging) return; onMove(e.clientX); });
+        document.addEventListener('mouseup', function() { if (isDragging) onEnd(); });
+        track.addEventListener('wheel', function(e) {
+          var delta = e.deltaX || e.deltaY;
+          if (Math.abs(e.deltaX) < Math.abs(e.deltaY) && !e.shiftKey) return;
+          e.preventDefault();
+          var current = getTranslateX();
+          track.style.transition = 'transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+          setTranslateX(current - delta * 1.5);
+        }, { passive: false });
+        track.addEventListener('click', function(e) {
+          var item = e.target.closest('.carousel-item');
+          if (!item || dragStarted) return;
+          openLesson(item.dataset.course, 'leccion-' + item.dataset.category, 0);
+        });
+      }
+
+      // --- Search/Filter Logic ---
+      var searchInput = document.getElementById('searchInput');
+      var searchResults = document.getElementById('searchResults');
+      var noResults = document.getElementById('noResults');
+      var searchQueryEl = document.getElementById('searchQuery');
+      var debounceTimer = null;
+
+      var categoryItems = Array.from(document.querySelectorAll('.carousel-item'));
+      var continueCourseCard = document.querySelector('[data-course="braille-basico"][data-lesson="introduccion-alfabeto"]');
+      var videoCards = Array.from(document.querySelectorAll('[data-course][data-lesson].group'));
+
+      var sectionElements = {
+        categoriesSection: document.querySelector('section:has(.carousel-container)'),
+        continueSection: document.querySelector('section:has([data-course="braille-basico"][data-lesson="introduccion-alfabeto"])'),
+        recommendedSection: document.querySelector('section:has([data-course="braille-basico"][data-lesson="escritura-regleta"])')
+      };
+
+      var sectionHeaders = {
+        categories: sectionElements.categoriesSection ? sectionElements.categoriesSection.querySelector('h3, h2') : null,
+        continue: sectionElements.continueSection ? sectionElements.continueSection.querySelector('h3, h2') : null,
+        recommended: sectionElements.recommendedSection ? sectionElements.recommendedSection.querySelector('h3, h2') : null
+      };
+
+      function normalize(text) {
+        return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      }
+
+      function levenshtein(a, b) {
+        if (a === b) return 0;
+        if (a.length === 0) return b.length;
+        if (b.length === 0) return a.length;
+        var m = [];
+        for (var i = 0; i <= b.length; i++) m[i] = [i];
+        for (var j = 0; j <= a.length; j++) m[0][j] = j;
+        for (i = 1; i <= b.length; i++) {
+          for (j = 1; j <= a.length; j++) {
+            var cost = a[j - 1] === b[i - 1] ? 0 : 1;
+            m[i][j] = Math.min(m[i - 1][j] + 1, m[i][j - 1] + 1, m[i - 1][j - 1] + cost);
+          }
+        }
+        return m[b.length][a.length];
+      }
+
+      function wordMatchScore(qWords, tWords) {
+        var matches = 0;
+        var total = qWords.length;
+        for (var qi = 0; qi < qWords.length; qi++) {
+          var best = 0;
+          for (var ti = 0; ti < tWords.length; ti++) {
+            if (tWords[ti] === qWords[qi]) { best = 1; break; }
+            if (tWords[ti].indexOf(qWords[qi]) !== -1) { best = Math.max(best, 0.8); continue; }
+            if (qWords[qi].indexOf(tWords[ti]) !== -1) { best = Math.max(best, 0.7); continue; }
+            var dist = levenshtein(qWords[qi], tWords[ti]);
+            var maxLen = Math.max(qWords[qi].length, tWords[ti].length);
+            if (maxLen > 0) {
+              var sim = 1 - dist / maxLen;
+              if (sim > 0.6) best = Math.max(best, sim * 0.6);
+            }
+          }
+          matches += best;
+        }
+        return total > 0 ? matches / total : 0;
+      }
+
+      function getURL(course, lesson) {
+        return 'reproductor_leccion.html?course=' + encodeURIComponent(course) +
+               '&lesson=' + encodeURIComponent(lesson) + '&progress=0';
+      }
+
+      function getCategoryURL(slug) {
+        var cat = window.CourseRouter && CourseRouter.categories[slug];
+        if (cat) return 'ejercicio_practica.html?course=' + encodeURIComponent(cat.course) +
+                          '&lesson=' + encodeURIComponent(cat.lesson) + '&progress=0';
+        return '#';
+      }
+
+      function buildSearchIndex() {
+        var index = [];
+
+        categoryItems.forEach(function(el) {
+          index.push({
+            el: el,
+            lessonId: el.dataset.category,
+            type: 'category',
+            url: getCategoryURL(el.dataset.category),
+            text: normalize(el.dataset.category + ' ' + el.textContent),
+            categoryLabel: el.textContent.trim(),
+            title: el.textContent.trim()
+          });
+        });
+
+        if (continueCourseCard) {
+          var text = continueCourseCard.dataset.course + ' ' +
+                     continueCourseCard.dataset.lesson + ' ' +
+                     continueCourseCard.textContent;
+          index.push({
+            el: continueCourseCard,
+            lessonId: continueCourseCard.dataset.lesson,
+            type: 'course',
+            url: getURL(continueCourseCard.dataset.course, continueCourseCard.dataset.lesson),
+            text: normalize(text),
+            title: 'Introducción al Alfabeto Braille',
+            categoryLabel: 'Curso'
+          });
+        }
+
+        videoCards.forEach(function(el) {
+          var titleEl = el.querySelector('h4');
+          var metaEl = el.querySelector('.text-label-sm');
+          var title = titleEl ? titleEl.textContent.trim() : '';
+          var meta = metaEl ? metaEl.textContent.trim() : '';
+          var text = el.dataset.course + ' ' + el.dataset.lesson + ' ' + title + ' ' + meta;
+          index.push({
+            el: el,
+            lessonId: el.dataset.lesson,
+            type: 'video',
+            url: getURL(el.dataset.course, el.dataset.lesson),
+            text: normalize(text),
+            title: title,
+            categoryLabel: meta
+          });
+        });
+
+        return index;
+      }
+
+      var searchIndex = buildSearchIndex();
+
+      function flatMatch(text, queryWords) {
+        for (var i = 0; i < queryWords.length; i++) {
+          if (text.indexOf(queryWords[i]) !== -1) return true;
+        }
+        return false;
+      }
+
+      function filterItems(query) {
+        var rawQuery = query.trim();
+        searchQueryEl.textContent = rawQuery;
+
+        if (!rawQuery) {
+          categoryItems.forEach(function(el) { el.style.display = ''; });
+          if (continueCourseCard) continueCourseCard.style.display = '';
+          videoCards.forEach(function(el) { el.style.display = ''; });
+          Object.values(sectionHeaders).forEach(function(h) { if (h) h.style.display = ''; });
+          searchResults.classList.add('hidden');
+          noResults.classList.add('hidden');
+          resetCarousel();
+          return;
+        }
+
+        var nq = normalize(rawQuery);
+        var qWords = nq.split(/\s+/).filter(function(w) { return w.length > 0; });
+
+        var scored = [];
+
+        for (var si = 0; si < searchIndex.length; si++) {
+          var item = searchIndex[si];
+          var score = wordMatchScore(qWords, item.text.split(/\s+/));
+          if (score > 0) scored.push({ item: item, score: score });
+        }
+
+        scored.sort(function(a, b) { return b.score - a.score; });
+
+        var matchedIds = {};
+        var hasVisible = false;
+
+        for (var i = 0; i < scored.length; i++) {
+          matchedIds[scored[i].item.lessonId] = true;
+          if (scored[i].score > 0.3) hasVisible = true;
+        }
+
+        categoryItems.forEach(function(el) {
+          var match = !!matchedIds[el.dataset.category];
+          el.style.display = match ? '' : 'none';
+        });
+
+        var continueMatch = false;
+        if (continueCourseCard) {
+          continueMatch = !!matchedIds[continueCourseCard.dataset.lesson];
+          continueCourseCard.style.display = continueMatch ? '' : 'none';
+        }
+
+        videoCards.forEach(function(el) {
+          var match = !!matchedIds[el.dataset.lesson];
+          el.style.display = match ? '' : 'none';
+        });
+
+        if (sectionHeaders.categories) {
+          var anyCat = categoryItems.some(function(el) { return el.style.display !== 'none'; });
+          sectionHeaders.categories.style.display = anyCat ? '' : 'none';
+        }
+        if (sectionHeaders.continue) {
+          sectionHeaders.continue.style.display = continueMatch ? '' : 'none';
+        }
+        if (sectionHeaders.recommended) {
+          var anyVid = videoCards.some(function(el) { return el.style.display !== 'none'; });
+          sectionHeaders.recommended.style.display = anyVid ? '' : 'none';
+        }
+
+        if (hasVisible) {
+          renderSearchResults(scored, rawQuery);
+          searchResults.classList.remove('hidden');
+          noResults.classList.add('hidden');
+          resetCarousel();
+        } else {
+          searchResults.classList.add('hidden');
+          noResults.classList.remove('hidden');
+        }
+      }
+
+      function renderSearchResults(scored, query) {
+        function highlight(text) {
+          if (!query || !text) return text;
+          var words = normalize(query).split(/\s+/).filter(function(w) { return w.length > 0; });
+          var result = text;
+          for (var i = 0; i < words.length; i++) {
+            var re = new RegExp('(' + words[i].replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            result = result.replace(re, '<span class="search-highlight">$1</span>');
+          }
+          return result;
+        }
+
+        var icons = {
+          category: 'apps',
+          course: 'school',
+          video: 'smart_display'
+        };
+
+        var labels = {
+          category: 'Categoría',
+          course: 'Curso',
+          video: 'Video'
+        };
+
+        var html = '<div class="text-label-sm font-label-sm text-on-surface-variant px-1 mb-2">' +
+          scored.length + ' resultado' + (scored.length !== 1 ? 's' : '') +
+          ' para "<span class="font-medium text-on-surface">' + query + '</span>"' +
+          '</div>';
+
+        for (var i = 0; i < scored.length; i++) {
+          var s = scored[i];
+          var item = s.item;
+          var icon = icons[item.type] || 'search';
+          var label = labels[item.type] || item.type;
+
+          var href = item.url || '#';
+
+          html += '<a href="' + href + '" class="flex items-center gap-4 p-4 bg-surface-container-low rounded-2xl border border-outline-variant hover:border-primary/50 transition-all group">' +
+            '<div class="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">' +
+              '<span class="material-symbols-outlined text-primary text-xl">' + icon + '</span>' +
+            '</div>' +
+            '<div class="flex-1 min-w-0">' +
+              '<div class="flex items-center gap-2 mb-0.5">' +
+                '<span class="px-2 py-0.5 text-xs font-medium rounded-full bg-primary/10 text-primary">' + label + '</span>' +
+              '</div>' +
+              '<p class="text-title-small font-medium text-on-surface">' + highlight(item.title) + '</p>' +
+            '</div>' +
+            '<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>' +
+          '</a>';
+        }
+
+        searchResults.innerHTML = html;
+      }
+
+      function resetCarousel() {
+        var track = document.querySelector('.carousel-track');
+        if (track) {
+          track.style.transform = 'translateX(0px)';
+          track.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        }
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener('input', function() {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(function() {
+            filterItems(this.value);
+          }.bind(this), 150);
+        });
+      }
+
+      // --- Navigation ---
+      function openLesson(course, lesson, progress) {
+        var params = '?course=' + encodeURIComponent(course) +
+                     '&lesson=' + encodeURIComponent(lesson) +
+                     '&progress=' + (progress || 0);
+        window.location.href = 'reproductor_leccion.html' + params;
+      }
+
+      function openCourse(course, lesson, progress) {
+        openLesson(course, lesson, progress);
+      }
+
+      // Continue Learning button
+      var continueBtn = document.querySelector('[data-course][data-lesson].bg-primary');
+      if (continueBtn) {
+        continueBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          openCourse(this.dataset.course, this.dataset.lesson, this.dataset.progress);
+        });
+      }
+
+      // All video cards
+      document.querySelectorAll('[data-course][data-lesson].group').forEach(function(card) {
+        card.addEventListener('click', function(e) {
+          if (e.target.closest('button')) return;
+          openCourse(this.dataset.course, this.dataset.lesson, this.dataset.progress);
+        });
+      });
+
+      // FAB eliminado
+
+    })();
+  </script>
+</body></html>

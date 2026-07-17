@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Mundo Braille - Práctica</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link rel="stylesheet" href="assets/css/shared.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;0,800;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="assets/js/tailwind-config.js"></script>
+<style>
+  .braille-dot-cell {
+    width: 14px; height: 14px;
+    border-radius: 9999px;
+    background: #e5e2e1;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.1), 1px 1px 1px rgba(255,255,255,0.8);
+    transition: all 0.2s;
+  }
+  .braille-dot-cell.active {
+    background: #000613;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+  .option-card {
+    transition: all 0.2s;
+  }
+  .option-card.selected {
+    border-color: #006b6b !important;
+    background: #f0fcfc;
+    box-shadow: 0 0 0 3px rgba(0,107,107,0.15);
+  }
+  .option-card.wrong {
+    border-color: #ef4444 !important;
+    background: #fef2f2;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .fade-in { animation: fadeIn 0.3s ease-out; }
+  body { min-height: max(884px, 100dvh); }
+</style>
+</head>
+<body class="bg-background text-on-background min-h-screen braille-pattern-bg">
+
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-surface border-b border-outline-variant shadow-sm flex justify-between items-center w-full px-container-margin h-16">
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-high transition-colors active:scale-95 duration-150" onclick="CourseRouter.goBack()">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<h1 class="text-title-md font-title-md font-extrabold text-primary">Mundo Braille</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1 bg-surface-container-highest px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-secondary text-[16px]" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="text-label-sm font-label-sm font-bold text-primary" id="streak-display">0</span>
+</div>
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-high transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-primary">search</span>
+</button>
+</div>
+</header>
+
+<main class="pt-20 pb-32 px-container-margin max-w-4xl mx-auto space-y-stack-lg" id="main-content">
+<!-- Dynamic content rendered by JS -->
+</main>
+
+<!-- Completion overlay -->
+<div id="completion-overlay" class="fixed inset-0 z-50 bg-primary/70 flex items-center justify-center px-6 hidden">
+<div class="bg-surface-container-lowest rounded-3xl p-8 max-w-sm w-full text-center space-y-5 custom-shadow-xl fade-in">
+<div class="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center mx-auto">
+<span class="material-symbols-outlined text-on-secondary-container text-[36px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<h3 class="text-headline-lg-mobile font-headline-lg-mobile text-primary">¡Correcto!</h3>
+<p class="text-body-md font-body-md text-on-surface-variant" id="completion-message"></p>
+<button id="btn-continuar" class="w-full bg-primary text-on-primary font-bold py-3 rounded-xl shadow-lg hover:brightness-110 transition-all active:scale-[0.98]">Continuar</button>
+<button class="w-full text-on-surface-variant font-bold py-2 rounded-xl hover:bg-surface-container transition-colors active:scale-[0.98]" onclick="CourseRouter.goBack()">Volver</button>
+</div>
+</div>
+<!-- Congratulations overlay (all exercises completed) -->
+<div id="congrats-overlay" class="fixed inset-0 z-50 bg-primary/80 flex items-center justify-center px-6 hidden">
+<div class="bg-surface-container-lowest rounded-3xl p-8 max-w-sm w-full text-center space-y-5 custom-shadow-xl fade-in">
+<div class="w-20 h-20 rounded-full bg-secondary-container flex items-center justify-center mx-auto">
+<span class="material-symbols-outlined text-on-secondary-container text-[44px]" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-primary">¡Felicidades!</h2>
+<p class="text-body-md font-body-md text-on-surface-variant" id="congrats-message">Has completado exitosamente todos los ejercicios de esta actividad.</p>
+<button class="w-full bg-primary text-on-primary font-bold py-3 rounded-xl shadow-lg hover:brightness-110 transition-all active:scale-[0.98]" onclick="window.location.href='ejercicios_interactivos.html'">Volver a ejercicios</button>
+</div>
+</div>
+
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-surface-container dark:bg-tertiary shadow-[0_-4px_12px_rgba(0,0,0,0.1)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="index.html">
+<span class="material-symbols-outlined text-[24px]">home</span>
+<span class="text-label-sm font-label-sm">Inicio</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="reproductor_leccion.html">
+<span class="material-symbols-outlined text-[24px]">smart_display</span>
+<span class="text-label-sm font-label-sm">Videos</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="ejercicios_interactivos.html">
+<span class="material-symbols-outlined text-[24px]">assignment</span>
+<span class="text-label-sm font-label-sm">Ejercicios</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="perfil_usuario.html">
+<span class="material-symbols-outlined text-[24px]">person</span>
+<span class="text-label-sm font-label-sm">Perfil</span>
+</a>
+</nav>
+
+<script src="assets/js/app.js"></script>
+<script>
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var courseSlug = params.get('course') || 'braille-basico';
+  var lessonSlug = params.get('lesson') || 'leccion-letra-b';
+  var exercise = CourseRouter.getExercise(lessonSlug);
+
+  if (!exercise) {
+    document.getElementById('main-content').innerHTML = '<p class="text-center text-on-surface-variant py-20">Ejercicio no encontrado.</p>';
+    return;
+  }
+
+  // Update streak
+  var progress = window.BrailleStore ? BrailleStore.getProgress() : { streak: 0 };
+  document.getElementById('streak-display').textContent = progress.streak || 0;
+
+  var main = document.getElementById('main-content');
+  var scrollHandler = function() {
+    var header = document.querySelector('header');
+    if (window.scrollY > 20) { header.classList.add('shadow-md'); header.classList.remove('shadow-sm'); }
+    else { header.classList.add('shadow-sm'); header.classList.remove('shadow-md'); }
+  };
+  window.addEventListener('scroll', scrollHandler);
+
+  // ============ RENDER ============
+  function renderBrailleCell(dots, size) {
+    size = size || 'w-14 h-14';
+    var html = '<div class="grid grid-cols-2 gap-3 p-4 bg-surface-container rounded-2xl">';
+    for (var i = 0; i < 6; i++) {
+      var active = dots[i] ? 'active' : '';
+      html += '<div class="braille-dot-cell ' + active + ' ' + size + '"></div>';
+    }
+    return html + '</div>';
+  }
+
+  function buildLesson(ex) {
+    if (ex.interactive) {
+      buildInteractiveLesson(ex);
+      return;
+    }
+    var html = '';
+
+    // Progress
+    html += '<section class="space-y-stack-sm">';
+    html += '<div class="flex justify-between items-center">';
+    html += '<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">' + ex.label + '</span>';
+    html += '<span class="text-title-md font-title-md font-bold text-secondary">' + ex.progressCurrent + '/' + ex.progressTotal + '</span>';
+    html += '</div>';
+    html += '<div class="w-full bg-surface-container-highest rounded-full h-3 overflow-hidden">';
+    html += '<div class="h-full bg-secondary-container rounded-full shadow-inner transition-all duration-1000 ease-out" style="width:' + (ex.progressCurrent / ex.progressTotal * 100) + '%"></div>';
+    html += '</div>';
+    html += '</section>';
+
+    // Braille character card
+    html += '<section class="bg-surface-container-lowest rounded-2xl custom-shadow border border-outline-variant/30 p-8 flex items-center justify-around">';
+    html += renderBrailleCell(ex.dots);
+    html += '<div class="text-center">';
+    html += '<div class="text-8xl font-bold text-primary opacity-80">' + ex.character + '</div>';
+    html += '<div class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-widest mt-1">';
+    html += ex.category === 'numeros' ? 'Número' : 'Letra';
+    html += '</div></div></section>';
+
+    // Description
+    html += '<article class="text-center max-w-lg mx-auto">';
+    html += '<p class="text-body-md font-body-md text-on-surface leading-relaxed">' + ex.description + '</p>';
+    html += '</article>';
+
+    // Audio button
+    html += '<div class="flex justify-center">';
+    html += '<button class="flex items-center gap-2 bg-surface-container-highest hover:bg-surface-container-high text-primary px-6 py-3 rounded-full transition-colors active:scale-95 duration-150 custom-shadow" onclick="this.querySelector(\'.material-symbols-outlined\').textContent=this.querySelector(\'.material-symbols-outlined\').textContent==\'volume_up\'?\'volume_off\':\'volume_up\'">';
+    html += '<span class="material-symbols-outlined text-[20px]">volume_up</span>';
+    html += '<span class="font-bold text-label-sm font-label-sm">' + (ex.audioLabel || 'Escuchar pronunciación') + '</span>';
+    html += '</button></div>';
+
+    // Mnemonic
+    if (ex.mnemonic) {
+      html += '<div class="bg-secondary-fixed border-l-4 border-secondary-container rounded-r-xl p-4 flex items-start gap-3 max-w-lg mx-auto">';
+      html += '<div class="mt-0.5"><span class="material-symbols-outlined text-secondary text-[20px]">lightbulb</span></div>';
+      html += '<p class="italic text-body-md font-body-md text-on-surface">' + ex.mnemonic + '</p>';
+      html += '</div>';
+    }
+
+    // Navigation buttons
+    html += '<div class="flex justify-between items-center gap-4 max-w-lg mx-auto w-full">';
+    html += '<button class="flex-1 flex items-center justify-center gap-2 border-2 border-outline-variant text-on-surface-variant font-bold py-3 rounded-xl hover:bg-surface-container-high transition-colors active:scale-95 duration-150" onclick="CourseRouter.goBack()">';
+    html += '<span class="material-symbols-outlined text-[20px]">chevron_left</span> Anterior</button>';
+    html += '<button id="btn-next" class="flex-1 flex items-center justify-center gap-2 bg-primary text-on-primary font-bold py-3 rounded-xl shadow-lg hover:brightness-110 transition-all active:scale-95 duration-150">';
+    html += 'Siguiente <span class="material-symbols-outlined text-[20px]">chevron_right</span></button>';
+    html += '</div>';
+
+    main.innerHTML = html;
+
+    document.getElementById('btn-next').addEventListener('click', function() {
+      CourseRouter.goNext(lessonSlug);
+    });
+  }
+
+  function buildInteractiveLesson(ex) {
+    var userDots = [0,0,0,0,0,0];
+    var verified = false;
+    var html = '';
+
+    // Progress
+    html += '<section class="space-y-stack-sm">';
+    html += '<div class="flex justify-between items-center">';
+    html += '<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">' + ex.label + '</span>';
+    html += '<span class="text-title-md font-title-md font-bold text-secondary">' + ex.progressCurrent + '/' + ex.progressTotal + '</span>';
+    html += '</div>';
+    html += '<div class="w-full bg-surface-container-highest rounded-full h-3 overflow-hidden">';
+    html += '<div class="h-full bg-secondary-container rounded-full shadow-inner transition-all duration-1000 ease-out" style="width:' + (ex.progressCurrent / ex.progressTotal * 100) + '%"></div>';
+    html += '</div>';
+    html += '</section>';
+
+    // Interactive Braille character card
+    html += '<section class="bg-surface-container-lowest rounded-2xl custom-shadow border border-outline-variant/30 p-8 flex items-center justify-around">';
+    html += '<div class="grid grid-cols-2 gap-3 p-4 bg-surface-container rounded-2xl" id="interactive-dots">';
+    for (var i = 0; i < 6; i++) {
+      html += '<div class="braille-dot-cell cursor-pointer hover:brightness-75 transition-all duration-150 w-14 h-14" data-idx="' + i + '"></div>';
+    }
+    html += '</div>';
+    html += '<div class="text-center">';
+    html += '<div class="text-8xl font-bold text-primary opacity-80">' + ex.character + '</div>';
+    html += '<div class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-widest mt-1">' + (ex.category === 'numeros' ? 'Número' : 'Letra') + '</div>';
+    html += '</div></section>';
+
+    // Description
+    html += '<article class="text-center max-w-lg mx-auto">';
+    html += '<p class="text-body-md font-body-md text-on-surface leading-relaxed">' + ex.description + '</p>';
+    html += '</article>';
+
+    // Audio button
+    html += '<div class="flex justify-center">';
+    html += '<button class="flex items-center gap-2 bg-surface-container-highest hover:bg-surface-container-high text-primary px-6 py-3 rounded-full transition-colors active:scale-95 duration-150 custom-shadow" onclick="this.querySelector(\'.material-symbols-outlined\').textContent=this.querySelector(\'.material-symbols-outlined\').textContent==\'volume_up\'?\'volume_off\':\'volume_up\'">';
+    html += '<span class="material-symbols-outlined text-[20px]">volume_up</span>';
+    html += '<span class="font-bold text-label-sm font-label-sm">' + (ex.audioLabel || 'Escuchar pronunciación') + '</span>';
+    html += '</button></div>';
+
+    // Feedback + check button
+    html += '<div class="max-w-sm mx-auto w-full space-y-4">';
+    html += '<div id="build-feedback" class="text-center text-body-md font-body-md min-h-[2rem]"></div>';
+    html += '<button id="btn-verificar" class="w-full bg-primary text-on-primary font-bold py-4 rounded-2xl tracking-widest transition-all duration-300 uppercase shadow-lg hover:brightness-110 active:scale-[0.98]">Comprobar</button>';
+    html += '<div id="build-nav" class="flex justify-between items-center gap-4 hidden">';
+    html += '<button class="flex-1 flex items-center justify-center gap-2 border-2 border-outline-variant text-on-surface-variant font-bold py-3 rounded-xl hover:bg-surface-container-high transition-colors active:scale-95 duration-150" onclick="CourseRouter.goBack()">';
+    html += '<span class="material-symbols-outlined text-[20px]">chevron_left</span> Anterior</button>';
+    html += '<button id="btn-next-interactive" class="flex-1 flex items-center justify-center gap-2 bg-primary text-on-primary font-bold py-3 rounded-xl shadow-lg hover:brightness-110 transition-all active:scale-95 duration-150">';
+    html += 'Siguiente <span class="material-symbols-outlined text-[20px]">chevron_right</span></button>';
+    html += '</div></div>';
+
+    main.innerHTML = html;
+
+    // Wire dot toggles
+    var dots = document.querySelectorAll('#interactive-dots .braille-dot-cell');
+    dots.forEach(function(dot, idx) {
+      dot.addEventListener('click', function() {
+        if (verified) return;
+        userDots[idx] = userDots[idx] ? 0 : 1;
+        if (userDots[idx]) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+        document.getElementById('build-feedback').innerHTML = '';
+      });
+    });
+
+    // Wire verify button
+    document.getElementById('btn-verificar').addEventListener('click', function() {
+      var correct = true;
+      for (var i = 0; i < 6; i++) {
+        if (userDots[i] !== ex.dots[i]) { correct = false; break; }
+      }
+      if (correct) {
+        if (window.BrailleStore) BrailleStore.completeLesson(lessonSlug);
+        handleCompletion(ex);
+      } else {
+        var tipo = ex.category === 'numeros' ? 'el número' : 'la letra';
+        document.getElementById('build-feedback').innerHTML = '<span class="text-red-500 font-bold">Los puntos seleccionados no forman ' + tipo + ' ' + ex.character + '. Intenta de nuevo.</span>';
+      }
+    });
+  }
+
+  function buildTraduccion(ex) {
+    var html = '';
+
+    // Progress
+    html += '<section class="space-y-stack-sm">';
+    html += '<div class="flex justify-between items-center">';
+    html += '<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">' + ex.label + '</span>';
+    html += '<span class="text-title-md font-title-md font-bold text-secondary">' + ex.progressCurrent + '/' + ex.progressTotal + '</span>';
+    html += '</div>';
+    html += '<div class="w-full bg-surface-container-highest rounded-full h-3 overflow-hidden">';
+    html += '<div class="h-full bg-secondary-container rounded-full shadow-inner transition-all duration-1000 ease-out" style="width:' + (ex.progressCurrent / ex.progressTotal * 100) + '%"></div>';
+    html += '</div>';
+    html += '</section>';
+
+    // Question
+    html += '<div class="text-center space-y-stack-sm">';
+    html += '<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-primary leading-tight">' + ex.question + '</h2>';
+    html += '<p class="text-body-md font-body-md text-on-surface-variant">' + ex.hint + '</p>';
+    html += '</div>';
+
+    // Braille word display (horizontal cells)
+    html += '<div class="flex justify-center items-center gap-2 py-6 flex-wrap">';
+    for (var i = 0; i < ex.braille.length; i++) {
+      html += '<div class="bg-surface-container-lowest rounded-xl custom-shadow border border-outline-variant/30 p-3">';
+      html += renderBrailleCell(ex.braille[i], 'w-8 h-8');
+      html += '</div>';
+    }
+    html += '</div>';
+
+    // Label
+    html += '<div class="text-center">';
+    html += '<p class="text-title-md font-title-md font-bold text-primary">' + (ex.displayLabel || 'Escribe la palabra:') + '</p>';
+    html += '</div>';
+
+    // Input field
+    html += '<div class="max-w-sm mx-auto w-full space-y-4" id="traduccion-area">';
+    html += '<input type="text" id="traduccion-input" class="w-full h-14 px-4 bg-surface-container-lowest border-2 border-outline-variant rounded-xl text-center text-headline-lg-mobile font-headline-lg-mobile text-primary focus:border-primary focus:ring-0 transition-all placeholder:text-on-surface-variant" placeholder="Escribe aquí..." autocomplete="off" autocapitalize="off">';
+    html += '<div id="traduccion-feedback" class="text-center text-body-md font-body-md min-h-[2rem]"></div>';
+    html += '<button id="btn-traducir" class="w-full bg-primary text-on-primary font-bold py-4 rounded-2xl tracking-widest transition-all duration-300 uppercase shadow-lg hover:brightness-110 active:scale-[0.98]">Comprobar</button>';
+    html += '<button id="btn-reintentar" class="w-full bg-surface-container-highest text-on-surface-variant font-bold py-3 rounded-xl hidden hover:bg-surface-container-high transition-colors active:scale-[0.98]">Reintentar</button>';
+    html += '</div>';
+
+    main.innerHTML = html;
+
+    var input = document.getElementById('traduccion-input');
+    var feedback = document.getElementById('traduccion-feedback');
+    var submitBtn = document.getElementById('btn-traducir');
+    var retryBtn = document.getElementById('btn-reintentar');
+
+    function checkAnswer() {
+      var userAnswer = input.value.trim().toLowerCase();
+      if (!userAnswer) return;
+
+      if (userAnswer === ex.answer) {
+        if (window.BrailleStore) BrailleStore.completeLesson(lessonSlug);
+        handleCompletion(ex);
+      } else {
+        input.classList.add('border-red-500', 'bg-red-50');
+        input.disabled = true;
+        submitBtn.classList.add('hidden');
+        feedback.innerHTML = '<span class="text-red-500 font-bold">✗ Incorrecto. La palabra no es "' + userAnswer + '".</span>';
+        retryBtn.classList.remove('hidden');
+      }
+    }
+
+    submitBtn.addEventListener('click', checkAnswer);
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') checkAnswer();
+    });
+
+    retryBtn.addEventListener('click', function() {
+      input.classList.remove('border-red-500', 'bg-red-50');
+      input.disabled = false;
+      input.value = '';
+      input.focus();
+      feedback.innerHTML = '';
+      submitBtn.classList.remove('hidden');
+      retryBtn.classList.add('hidden');
+    });
+  }
+
+  function buildQuiz(ex) {
+    var selectedOption = null;
+    var html = '';
+
+    // Progress
+    html += '<section class="space-y-stack-sm">';
+    html += '<div class="flex justify-between items-center">';
+    html += '<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">' + ex.label + '</span>';
+    html += '<span class="text-title-md font-title-md font-bold text-secondary">' + ex.progressCurrent + '/' + ex.progressTotal + '</span>';
+    html += '</div>';
+    html += '<div class="w-full bg-surface-container-highest rounded-full h-3 overflow-hidden">';
+    html += '<div class="h-full bg-secondary-container rounded-full shadow-inner transition-all duration-1000 ease-out" style="width:' + (ex.progressCurrent / ex.progressTotal * 100) + '%"></div>';
+    html += '</div>';
+    html += '</section>';
+
+    // Question
+    html += '<div class="text-center space-y-stack-sm">';
+    html += '<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-primary leading-tight">' + ex.question + '</h2>';
+    html += '<p class="text-body-md font-body-md text-on-surface-variant">' + ex.hint + '</p>';
+    html += '</div>';
+
+    // Options grid (2x2)
+    html += '<div class="grid grid-cols-2 gap-gutter" id="options-grid">';
+    for (var i = 0; i < ex.options.length; i++) {
+      var opt = ex.options[i];
+      html += '<div class="option-card bg-surface-container-lowest rounded-2xl custom-shadow border-2 border-transparent p-8 flex flex-col justify-center items-center aspect-square cursor-pointer hover:border-outline transition-all" data-index="' + i + '">';
+      html += renderBrailleCell(opt.dots, 'w-10 h-10');
+      if (opt.label) {
+        html += '<span class="mt-3 text-label-sm font-label-sm font-bold text-on-surface-variant">' + opt.label + '</span>';
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+
+    // Check button
+    html += '<div class="px-2">';
+    html += '<button class="w-full bg-surface-container-highest text-on-surface-variant font-bold py-4 rounded-2xl tracking-widest transition-all duration-300 uppercase" disabled id="check-button">Comprobar</button>';
+    html += '</div>';
+
+    main.innerHTML = html;
+
+    // Interactions
+    var checkBtn = document.getElementById('check-button');
+    var options = document.querySelectorAll('#options-grid .option-card');
+
+    options.forEach(function(el) {
+      el.addEventListener('click', function() {
+        if (el.classList.contains('wrong')) return;
+        options.forEach(function(o) { o.classList.remove('selected'); });
+        el.classList.add('selected');
+        selectedOption = parseInt(el.dataset.index);
+        checkBtn.classList.remove('bg-surface-container-highest', 'text-on-surface-variant');
+        checkBtn.classList.add('bg-primary', 'text-on-primary', 'shadow-lg');
+        checkBtn.disabled = false;
+      });
+    });
+
+    checkBtn.addEventListener('click', function() {
+      if (selectedOption === null) return;
+      var isCorrect = selectedOption === ex.correctIndex;
+
+      if (isCorrect) {
+        if (window.BrailleStore) BrailleStore.completeLesson(lessonSlug);
+        handleCompletion(ex);
+      } else {
+        var wrongEl = options[selectedOption];
+        wrongEl.classList.add('wrong');
+        wrongEl.style.animation = 'shake 0.4s ease';
+        setTimeout(function() {
+          wrongEl.classList.remove('wrong', 'selected');
+          wrongEl.style.animation = '';
+          selectedOption = null;
+          checkBtn.classList.add('bg-surface-container-highest', 'text-on-surface-variant');
+          checkBtn.classList.remove('bg-primary', 'text-on-primary', 'shadow-lg');
+          checkBtn.disabled = true;
+        }, 800);
+      }
+    });
+  }
+
+  function handleCompletion(ex) {
+    if (CourseRouter.isLastStep(lessonSlug)) {
+      var catName = { alfabeto: 'el Alfabeto', numeros: 'los Números', palabras: 'Palabras y Frases' }[ex.category] || 'esta actividad';
+      document.getElementById('congrats-message').textContent = 'Has completado exitosamente todos los ejercicios de ' + catName + '.';
+      document.getElementById('completion-overlay').classList.add('hidden');
+      document.getElementById('congrats-overlay').classList.remove('hidden');
+    } else {
+      document.getElementById('completion-message').textContent = ex.successMessage;
+      document.getElementById('completion-overlay').classList.remove('hidden');
+      document.getElementById('btn-continuar').onclick = function() {
+        CourseRouter.goNext(lessonSlug);
+      };
+    }
+  }
+
+  // Render based on mode
+  if (exercise.mode === 'lesson') {
+    buildLesson(exercise);
+  } else if (exercise.mode === 'traduccion') {
+    buildTraduccion(exercise);
+  } else {
+    buildQuiz(exercise);
+  }
+
+})();
+</script>
+</body></html>
