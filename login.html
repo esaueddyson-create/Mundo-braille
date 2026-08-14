@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Iniciar Sesión - Mundo Braille</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="assets/js/tailwind-config.js"></script>
+<link rel="stylesheet" href="assets/css/shared.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col braille-pattern-bg">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline shadow-sm h-16 flex justify-start items-center gap-2 px-container-margin">
+<button class="flex-shrink-0 flex items-center justify-center w-10 h-10 hover:bg-surface-container-high dark:hover:bg-tertiary-container transition-colors rounded-full active:scale-95 transition-transform duration-150" onclick="window.location.href='registro.html'">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim text-[24px] leading-none">arrow_back</span>
+</button>
+<h1 class="text-title-md font-title-md font-extrabold text-primary dark:text-primary-fixed-dim truncate whitespace-nowrap min-w-0">Mundo Braille</h1>
+</header>
+<main class="flex-grow pt-20 pb-20 px-container-margin flex items-center justify-center relative overflow-x-hidden">
+<section class="relative z-10 w-full max-w-md my-auto">
+<!-- Logo / Brand -->
+<div class="flex flex-col items-center mb-stack-lg">
+<div class="w-20 h-20 bg-secondary-container rounded-2xl flex items-center justify-center custom-shadow mb-stack-md">
+<span class="material-symbols-outlined text-on-secondary-container text-[44px]" style="font-variation-settings: 'FILL' 1;">touch_app</span>
+</div>
+<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-primary text-center">Bienvenido de nuevo</h2>
+<p class="text-body-md font-body-md text-on-surface-variant text-center mt-1">Ingresa para continuar tu aprendizaje</p>
+</div>
+<!-- Card -->
+<div class="bg-surface-container-lowest rounded-2xl custom-shadow border border-outline-variant/30 p-stack-lg">
+<form id="loginForm" class="space-y-stack-md" novalidate>
+<div>
+<label class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider block mb-2" for="login-email">Correo electrónico</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute inset-y-0 left-4 flex items-center text-outline pointer-events-none">mail</span>
+<input id="login-email" name="email" type="email" autocomplete="email" required placeholder="tucorreo@ejemplo.com"
+class="w-full h-14 pl-12 pr-4 bg-surface-container-lowest border-2 border-outline-variant rounded-xl focus:border-primary focus:ring-0 text-body-md font-body-md transition-all placeholder:text-on-surface-variant/60"/>
+</div>
+<p class="error-msg hidden text-label-sm font-label-sm text-error mt-1">Ingresa un correo válido.</p>
+</div>
+<div>
+<label class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider block mb-2" for="login-password">Contraseña</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute inset-y-0 left-4 flex items-center text-outline pointer-events-none">lock</span>
+<input id="login-password" name="password" type="password" autocomplete="current-password" required placeholder="Tu contraseña"
+class="w-full h-14 pl-12 pr-12 bg-surface-container-lowest border-2 border-outline-variant rounded-xl focus:border-primary focus:ring-0 text-body-md font-body-md transition-all placeholder:text-on-surface-variant/60"/>
+<button type="button" class="toggle-password absolute inset-y-0 right-3 flex items-center text-on-surface-variant hover:text-primary transition-colors p-2" tabindex="-1">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+<p class="error-msg hidden text-label-sm font-label-sm text-error mt-1">Ingresa tu contraseña.</p>
+</div>
+<div class="flex items-center justify-between">
+<label class="flex items-center gap-2 cursor-pointer text-body-md font-body-md text-on-surface-variant select-none">
+<input id="login-remember" type="checkbox" class="w-5 h-5 rounded border-outline-variant text-secondary focus:ring-secondary"/>
+Recuérdame
+</label>
+<a class="text-label-sm font-label-sm text-secondary hover:underline" href="#">¿Olvidaste tu contraseña?</a>
+</div>
+<button type="submit" class="w-full bg-primary text-on-primary font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-lg hover:brightness-110 transition-all active:scale-[0.98] duration-150">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">login</span>
+Iniciar sesión
+</button>
+<p id="loginError" class="hidden text-body-md font-body-md text-error text-center"></p>
+</form>
+<!-- Register link -->
+<div class="mt-stack-md text-center">
+<p class="text-body-md font-body-md text-on-surface-variant">¿Aún no tienes cuenta?
+<a class="text-label-md font-label-sm font-bold text-secondary hover:underline" href="registro.html">Crea una gratis</a>
+</p>
+</div>
+</div>
+</section>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="assets/js/firebase-init.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+(function() {
+  var form = document.getElementById('loginForm');
+  var emailInput = document.getElementById('login-email');
+  var passInput = document.getElementById('login-password');
+  var loginError = document.getElementById('loginError');
+  var submitBtn = form.querySelector('button[type="submit"]');
+
+  document.querySelectorAll('.toggle-password').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var input = btn.parentElement.querySelector('input');
+      var icon = btn.querySelector('.material-symbols-outlined');
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      icon.textContent = show ? 'visibility_off' : 'visibility';
+    });
+  });
+
+  function showError(input, show) {
+    var msg = input.parentElement.parentElement.querySelector('.error-msg');
+    if (!msg) return;
+    msg.classList.toggle('hidden', !show);
+    input.classList.toggle('border-error', show);
+    input.classList.toggle('border-outline-variant', !show);
+  }
+
+  function setLoading(loading) {
+    submitBtn.disabled = loading;
+    submitBtn.classList.toggle('opacity-60', loading);
+    submitBtn.classList.toggle('pointer-events-none', loading);
+  }
+
+  function authMessage(err) {
+    var code = err && err.code ? err.code : '';
+    var msgs = {
+      'auth/user-not-found': 'Correo o contraseña incorrectos.',
+      'auth/wrong-password': 'Correo o contraseña incorrectos.',
+      'auth/invalid-credential': 'Correo o contraseña incorrectos.',
+      'auth/invalid-email': 'Ingresa un correo electrónico válido.',
+      'auth/too-many-requests': 'Demasiados intentos fallidos. Intenta de nuevo más tarde.',
+      'auth/network-request-failed': 'Error de conexión. Verifica tu conexión a internet.'
+    };
+    return msgs[code] || 'No se pudo iniciar sesión. Intenta de nuevo.';
+  }
+
+  emailInput.addEventListener('input', function() { showError(emailInput, false); });
+  passInput.addEventListener('input', function() { showError(passInput, false); });
+  loginError.classList.add('hidden');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    loginError.classList.add('hidden');
+    var ok = true;
+
+    var email = emailInput.value.trim();
+    var pass = passInput.value;
+
+    var emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    showError(emailInput, !emailValid);
+    if (!emailValid) ok = false;
+
+    var passValid = pass.length >= 6;
+    showError(passInput, !passValid);
+    if (!passValid) ok = false;
+
+    if (!ok) return;
+
+    var remember = document.getElementById('login-remember').checked;
+    var auth = window.FirebaseApp.auth;
+    var db = window.FirebaseApp.db;
+
+    setLoading(true);
+
+    auth.setPersistence(remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION)
+      .then(function() {
+        return auth.signInWithEmailAndPassword(email, pass);
+      })
+      .then(function(userCredential) {
+        var user = userCredential.user;
+        return db.collection('users').doc(user.uid).get().then(function(doc) {
+          var profile = doc.exists ? doc.data() : {};
+          return { name: profile.name || user.displayName || 'Aprendiz', email: user.email, uid: user.uid };
+        }).catch(function() {
+          return { name: 'Aprendiz', email: user.email, uid: user.uid };
+        });
+      })
+      .then(function(session) {
+        if (remember) {
+          window.BrailleStore.setUser(session);
+        } else {
+          try { sessionStorage.setItem('bl_user', JSON.stringify(session)); } catch (err2) {}
+        }
+        window.location.href = 'index.html';
+      })
+      .catch(function(err) {
+        setLoading(false);
+        loginError.textContent = authMessage(err);
+        loginError.classList.remove('hidden');
+      });
+  });
+})();
+</script>
+</body></html>
