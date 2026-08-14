@@ -251,7 +251,7 @@ window.ExerciseBank = {
     progressCurrent: 1,
     progressTotal: 6,
     character: "B",
-    dots: [1,0,1,0,0,0],
+    dots: [1,1,0,0,0,0],
     interactive: true,
     description: 'Forma la letra <b>B</b> activando los puntos <b>1 y 2</b> del cajetín Braille.',
     audioLabel: "Escuchar pronunciación",
@@ -265,16 +265,18 @@ window.ExerciseBank = {
     label: "El Alfabeto Braille",
     progressCurrent: 2,
     progressTotal: 6,
+    character: "A",
+    dots: [1,0,0,0,0,0],
     question: "Identifica el símbolo para la letra 'A'",
     hint: "Selecciona la celda Braille correcta.",
     options: [
       { dots: [1,0,0,0,0,0], label: "A" },
-      { dots: [1,0,1,0,0,0], label: "B" },
-      { dots: [1,1,0,0,0,0], label: "C" },
+      { dots: [1,1,0,0,0,0], label: "B" },
+      { dots: [1,0,0,1,0,0], label: "C" },
       { dots: [1,1,0,1,0,0], label: "F" }
     ],
     correctIndex: 0,
-    successMessage: "¡Correcto! Has identificado la letra A.",
+    successMessage: "¡Correcto! Has representado la letra A en Braille.",
     next: "leccion-letra-c"
   },
 
@@ -285,7 +287,7 @@ window.ExerciseBank = {
     progressCurrent: 3,
     progressTotal: 6,
     character: "C",
-    dots: [1,1,0,0,0,0],
+    dots: [1,0,0,1,0,0],
     interactive: true,
     description: 'Forma la letra <b>C</b> activando los puntos <b>1 y 4</b> del cajetín Braille.',
     audioLabel: "Escuchar pronunciación",
@@ -299,16 +301,18 @@ window.ExerciseBank = {
     label: "El Alfabeto Braille",
     progressCurrent: 4,
     progressTotal: 6,
+    character: "B",
+    dots: [1,1,0,0,0,0],
     question: "Identifica el símbolo para la letra 'B'",
     hint: "Selecciona la celda Braille correcta.",
     options: [
       { dots: [1,0,0,0,0,0], label: "A" },
-      { dots: [1,0,1,0,0,0], label: "B" },
-      { dots: [1,1,0,0,0,0], label: "C" },
-      { dots: [1,0,0,1,0,0], label: "E" }
+      { dots: [1,1,0,0,0,0], label: "B" },
+      { dots: [1,0,0,1,0,0], label: "C" },
+      { dots: [1,0,0,0,1,0], label: "E" }
     ],
     correctIndex: 1,
-    successMessage: "¡Correcto! Has identificado la letra B.",
+    successMessage: "¡Correcto! Has representado la letra B en Braille.",
     next: "leccion-letra-d"
   },
 
@@ -319,7 +323,7 @@ window.ExerciseBank = {
     progressCurrent: 5,
     progressTotal: 6,
     character: "D",
-    dots: [1,1,0,1,0,0],
+    dots: [1,0,0,1,1,0],
     interactive: true,
     description: 'Forma la letra <b>D</b> activando los puntos <b>1, 4 y 5</b> del cajetín Braille.',
     audioLabel: "Escuchar pronunciación",
@@ -333,16 +337,18 @@ window.ExerciseBank = {
     label: "El Alfabeto Braille",
     progressCurrent: 6,
     progressTotal: 6,
+    character: "C",
+    dots: [1,0,0,1,0,0],
     question: "Identifica el símbolo para la letra 'C'",
     hint: "Selecciona la celda Braille correcta.",
     options: [
-      { dots: [1,0,1,0,0,0], label: "B" },
-      { dots: [1,1,0,0,0,0], label: "C" },
-      { dots: [1,0,0,1,0,0], label: "E" },
+      { dots: [1,1,0,0,0,0], label: "B" },
+      { dots: [1,0,0,1,0,0], label: "C" },
+      { dots: [1,0,0,0,1,0], label: "E" },
       { dots: [1,0,0,0,0,0], label: "A" }
     ],
     correctIndex: 1,
-    successMessage: "¡Excelente! Conoces las primeras letras del alfabeto Braille.",
+    successMessage: "¡Excelente! Has representado la letra C en Braille.",
     next: null
   },
 
@@ -499,10 +505,40 @@ window.ExerciseBank = {
   }
 };
 
+// --- Alfabeto Braille (A-Z) tabla compartida ---
+window.BrailleAlphabet = [
+  { letter: "A", dots: [1,0,0,0,0,0] },
+  { letter: "B", dots: [1,1,0,0,0,0] },
+  { letter: "C", dots: [1,0,0,1,0,0] },
+  { letter: "D", dots: [1,0,0,1,1,0] },
+  { letter: "E", dots: [1,0,0,0,1,0] },
+  { letter: "F", dots: [1,1,0,1,0,0] },
+  { letter: "G", dots: [1,1,0,1,1,0] },
+  { letter: "H", dots: [1,1,0,0,1,0] },
+  { letter: "I", dots: [0,1,0,1,0,0] },
+  { letter: "J", dots: [0,1,0,1,1,0] },
+  { letter: "K", dots: [1,0,1,0,0,0] },
+  { letter: "L", dots: [1,1,1,0,0,0] },
+  { letter: "M", dots: [1,0,1,1,0,0] },
+  { letter: "N", dots: [1,0,1,1,1,0] },
+  { letter: "O", dots: [1,0,1,0,1,0] },
+  { letter: "P", dots: [1,1,1,1,0,0] },
+  { letter: "Q", dots: [1,1,1,1,1,0] },
+  { letter: "R", dots: [1,1,1,0,1,0] },
+  { letter: "S", dots: [0,1,1,1,0,0] },
+  { letter: "T", dots: [0,1,1,1,1,0] },
+  { letter: "U", dots: [1,0,1,0,0,1] },
+  { letter: "V", dots: [1,1,1,0,0,1] },
+  { letter: "W", dots: [0,1,0,1,1,1] },
+  { letter: "X", dots: [1,0,1,1,0,1] },
+  { letter: "Y", dots: [1,0,1,1,1,1] },
+  { letter: "Z", dots: [1,0,1,0,1,1] }
+];
+
 // --- Course Router (centralized navigation) ---
 window.CourseRouter = {
   categories: {
-    "alfabeto":  { page: "ejercicio_practica.html", course: "braille-basico", lesson: "leccion-letra-b" },
+    "alfabeto":  { page: "ejercicio_practica.html", course: "braille-basico", lesson: "alphabet-eval" },
     "numeros":   { page: "ejercicio_practica.html", course: "numeros",        lesson: "leccion-numero-1" },
     "palabras":  { page: "ejercicio_practica.html", course: "palabras",       lesson: "traducir-hola" },
     "lectura":   { page: "ejercicio_practica.html", course: "braille-basico", lesson: "leccion-letra-b" },

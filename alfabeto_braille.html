@@ -16,8 +16,8 @@
 <body class="bg-background text-on-surface min-h-screen flex flex-col">
 <!-- TopAppBar -->
 <header class="fixed top-0 left-0 w-full z-50 bg-surface border-b border-outline-variant shadow-sm h-16 flex items-center gap-2 px-container-margin">
-<a href="ejercicios_interactivos.html" class="p-2 hover:bg-surface-container-high transition-colors rounded-full active:scale-95 transition-transform duration-150">
-<span class="material-symbols-outlined text-primary">arrow_back</span>
+<a href="index.html" class="flex-shrink-0 flex items-center justify-center w-10 h-10 hover:bg-surface-container-high transition-colors rounded-full active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-primary text-[24px] leading-none">arrow_back</span>
 </a>
 <h1 class="text-title-md font-title-md font-extrabold text-primary">Alfabeto Braille</h1>
 </header>
@@ -41,51 +41,59 @@
 (function() {
   // celda Braille: [dot1, dot2, dot3, dot4, dot5, dot6]
   var data = [
-    {letter:'A', dots:[1,0,0,0,0,0]},
-    {letter:'B', dots:[1,1,0,0,0,0]},
-    {letter:'C', dots:[1,0,0,1,0,0]},
-    {letter:'D', dots:[1,0,0,1,1,0]},
-    {letter:'E', dots:[1,0,0,0,1,0]},
-    {letter:'F', dots:[1,1,0,1,0,0]},
-    {letter:'G', dots:[1,1,0,1,1,0]},
-    {letter:'H', dots:[1,1,0,0,1,0]},
-    {letter:'I', dots:[0,1,0,1,0,0]},
-    {letter:'J', dots:[0,1,0,1,1,0]},
-    {letter:'K', dots:[1,0,1,0,0,0]},
-    {letter:'L', dots:[1,1,1,0,0,0]},
-    {letter:'M', dots:[1,0,1,1,0,0]},
-    {letter:'N', dots:[1,0,1,1,1,0]},
-    {letter:'\u00d1', dots:[1,1,1,1,1,1]},
-    {letter:'O', dots:[1,0,1,0,1,0]},
-    {letter:'P', dots:[1,1,1,1,0,0]},
-    {letter:'Q', dots:[1,1,1,1,1,0]},
-    {letter:'R', dots:[1,1,1,0,1,0]},
-    {letter:'S', dots:[0,1,1,1,0,0]},
-    {letter:'T', dots:[0,1,1,1,1,0]},
-    {letter:'U', dots:[1,0,1,0,0,1]},
-    {letter:'V', dots:[1,1,1,0,0,1]},
-    {letter:'W', dots:[0,1,0,1,1,1]},
-    {letter:'X', dots:[1,0,1,1,0,1]},
-    {letter:'Y', dots:[1,0,1,1,1,1]},
-    {letter:'Z', dots:[1,0,1,0,1,1]}
+    { letter: 'A', word: 'Avión', image: '✈️', dots: [1,0,0,0,0,0] },
+    { letter: 'B', word: 'Bola', image: '⚽', dots: [1,1,0,0,0,0] },
+    { letter: 'C', word: 'Gato', image: '🐈', dots: [1,0,0,1,0,0] },
+    { letter: 'D', word: 'Delfín', image: '🐬', dots: [1,0,0,1,1,0] },
+    { letter: 'E', word: 'Elefante', image: '🐘', dots: [1,0,0,0,1,0] },
+    { letter: 'F', word: 'Fresa', image: '🍓', dots: [1,1,0,1,0,0] },
+    { letter: 'G', word: 'Guitarra', image: '🎸', dots: [1,1,0,1,1,0] },
+    { letter: 'H', word: 'Casa', image: '🏠', dots: [1,1,0,0,1,0] },
+    { letter: 'I', word: 'Helado', image: '🍦', dots: [0,1,0,1,0,0] },
+    { letter: 'J', word: 'Tren', image: '🚂', dots: [0,1,0,1,1,0] },
+    { letter: 'K', word: 'Cometa', image: '🪁', dots: [1,0,1,0,0,0] },
+    { letter: 'L', word: 'León', image: '🦁', dots: [1,1,1,0,0,0] },
+    { letter: 'M', word: 'Melón', image: '🍈', dots: [1,0,1,1,0,0] },
+    { letter: 'N', word: 'Nube', image: '☁️', dots: [1,0,1,1,1,0] },
+    { letter: 'Ñ', word: 'Piña', image: '🍍', dots: [1,1,1,1,1,1] },
+    { letter: 'O', word: 'Naranja', image: '🍊', dots: [1,0,1,0,1,0] },
+    { letter: 'P', word: 'Pizza', image: '🍕', dots: [1,1,1,1,0,0] },
+    { letter: 'Q', word: 'Queso', image: '🧀', dots: [1,1,1,1,1,0] },
+    { letter: 'R', word: 'Rosa', image: '🌹', dots: [1,1,1,0,1,0] },
+    { letter: 'S', word: 'Sol', image: '☀️', dots: [0,1,1,1,0,0] },
+    { letter: 'T', word: 'Tortuga', image: '🐢', dots: [0,1,1,1,1,0] },
+    { letter: 'U', word: 'Uva', image: '🍇', dots: [1,0,1,0,0,1] },
+    { letter: 'V', word: 'Vaca', image: '🐄', dots: [1,1,1,0,0,1] },
+    { letter: 'W', word: 'Waffle', image: '🧇', dots: [0,1,0,1,1,1] },
+    { letter: 'X', word: 'Rayos X', image: '🩻', dots: [1,0,1,1,0,1] },
+    { letter: 'Y', word: 'Yoyo', image: '🪀', dots: [1,0,1,1,1,1] },
+    { letter: 'Z', word: 'Cebra', image: '🦓', dots: [1,0,1,0,1,1] }
   ];
-  var borderColors = ['border-secondary-container','border-primary','border-on-primary-container'];
+
+  var isDark = document.documentElement.classList.contains('dark');
+  var activeFill = isDark ? '#afc8f0' : '#000613';
+  var inactiveFill = isDark ? '#3a3a3a' : '#e5e2e1';
+  var inactiveStroke = isDark ? '#44474e' : '#c4c6cf';
+
+  var borderColors = ['border-secondary-container', 'border-primary', 'border-on-primary-container'];
   var container = document.getElementById('cards-container');
   data.forEach(function(item, i) {
     var svg = '<svg viewBox="0 0 50 70" class="w-full h-16" xmlns="http://www.w3.org/2000/svg">';
     var pos = [[12,14],[12,30],[12,46],[38,14],[38,30],[38,46]];
     for (var d = 0; d < 6; d++) {
-      var fill = item.dots[d] ? '#000613' : '#e5e2e1';
-      var stroke = item.dots[d] ? '#000613' : '#c4c6cf';
+      var fill = item.dots[d] ? activeFill : inactiveFill;
+      var stroke = item.dots[d] ? activeFill : inactiveStroke;
       svg += '<circle cx="' + pos[d][0] + '" cy="' + pos[d][1] + '" r="6" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1"/>';
     }
     svg += '</svg>';
+
     var card = document.createElement('div');
-    card.className = 'bg-white rounded-xl p-4 tactile-card flex flex-col items-center gap-2 text-center border-l-4 ' + borderColors[i % 3];
+    card.className = 'bg-white rounded-2xl p-4 tactile-card flex flex-col items-center gap-2 text-center border-l-4 ' + borderColors[i % 3];
     card.innerHTML =
-      '<div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary shadow-sm flex-shrink-0"><span class="text-title-md font-bold">' + item.letter + '</span></div>' +
+      '<div class="w-11 h-11 rounded-full bg-secondary-container/20 flex items-center justify-center text-primary shadow-sm flex-shrink-0"><span class="text-title-md font-bold">' + item.letter + '</span></div>' +
+      '<div class="text-[44px] leading-none" role="img" aria-label="' + item.word + '">' + item.image + '</div>' +
       '<div class="bg-surface-container-low rounded-xl py-2 px-3 w-full flex items-center justify-center">' + svg + '</div>' +
-      '<p class="text-label-sm font-label-sm text-on-surface-variant">Letra <span class="font-bold text-on-surface">' + item.letter + '</span></p>';
+      '<p class="text-label-sm font-label-sm text-on-surface-variant">' + item.word + '</p>';
     container.appendChild(card);
   });
 })();
