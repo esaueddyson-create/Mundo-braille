@@ -128,7 +128,8 @@ Iniciar sesión
       'auth/operation-not-allowed': 'El inicio de sesión con correo está deshabilitado. Contacta al administrador.',
       'auth/user-disabled': 'Esta cuenta fue deshabilitada.',
       'auth/internal-error': 'Ocurrió un error interno. Intenta de nuevo.',
-      'auth/invalid-persistence-type': 'Error de configuración. Intenta de nuevo.'
+      'auth/invalid-persistence-type': 'Error de configuración. Intenta de nuevo.',
+      'auth/unsupported-persistence-type': 'No se pudo guardar la sesión en este dispositivo, pero puedes iniciar sesión.'
     };
     return msgs[code] || 'No se pudo iniciar sesión. Intenta de nuevo. (Código: ' + code + ')';
   }
@@ -161,7 +162,12 @@ Iniciar sesión
 
     setLoading(true);
 
-    auth.setPersistence(remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION)
+    var requestedPersistence = remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
+
+    auth.setPersistence(requestedPersistence)
+      .catch(function() {
+        return auth.setPersistence(firebase.auth.Auth.Persistence.NONE);
+      })
       .then(function() {
         return auth.signInWithEmailAndPassword(email, pass);
       })
