@@ -181,11 +181,8 @@ Iniciar sesión
         });
       })
       .then(function(session) {
-        if (remember) {
-          window.BrailleStore.setUser(session);
-        } else {
-          try { sessionStorage.setItem('bl_user', JSON.stringify(session)); } catch (err2) {}
-        }
+        if (window.BrailleStore) window.BrailleStore.setUser(session);
+        try { sessionStorage.setItem('bl_user', JSON.stringify(session)); } catch (err2) {}
         window.location.href = 'index.html';
       })
       .catch(function(err) {
