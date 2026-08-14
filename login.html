@@ -121,11 +121,16 @@ Iniciar sesión
       'auth/user-not-found': 'Correo o contraseña incorrectos.',
       'auth/wrong-password': 'Correo o contraseña incorrectos.',
       'auth/invalid-credential': 'Correo o contraseña incorrectos.',
+      'auth/invalid-login-credentials': 'Correo o contraseña incorrectos.',
       'auth/invalid-email': 'Ingresa un correo electrónico válido.',
       'auth/too-many-requests': 'Demasiados intentos fallidos. Intenta de nuevo más tarde.',
-      'auth/network-request-failed': 'Error de conexión. Verifica tu conexión a internet.'
+      'auth/network-request-failed': 'Error de conexión. Verifica tu conexión a internet.',
+      'auth/operation-not-allowed': 'El inicio de sesión con correo está deshabilitado. Contacta al administrador.',
+      'auth/user-disabled': 'Esta cuenta fue deshabilitada.',
+      'auth/internal-error': 'Ocurrió un error interno. Intenta de nuevo.',
+      'auth/invalid-persistence-type': 'Error de configuración. Intenta de nuevo.'
     };
-    return msgs[code] || 'No se pudo iniciar sesión. Intenta de nuevo.';
+    return msgs[code] || 'No se pudo iniciar sesión. Intenta de nuevo. (Código: ' + code + ')';
   }
 
   emailInput.addEventListener('input', function() { showError(emailInput, false); });
@@ -178,6 +183,7 @@ Iniciar sesión
         window.location.href = 'index.html';
       })
       .catch(function(err) {
+        console.error('Login error:', err);
         setLoading(false);
         loginError.textContent = authMessage(err);
         loginError.classList.remove('hidden');
