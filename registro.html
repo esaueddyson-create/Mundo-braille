@@ -182,7 +182,7 @@ Crear cuenta
     auth.createUserWithEmailAndPassword(email, pass)
       .then(function(userCredential) {
         var user = userCredential.user;
-        window.BrailleStore.setUser({ name: name, email: user.email, uid: user.uid });
+        window.BrailleStore.saveSession({ name: name, email: user.email, uid: user.uid });
         return db.collection('users').doc(user.uid).set({
           name: name,
           email: user.email,

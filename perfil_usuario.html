@@ -216,9 +216,7 @@ Cerrar sesión
 <script src="assets/js/app.js"></script>
 <script>
 (function() {
-  var raw = localStorage.getItem("bl_user") || sessionStorage.getItem("bl_user");
-  var user = null;
-  try { user = raw ? JSON.parse(raw) : null; } catch (e) {}
+  var user = window.BrailleStore ? window.BrailleStore.getSession() : null;
 
   var nameEl = document.getElementById('profile-name');
   var emailEl = document.getElementById('profile-email');
@@ -230,8 +228,7 @@ Cerrar sesión
   var logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function() {
-      try { localStorage.removeItem("bl_user"); } catch (e1) {}
-      try { sessionStorage.removeItem("bl_user"); } catch (e2) {}
+      if (window.BrailleStore) window.BrailleStore.clearSession();
       var auth = window.FirebaseApp && window.FirebaseApp.auth;
       var done = function() { window.location.href = 'login.html'; };
       if (auth) {

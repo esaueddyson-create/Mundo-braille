@@ -229,6 +229,29 @@ window.BrailleStore = {
   // App-specific state
   getUser: function() { return this.get("user"); },
   setUser: function(user) { this.set("user", user); },
+  saveSession: function(user) {
+    this.setUser(user);
+    try { sessionStorage.setItem("bl_user", JSON.stringify(user)); } catch (e1) {}
+    try { document.cookie = "bl_user=" + encodeURIComponent(JSON.stringify(user)) + "; path=/"; } catch (e2) {}
+  },
+  getSession: function() {
+    var raw = null;
+    try { raw = localStorage.getItem("bl_user"); } catch (e1) {}
+    if (!raw) { try { raw = sessionStorage.getItem("bl_user"); } catch (e2) {} }
+    if (!raw) {
+      try {
+        var m = document.cookie.match(/(?:^|;\s*)bl_user=([^;]*)/);
+        if (m) raw = decodeURIComponent(m[1]);
+      } catch (e3) {}
+    }
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch (e) { return null; }
+  },
+  clearSession: function() {
+    this.remove("user");
+    try { sessionStorage.removeItem("bl_user"); } catch (e1) {}
+    try { document.cookie = "bl_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"; } catch (e2) {}
+  },
   getProgress: function() { return this.get("progress") || { streak: 0, lessons: {} }; },
   setProgress: function(progress) { this.set("progress", progress); },
   completeLesson: function(lessonId) {

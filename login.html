@@ -173,17 +173,15 @@ Iniciar sesión
       })
       .then(function(userCredential) {
         var user = userCredential.user;
-        return db.collection('users').doc(user.uid).get().then(function(doc) {
-          var profile = doc.exists ? doc.data() : {};
-          return { name: profile.name || user.displayName || 'Aprendiz', email: user.email, uid: user.uid };
-        }).catch(function() {
-          return { name: 'Aprendiz', email: user.email, uid: user.uid };
-        });
-      })
-      .then(function(session) {
-        if (window.BrailleStore) window.BrailleStore.setUser(session);
-        try { sessionStorage.setItem('bl_user', JSON.stringify(session)); } catch (err2) {}
+        var session = { name: user.displayName || 'Aprendiz', email: user.email, uid: user.uid };
+        if (window.BrailleStore) window.BrailleStore.saveSession(session);
         window.location.href = 'index.html';
+        db.collection('users').doc(user.uid).get().then(function(doc) {
+          if (doc.exists && doc.data().name) {
+            session.name = doc.data().name;
+            if (window.BrailleStore) window.BrailleStore.saveSession(session);
+          }
+        }).catch(function() {});
       })
       .catch(function(err) {
         console.error('Login error:', err);
