@@ -151,10 +151,21 @@
   // ============ RENDER ============
   function renderBrailleCell(dots, size) {
     size = size || 'w-14 h-14';
+    var order = [0,3,1,4,2,5];
     var html = '<div class="grid grid-cols-2 gap-3 p-4 bg-surface-container rounded-2xl">';
-    for (var i = 0; i < 6; i++) {
+    for (var j = 0; j < 6; j++) {
+      var i = order[j];
       var active = dots[i] ? 'active' : '';
       html += '<div class="braille-dot-cell ' + active + ' ' + size + '"></div>';
+    }
+    return html + '</div>';
+  }
+
+  function renderBrailleCells(cells, size) {
+    size = size || 'w-10 h-10';
+    var html = '<div class="flex flex-wrap justify-center items-center gap-2">';
+    for (var c = 0; c < cells.length; c++) {
+      html += renderBrailleCell(cells[c], size);
     }
     return html + '</div>';
   }
@@ -240,7 +251,9 @@
     // Interactive Braille character card
     html += '<section class="bg-surface-container-lowest rounded-2xl custom-shadow border border-outline-variant/30 p-8 flex items-center justify-around">';
     html += '<div class="grid grid-cols-2 gap-3 p-4 bg-surface-container rounded-2xl" id="interactive-dots">';
-    for (var i = 0; i < 6; i++) {
+    var order = [0,3,1,4,2,5];
+    for (var j = 0; j < 6; j++) {
+      var i = order[j];
       html += '<div class="braille-dot-cell cursor-pointer hover:brightness-75 transition-all duration-150 w-14 h-14" data-idx="' + i + '"></div>';
     }
     html += '</div>';
@@ -276,11 +289,12 @@
 
     // Wire dot toggles
     var dots = document.querySelectorAll('#interactive-dots .braille-dot-cell');
-    dots.forEach(function(dot, idx) {
+    dots.forEach(function(dot) {
       dot.addEventListener('click', function() {
         if (verified) return;
-        userDots[idx] = userDots[idx] ? 0 : 1;
-        if (userDots[idx]) {
+        var di = parseInt(dot.dataset.idx, 10);
+        userDots[di] = userDots[di] ? 0 : 1;
+        if (userDots[di]) {
           dot.classList.add('active');
         } else {
           dot.classList.remove('active');
@@ -403,6 +417,9 @@
 
     // Question
     html += '<div class="text-center space-y-stack-sm">';
+    if (ex.cells) {
+      html += '<div class="flex justify-center mb-2">' + renderBrailleCells(ex.cells, 'w-9 h-9') + '</div>';
+    }
     html += '<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-primary leading-tight">' + ex.question + '</h2>';
     html += '<p class="text-body-md font-body-md text-on-surface-variant">' + ex.hint + '</p>';
     html += '</div>';
@@ -411,8 +428,8 @@
     html += '<div class="grid grid-cols-2 gap-gutter" id="options-grid">';
     for (var i = 0; i < ex.options.length; i++) {
       var opt = ex.options[i];
-      html += '<div class="option-card bg-surface-container-lowest rounded-2xl custom-shadow border-2 border-transparent p-8 flex flex-col justify-center items-center aspect-square cursor-pointer hover:border-outline transition-all" data-index="' + i + '">';
-      html += renderBrailleCell(opt.dots, 'w-10 h-10');
+      html += '<div class="option-card bg-surface-container-lowest rounded-2xl custom-shadow border-2 border-transparent p-4 flex flex-col justify-center items-center aspect-square cursor-pointer hover:border-outline transition-all" data-index="' + i + '">';
+      html += opt.cells ? renderBrailleCells(opt.cells, 'w-7 h-7') : renderBrailleCell(opt.dots, 'w-10 h-10');
       if (opt.label) {
         html += '<span class="mt-3 text-label-sm font-label-sm font-bold text-on-surface-variant">' + opt.label + '</span>';
       }

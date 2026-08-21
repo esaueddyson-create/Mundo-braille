@@ -382,13 +382,13 @@ window.ExerciseBank = {
     category: "numeros",
     label: "Números en Braille",
     progressCurrent: 1,
-    progressTotal: 4,
+    progressTotal: 34,
     character: "1",
     dots: [1,0,0,0,0,0],
     interactive: true,
-    description: 'Forma el número <b>1</b> activando el punto <b>1</b> del cajetín Braille (mismo patrón que la letra A).',
+    description: 'Forma el número <b>1</b> (como en la pantalla de Números: 🍎) activando los puntos correspondientes en el cajetín Braille.',
     audioLabel: "Escuchar pronunciación",
-    mnemonic: 'El <b>1</b> es el primer punto, en la esquina superior izquierda.',
+    mnemonic: 'Recuerda: el número <b>1</b> se muestra con 🍎 en la pantalla de Números.',
     next: "identificar-numero-1"
   },
 
@@ -397,17 +397,18 @@ window.ExerciseBank = {
     category: "numeros",
     label: "Números en Braille",
     progressCurrent: 2,
-    progressTotal: 4,
-    question: "¿Qué número representa este patrón?",
-    hint: "Observa los puntos activos en la celda Braille.",
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,0,0,0,0,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
     options: [
-      { dots: [1,0,0,0,0,0], label: "1" },
-      { dots: [1,0,1,0,0,0], label: "2" },
-      { dots: [1,1,0,0,0,0], label: "3" },
-      { dots: [0,1,1,0,0,0], label: "0" }
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0]], label: "1" },
+      { cells: [[0,0,1,1,1,1],[0,1,0,1,1,0]], label: "0" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0]], label: "2" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0]], label: "3" }
     ],
     correctIndex: 0,
-    successMessage: "¡Correcto! El patrón del número 1 es igual al de la letra A.",
+    successMessage: "¡Correcto! El número es 1 (🍎).",
     next: "leccion-numero-2"
   },
 
@@ -416,13 +417,13 @@ window.ExerciseBank = {
     category: "numeros",
     label: "Números en Braille",
     progressCurrent: 3,
-    progressTotal: 4,
+    progressTotal: 34,
     character: "2",
-    dots: [1,0,1,0,0,0],
+    dots: [1,1,0,0,0,0],
     interactive: true,
-    description: 'Forma el número <b>2</b> activando los puntos <b>1 y 2</b> del cajetín Braille.',
+    description: 'Forma el número <b>2</b> (como en la pantalla de Números: 🍌) activando los puntos correspondientes en el cajetín Braille.',
     audioLabel: "Escuchar pronunciación",
-    mnemonic: 'El <b>2</b> tiene dos puntos activos: el 1 y el 2.',
+    mnemonic: 'Recuerda: el número <b>2</b> se muestra con 🍌 en la pantalla de Números.',
     next: "identificar-numero-2"
   },
 
@@ -431,19 +432,581 @@ window.ExerciseBank = {
     category: "numeros",
     label: "Números en Braille",
     progressCurrent: 4,
-    progressTotal: 4,
-    question: "Identifica el número representado por los puntos activos 1 y 2",
-    hint: "¿Qué número tiene el mismo patrón que la letra B?",
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,1,0,0,0,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
     options: [
-      { dots: [1,0,0,0,0,0], label: "1" },
-      { dots: [0,1,1,1,0,0], label: "0" },
-      { dots: [1,0,1,0,0,0], label: "2" },
-      { dots: [1,1,0,0,0,0], label: "3" }
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0]], label: "2" },
+      { cells: [[0,0,1,1,1,1],[0,1,0,1,1,0]], label: "0" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0]], label: "1" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0]], label: "3" }
     ],
-    correctIndex: 2,
-    successMessage: "¡Muy bien! El número 2 comparte su patrón con la letra B.",
-    next: null
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 2 (🍌).",
+    next: "leccion-numero-3"
   },
+
+  "leccion-numero-3": {
+    mode: "lesson",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 5,
+    progressTotal: 34,
+    character: "3",
+    dots: [1,0,0,1,0,0],
+    interactive: true,
+    description: 'Forma el número <b>3</b> (como en la pantalla de Números: 🍇) activando los puntos correspondientes en el cajetín Braille.',
+    audioLabel: "Escuchar pronunciación",
+    mnemonic: 'Recuerda: el número <b>3</b> se muestra con 🍇 en la pantalla de Números.',
+    next: "identificar-numero-3"
+  },
+
+  "identificar-numero-3": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 6,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,0,0,1,0,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0]], label: "3" },
+      { cells: [[0,0,1,1,1,1],[0,1,0,1,1,0]], label: "0" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0]], label: "1" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0]], label: "2" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 3 (🍇).",
+    next: "leccion-numero-4"
+  },
+
+  "leccion-numero-4": {
+    mode: "lesson",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 7,
+    progressTotal: 34,
+    character: "4",
+    dots: [1,0,0,1,1,0],
+    interactive: true,
+    description: 'Forma el número <b>4</b> (como en la pantalla de Números: 🍓) activando los puntos correspondientes en el cajetín Braille.',
+    audioLabel: "Escuchar pronunciación",
+    mnemonic: 'Recuerda: el número <b>4</b> se muestra con 🍓 en la pantalla de Números.',
+    next: "identificar-numero-4"
+  },
+
+  "identificar-numero-4": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 8,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,0,0,1,1,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,1,0]], label: "4" },
+      { cells: [[0,0,1,1,1,1],[0,1,0,1,1,0]], label: "0" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0]], label: "1" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0]], label: "2" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 4 (🍓).",
+    next: "leccion-numero-5"
+  },
+
+  "leccion-numero-5": {
+    mode: "lesson",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 9,
+    progressTotal: 34,
+    character: "5",
+    dots: [1,0,0,0,1,0],
+    interactive: true,
+    description: 'Forma el número <b>5</b> (como en la pantalla de Números: 🌟) activando los puntos correspondientes en el cajetín Braille.',
+    audioLabel: "Escuchar pronunciación",
+    mnemonic: 'Recuerda: el número <b>5</b> se muestra con 🌟 en la pantalla de Números.',
+    next: "identificar-numero-5"
+  },
+
+  "identificar-numero-5": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 10,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,0,0,0,1,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,1,0]], label: "5" },
+      { cells: [[0,0,1,1,1,1],[0,1,0,1,1,0]], label: "0" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0]], label: "1" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0]], label: "2" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 5 (🌟).",
+    next: "leccion-numero-6"
+  },
+
+  "leccion-numero-6": {
+    mode: "lesson",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 11,
+    progressTotal: 34,
+    character: "6",
+    dots: [1,1,0,1,0,0],
+    interactive: true,
+    description: 'Forma el número <b>6</b> (como en la pantalla de Números: 🎈) activando los puntos correspondientes en el cajetín Braille.',
+    audioLabel: "Escuchar pronunciación",
+    mnemonic: 'Recuerda: el número <b>6</b> se muestra con 🎈 en la pantalla de Números.',
+    next: "identificar-numero-6"
+  },
+
+  "identificar-numero-6": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 12,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,1,0,1,0,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,1,0,1,0,0]], label: "6" },
+      { cells: [[0,0,1,1,1,1],[0,1,0,1,1,0]], label: "0" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0]], label: "1" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0]], label: "2" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 6 (🎈).",
+    next: "leccion-numero-7"
+  },
+
+  "leccion-numero-7": {
+    mode: "lesson",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 13,
+    progressTotal: 34,
+    character: "7",
+    dots: [1,1,0,1,1,0],
+    interactive: true,
+    description: 'Forma el número <b>7</b> (como en la pantalla de Números: 🌼) activando los puntos correspondientes en el cajetín Braille.',
+    audioLabel: "Escuchar pronunciación",
+    mnemonic: 'Recuerda: el número <b>7</b> se muestra con 🌼 en la pantalla de Números.',
+    next: "identificar-numero-7"
+  },
+
+  "identificar-numero-7": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 14,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,1,0,1,1,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,1,0,1,1,0]], label: "7" },
+      { cells: [[0,0,1,1,1,1],[0,1,0,1,1,0]], label: "0" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0]], label: "1" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0]], label: "2" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 7 (🌼).",
+    next: "leccion-numero-8"
+  },
+
+  "leccion-numero-8": {
+    mode: "lesson",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 15,
+    progressTotal: 34,
+    character: "8",
+    dots: [1,1,0,0,1,0],
+    interactive: true,
+    description: 'Forma el número <b>8</b> (como en la pantalla de Números: ⚽) activando los puntos correspondientes en el cajetín Braille.',
+    audioLabel: "Escuchar pronunciación",
+    mnemonic: 'Recuerda: el número <b>8</b> se muestra con ⚽ en la pantalla de Números.',
+    next: "identificar-numero-8"
+  },
+
+  "identificar-numero-8": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 16,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,1,0,0,1,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,1,0]], label: "8" },
+      { cells: [[0,0,1,1,1,1],[0,1,0,1,1,0]], label: "0" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0]], label: "1" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0]], label: "2" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 8 (⚽).",
+    next: "leccion-numero-9"
+  },
+
+  "leccion-numero-9": {
+    mode: "lesson",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 17,
+    progressTotal: 34,
+    character: "9",
+    dots: [0,1,0,1,0,0],
+    interactive: true,
+    description: 'Forma el número <b>9</b> (como en la pantalla de Números: 🍪) activando los puntos correspondientes en el cajetín Braille.',
+    audioLabel: "Escuchar pronunciación",
+    mnemonic: 'Recuerda: el número <b>9</b> se muestra con 🍪 en la pantalla de Números.',
+    next: "identificar-numero-9"
+  },
+
+  "identificar-numero-9": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 18,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[0,1,0,1,0,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[0,1,0,1,0,0]], label: "9" },
+      { cells: [[0,0,1,1,1,1],[0,1,0,1,1,0]], label: "0" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0]], label: "1" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0]], label: "2" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 9 (🍪).",
+    next: "leccion-numero-0"
+  },
+
+  "leccion-numero-0": {
+    mode: "lesson",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 19,
+    progressTotal: 34,
+    character: "0",
+    dots: [0,1,0,1,1,0],
+    interactive: true,
+    description: 'Forma el número <b>0</b> (el 0 no tiene ejemplos en la pantalla de Números) activando los puntos correspondientes en el cajetín Braille.',
+    audioLabel: "Escuchar pronunciación",
+    mnemonic: 'El <b>0</b> no tiene ejemplos en la pantalla de Números.',
+    next: "identificar-numero-0"
+  },
+
+  "identificar-numero-0": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 20,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[0,1,0,1,1,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[0,1,0,1,1,0]], label: "0" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0]], label: "1" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0]], label: "2" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0]], label: "3" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 0.",
+    next: "identificar-numero-10"
+  },
+
+  "identificar-numero-10": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 21,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,0,0,0,0,0],[0,1,0,1,1,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0],[0,1,0,1,1,0]], label: "10" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0],[1,1,0,0,0,0]], label: "22" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0],[1,0,0,0,1,0]], label: "35" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,1,0],[1,1,0,1,1,0]], label: "47" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 10.",
+    next: "identificar-numero-22"
+  },
+
+  "identificar-numero-22": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 22,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,1,0,0,0,0],[1,1,0,0,0,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0],[1,1,0,0,0,0]], label: "22" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0],[0,1,0,1,1,0]], label: "10" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0],[1,0,0,0,1,0]], label: "35" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,1,0],[1,1,0,1,1,0]], label: "47" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 22.",
+    next: "identificar-numero-35"
+  },
+
+  "identificar-numero-35": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 23,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,0,0,1,0,0],[1,0,0,0,1,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0],[1,0,0,0,1,0]], label: "35" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0],[0,1,0,1,1,0]], label: "10" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0],[1,1,0,0,0,0]], label: "22" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,1,0],[1,1,0,1,1,0]], label: "47" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 35.",
+    next: "identificar-numero-47"
+  },
+
+  "identificar-numero-47": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 24,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,0,0,1,1,0],[1,1,0,1,1,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,1,0],[1,1,0,1,1,0]], label: "47" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0],[0,1,0,1,1,0]], label: "10" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0],[1,1,0,0,0,0]], label: "22" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0],[1,0,0,0,1,0]], label: "35" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 47.",
+    next: "identificar-numero-58"
+  },
+
+  "identificar-numero-58": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 25,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,0,0,0,1,0],[1,1,0,0,1,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,1,0],[1,1,0,0,1,0]], label: "58" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0],[0,1,0,1,1,0]], label: "10" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0],[1,1,0,0,0,0]], label: "22" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0],[1,0,0,0,1,0]], label: "35" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 58.",
+    next: "identificar-numero-64"
+  },
+
+  "identificar-numero-64": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 26,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,1,0,1,0,0],[1,0,0,1,1,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,1,0,1,0,0],[1,0,0,1,1,0]], label: "64" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0],[0,1,0,1,1,0]], label: "10" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0],[1,1,0,0,0,0]], label: "22" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0],[1,0,0,0,1,0]], label: "35" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 64.",
+    next: "identificar-numero-73"
+  },
+
+  "identificar-numero-73": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 27,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,1,0,1,1,0],[1,0,0,1,0,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,1,0,1,1,0],[1,0,0,1,0,0]], label: "73" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0],[0,1,0,1,1,0]], label: "10" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0],[1,1,0,0,0,0]], label: "22" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0],[1,0,0,0,1,0]], label: "35" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 73.",
+    next: "identificar-numero-99"
+  },
+
+  "identificar-numero-99": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 28,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[0,1,0,1,0,0],[0,1,0,1,0,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[0,1,0,1,0,0],[0,1,0,1,0,0]], label: "99" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0],[0,1,0,1,1,0]], label: "10" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0],[1,1,0,0,0,0]], label: "22" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0],[1,0,0,0,1,0]], label: "35" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 99.",
+    next: "identificar-numero-105"
+  },
+
+  "identificar-numero-105": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 29,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,0,0,0,0,0],[0,1,0,1,1,0],[1,0,0,0,1,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0],[0,1,0,1,1,0],[1,0,0,0,1,0]], label: "105" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0],[1,0,0,1,1,0],[0,1,0,1,1,0]], label: "240" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0],[1,1,0,1,1,0],[1,1,0,0,1,0]], label: "378" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,1,0],[1,0,0,0,0,0],[1,1,0,0,0,0]], label: "512" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 105.",
+    next: "identificar-numero-240"
+  },
+
+  "identificar-numero-240": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 30,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,1,0,0,0,0],[1,0,0,1,1,0],[0,1,0,1,1,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0],[1,0,0,1,1,0],[0,1,0,1,1,0]], label: "240" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0],[0,1,0,1,1,0],[1,0,0,0,1,0]], label: "105" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0],[1,1,0,1,1,0],[1,1,0,0,1,0]], label: "378" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,1,0],[1,0,0,0,0,0],[1,1,0,0,0,0]], label: "512" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 240.",
+    next: "identificar-numero-378"
+  },
+
+  "identificar-numero-378": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 31,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,0,0,1,0,0],[1,1,0,1,1,0],[1,1,0,0,1,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0],[1,1,0,1,1,0],[1,1,0,0,1,0]], label: "378" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0],[0,1,0,1,1,0],[1,0,0,0,1,0]], label: "105" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0],[1,0,0,1,1,0],[0,1,0,1,1,0]], label: "240" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,1,0],[1,0,0,0,0,0],[1,1,0,0,0,0]], label: "512" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 378.",
+    next: "identificar-numero-512"
+  },
+
+  "identificar-numero-512": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 32,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,0,0,0,1,0],[1,0,0,0,0,0],[1,1,0,0,0,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,1,0],[1,0,0,0,0,0],[1,1,0,0,0,0]], label: "512" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0],[0,1,0,1,1,0],[1,0,0,0,1,0]], label: "105" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0],[1,0,0,1,1,0],[0,1,0,1,1,0]], label: "240" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0],[1,1,0,1,1,0],[1,1,0,0,1,0]], label: "378" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 512.",
+    next: "identificar-numero-684"
+  },
+
+  "identificar-numero-684": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 33,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[1,1,0,1,0,0],[1,1,0,0,1,0],[1,0,0,1,1,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[1,1,0,1,0,0],[1,1,0,0,1,0],[1,0,0,1,1,0]], label: "684" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0],[0,1,0,1,1,0],[1,0,0,0,1,0]], label: "105" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0],[1,0,0,1,1,0],[0,1,0,1,1,0]], label: "240" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0],[1,1,0,1,1,0],[1,1,0,0,1,0]], label: "378" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 684.",
+    next: "identificar-numero-999"
+  },
+
+  "identificar-numero-999": {
+    mode: "quiz",
+    category: "numeros",
+    label: "Números en Braille",
+    progressCurrent: 34,
+    progressTotal: 34,
+    cells: [[0,0,1,1,1,1],[0,1,0,1,0,0],[0,1,0,1,0,0],[0,1,0,1,0,0]],
+    question: "¿Qué número representan estos puntos Braille?",
+    hint: "Observa las celdas activas (el primer símbolo es el signo de número).",
+    options: [
+      { cells: [[0,0,1,1,1,1],[0,1,0,1,0,0],[0,1,0,1,0,0],[0,1,0,1,0,0]], label: "999" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,0,0,0],[0,1,0,1,1,0],[1,0,0,0,1,0]], label: "105" },
+      { cells: [[0,0,1,1,1,1],[1,1,0,0,0,0],[1,0,0,1,1,0],[0,1,0,1,1,0]], label: "240" },
+      { cells: [[0,0,1,1,1,1],[1,0,0,1,0,0],[1,1,0,1,1,0],[1,1,0,0,1,0]], label: "378" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! El número es 999.",
+    next: "null"
+  },
+
 
   // ==================== PALABRAS Y FRASES ====================
 
@@ -575,10 +1138,40 @@ window.CourseRouter = {
     "identificar-letra-b":  { page: "ejercicio_practica.html", course: "braille-basico", lesson: "leccion-letra-d" },
     "leccion-letra-d":      { page: "ejercicio_practica.html", course: "braille-basico", lesson: "identificar-letra-c" },
     "identificar-letra-c":  null,
-    "leccion-numero-1":     { page: "ejercicio_practica.html", course: "numeros",        lesson: "identificar-numero-1" },
-    "identificar-numero-1": { page: "ejercicio_practica.html", course: "numeros",        lesson: "leccion-numero-2" },
-    "leccion-numero-2":     { page: "ejercicio_practica.html", course: "numeros",        lesson: "identificar-numero-2" },
-    "identificar-numero-2": null,
+    "leccion-numero-1": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-1" },
+    "identificar-numero-1": { page: "ejercicio_practica.html", course: "numeros", lesson: "leccion-numero-2" },
+    "leccion-numero-2": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-2" },
+    "identificar-numero-2": { page: "ejercicio_practica.html", course: "numeros", lesson: "leccion-numero-3" },
+    "leccion-numero-3": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-3" },
+    "identificar-numero-3": { page: "ejercicio_practica.html", course: "numeros", lesson: "leccion-numero-4" },
+    "leccion-numero-4": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-4" },
+    "identificar-numero-4": { page: "ejercicio_practica.html", course: "numeros", lesson: "leccion-numero-5" },
+    "leccion-numero-5": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-5" },
+    "identificar-numero-5": { page: "ejercicio_practica.html", course: "numeros", lesson: "leccion-numero-6" },
+    "leccion-numero-6": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-6" },
+    "identificar-numero-6": { page: "ejercicio_practica.html", course: "numeros", lesson: "leccion-numero-7" },
+    "leccion-numero-7": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-7" },
+    "identificar-numero-7": { page: "ejercicio_practica.html", course: "numeros", lesson: "leccion-numero-8" },
+    "leccion-numero-8": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-8" },
+    "identificar-numero-8": { page: "ejercicio_practica.html", course: "numeros", lesson: "leccion-numero-9" },
+    "leccion-numero-9": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-9" },
+    "identificar-numero-9": { page: "ejercicio_practica.html", course: "numeros", lesson: "leccion-numero-0" },
+    "leccion-numero-0": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-0" },
+    "identificar-numero-0": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-10" },
+    "identificar-numero-10": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-22" },
+    "identificar-numero-22": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-35" },
+    "identificar-numero-35": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-47" },
+    "identificar-numero-47": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-58" },
+    "identificar-numero-58": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-64" },
+    "identificar-numero-64": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-73" },
+    "identificar-numero-73": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-99" },
+    "identificar-numero-99": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-105" },
+    "identificar-numero-105": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-240" },
+    "identificar-numero-240": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-378" },
+    "identificar-numero-378": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-512" },
+    "identificar-numero-512": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-684" },
+    "identificar-numero-684": { page: "ejercicio_practica.html", course: "numeros", lesson: "identificar-numero-999" },
+    "identificar-numero-999": null,
     "traducir-hola":  { page: "ejercicio_practica.html", course: "palabras", lesson: "traducir-mama" },
     "traducir-mama":  { page: "ejercicio_practica.html", course: "palabras", lesson: "traducir-sol" },
     "traducir-sol":   { page: "ejercicio_practica.html", course: "palabras", lesson: "traducir-abeja" },

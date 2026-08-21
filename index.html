@@ -48,31 +48,18 @@
 </head>
 <body class="bg-background text-on-background min-h-screen braille-pattern-bg">
 <!-- TopAppBar -->
-<header class="fixed top-0 left-0 right-0 z-50 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline shadow-sm flex items-center w-full px-container-margin h-16">
-<div class="flex items-center gap-4">
+<header class="fixed top-0 left-0 right-0 z-50 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline shadow-sm flex items-center justify-center w-full px-container-margin h-16">
+<div class="flex items-center gap-2">
+<img src="logo.jpg" alt="Logo Mundo Braille" class="w-8 h-8 rounded-full object-cover"/>
 <h1 class="text-title-md font-title-md font-extrabold text-primary dark:text-primary-fixed-dim">Mundo Braille</h1>
 </div>
 </header>
 <main class="pt-20 pb-32">
 <!-- Welcome Message Section -->
-<section class="px-container-margin mt-stack-md">
-<div class="flex flex-col gap-1">
+<section class="px-container-margin mt-stack-md text-center">
+<div class="flex flex-col gap-1 items-center">
 <span class="text-label-sm font-label-sm text-secondary uppercase tracking-wider">¡Hola, Aprendiz!</span>
 <h2 class="text-headline-lg-mobile font-headline-lg-mobile text-primary">Continúa tu camino</h2>
-</div>
-</section>
-<!-- Search Bar Section -->
-<section class="px-container-margin mt-stack-md">
-<div class="relative group">
-<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-<span class="material-symbols-outlined text-outline">search</span>
-</div>
-<input id="searchInput" class="w-full h-14 pl-12 pr-4 bg-surface-container-lowest border-2 border-outline-variant rounded-xl focus:border-primary focus:ring-0 text-body-md font-body-md transition-all placeholder:text-on-surface-variant" placeholder="&#xBF;Qu&#xE9; quieres aprender hoy?" type="text" autocomplete="off"/>
-</div>
-<div id="searchResults" class="hidden mt-4 space-y-4"></div>
-<div id="noResults" class="hidden px-4 py-8 text-center text-on-surface-variant">
-<p class="text-body-md font-body-md">No se encontraron resultados para "<span id="searchQuery"></span>"</p>
-<p class="text-label-md font-label-md mt-2">Intenta con otras palabras clave</p>
 </div>
 </section>
 <!-- Categories Horizontal Scroll (Interactive Carousel) -->
@@ -83,13 +70,6 @@
 </div>
 <div class="carousel-container relative overflow-hidden px-container-margin">
 <div class="carousel-track flex gap-gutter cursor-grab active:cursor-grabbing select-none">
-<!-- Category 1 -->
-<div class="carousel-item flex-shrink-0 w-40 active-scale group cursor-pointer" data-category="basico">
-<div class="w-full aspect-square bg-secondary-container rounded-2xl flex items-center justify-center mb-2 custom-shadow group-hover:shadow-md transition-shadow">
-<span class="material-symbols-outlined text-on-secondary-container text-[48px]" style="font-variation-settings: 'FILL' 1;">apps</span>
-</div>
-<p class="text-body-md font-body-md font-bold text-center text-on-surface">Braille Básico</p>
-</div>
 <!-- Category 2 -->
 <div class="carousel-item flex-shrink-0 w-40 active-scale group cursor-pointer" data-category="numeros">
 <div class="w-full aspect-square bg-primary-fixed rounded-2xl flex items-center justify-center mb-2 custom-shadow group-hover:shadow-md transition-shadow">
@@ -105,7 +85,7 @@
 <p class="text-body-md font-body-md font-bold text-center text-on-surface">Escritura</p>
 </div>
 <!-- Category: Alfabeto Braille -->
-<div class="carousel-item flex-shrink-0 w-40 active-scale group cursor-pointer" onclick="window.location.href='alfabeto_braille.html'">
+<div class="carousel-item flex-shrink-0 w-40 active-scale group cursor-pointer" data-category="alfabeto-braille">
 <div class="w-full aspect-square bg-secondary-container rounded-2xl flex items-center justify-center mb-2 custom-shadow group-hover:shadow-md transition-shadow">
 <span class="material-symbols-outlined text-on-secondary-container text-[48px]" style="font-variation-settings: 'FILL' 1;">abc</span>
 </div>
@@ -234,6 +214,8 @@
         var animationID = 0;
         var dragStarted = false;
         var movedDistance = 0;
+        var startY = 0;
+        var downTarget = null;
 
         function getTranslateX() {
           var style = window.getComputedStyle(track);
@@ -254,24 +236,38 @@
           return clamped;
         }
 
-        function onStart(clientX) {
+        function onStart(clientX, clientY, target) {
           isDragging = true;
           dragStarted = false;
           movedDistance = 0;
           startX = clientX;
+          startY = clientY || 0;
+          downTarget = target;
           currentTranslate = getTranslateX();
           track.classList.add('dragging');
           if (animationID) cancelAnimationFrame(animationID);
         }
 
-        function onMove(clientX) {
+        function onMove(clientX, clientY) {
           if (!isDragging) return;
-          var delta = clientX - startX;
-          movedDistance = Math.abs(delta);
-          if (movedDistance > 5) dragStarted = true;
-          currentTranslate = prevTranslate + delta;
+          var dx = clientX - startX;
+          var dy = (clientY || 0) - startY;
+          movedDistance = Math.sqrt(dx * dx + dy * dy);
+          if (movedDistance > 10) dragStarted = true;
+          currentTranslate = prevTranslate + dx;
           track.style.transform = 'translateX(' + currentTranslate + 'px)';
           track.style.transition = 'none';
+        }
+
+        function activateItem(item) {
+          if (!item) return;
+          if (item.dataset.category === 'alfabeto-braille') {
+            window.location.href = 'alfabeto_braille.html';
+          } else if (item.dataset.category === 'escritura') {
+            window.location.href = 'signos_puntuacion.html';
+          } else if (item.dataset.category === 'numeros') {
+            window.location.href = 'numeros_braille.html';
+          }
         }
 
         function onEnd() {
@@ -287,14 +283,19 @@
           var minScroll = -(track.scrollWidth - track.parentElement.clientWidth);
           var clampedSnap = Math.max(minScroll, Math.min(maxScroll, nearestSnap));
           setTranslateX(clampedSnap);
-          setTimeout(function() { dragStarted = false; movedDistance = 0; }, 50);
+          var wasDrag = dragStarted;
+          if (!wasDrag && downTarget) {
+            var item = downTarget.closest ? downTarget.closest('.carousel-item') : null;
+            if (item) activateItem(item);
+          }
+          setTimeout(function() { dragStarted = false; movedDistance = 0; downTarget = null; }, 50);
         }
 
-        track.addEventListener('touchstart', function(e) { onStart(e.touches[0].clientX); }, { passive: true });
-        document.addEventListener('touchmove', function(e) { if (!isDragging) return; onMove(e.touches[0].clientX); }, { passive: true });
+        track.addEventListener('touchstart', function(e) { onStart(e.touches[0].clientX, e.touches[0].clientY, e.target); }, { passive: true });
+        document.addEventListener('touchmove', function(e) { if (!isDragging) return; onMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
         document.addEventListener('touchend', function() { if (isDragging) onEnd(); }, { passive: true });
-        track.addEventListener('mousedown', function(e) { e.preventDefault(); onStart(e.clientX); });
-        document.addEventListener('mousemove', function(e) { if (!isDragging) return; onMove(e.clientX); });
+        track.addEventListener('mousedown', function(e) { e.preventDefault(); onStart(e.clientX, e.clientY, e.target); });
+        document.addEventListener('mousemove', function(e) { if (!isDragging) return; onMove(e.clientX, e.clientY); });
         document.addEventListener('mouseup', function() { if (isDragging) onEnd(); });
         track.addEventListener('wheel', function(e) {
           var delta = e.deltaX || e.deltaY;
@@ -304,15 +305,6 @@
           track.style.transition = 'transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
           setTranslateX(current - delta * 1.5);
         }, { passive: false });
-        track.addEventListener('click', function(e) {
-          var item = e.target.closest('.carousel-item');
-          if (!item || dragStarted) return;
-          if (item.dataset.category === 'basico') {
-            window.location.href = 'alfabeto_braille.html';
-            return;
-          }
-          openLesson(item.dataset.course, 'leccion-' + item.dataset.category, 0);
-        });
       }
 
       // --- Search/Filter Logic ---
@@ -385,6 +377,12 @@
       }
 
       function getCategoryURL(slug) {
+        if (slug === 'alfabeto-braille') {
+          return 'alfabeto_braille.html';
+        }
+        if (slug === 'numeros') {
+          return 'numeros_braille.html';
+        }
         var cat = window.CourseRouter && CourseRouter.categories[slug];
         if (cat) return 'ejercicio_practica.html?course=' + encodeURIComponent(cat.course) +
                           '&lesson=' + encodeURIComponent(cat.lesson) + '&progress=0';
