@@ -3,6 +3,21 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <title>Iniciar Sesión - Mundo Braille</title>
+<script>
+  (function() {
+    try {
+      var raw = localStorage.getItem("bl_user") || sessionStorage.getItem("bl_user");
+      if (!raw) {
+        var m = document.cookie.match(/(?:^|;\s*)bl_user=([^;]*)/);
+        if (m) raw = decodeURIComponent(m[1]);
+      }
+      if (raw) {
+        var u = JSON.parse(raw);
+        if (u && u.email) window.location.replace("index.html");
+      }
+    } catch (e) {}
+  })();
+</script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script src="assets/js/tailwind-config.js"></script>
 <link rel="stylesheet" href="assets/css/shared.css"/>
@@ -156,13 +171,13 @@ Iniciar sesión
 
     if (!ok) return;
 
-    var remember = document.getElementById('login-remember').checked;
     var auth = window.FirebaseApp.auth;
     var db = window.FirebaseApp.db;
 
     setLoading(true);
 
-    var requestedPersistence = remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
+    // Always use LOCAL persistence so the session survives app/browser restarts.
+    var requestedPersistence = firebase.auth.Auth.Persistence.LOCAL;
 
     auth.setPersistence(requestedPersistence)
       .catch(function() {

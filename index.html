@@ -8,29 +8,72 @@
 <link rel="stylesheet" href="assets/css/shared.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="assets/js/firebase-init.js"></script>
   <script>
     (function() {
-      try {
-        var raw = null;
-        try { raw = localStorage.getItem("bl_user"); } catch (e1) {}
-        if (!raw) { try { raw = sessionStorage.getItem("bl_user"); } catch (e2) {} }
-        if (!raw) {
-          try {
-            var m = document.cookie.match(/(?:^|;\s*)bl_user=([^;]*)/);
-            if (m) raw = decodeURIComponent(m[1]);
-          } catch (e3) {}
-        }
-        if (!raw) {
-          window.location.replace("login.html");
-          return;
-        }
-        var user = JSON.parse(raw);
-        if (!user || !user.email) {
-          window.location.replace("login.html");
-        }
-      } catch (e) {
-        window.location.replace("login.html");
+      function localRaw() {
+        try { return localStorage.getItem("bl_user"); } catch (e1) {}
+        return null;
       }
+      function sessionRaw() {
+        try { return sessionStorage.getItem("bl_user"); } catch (e2) {}
+        return null;
+      }
+      function cookieRaw() {
+        try {
+          var m = document.cookie.match(/(?:^|;\s*)bl_user=([^;]*)/);
+          return m ? decodeURIComponent(m[1]) : null;
+        } catch (e3) { return null; }
+      }
+      function validSession(raw) {
+        if (!raw) return false;
+        try {
+          var u = JSON.parse(raw);
+          return !!(u && typeof u.email === "string" && u.email);
+        } catch (e) { return false; }
+      }
+
+      // 1) Fast local check (localStorage / sessionStorage / cookie)
+      if (validSession(localRaw()) || validSession(sessionRaw()) || validSession(cookieRaw())) {
+        return;
+      }
+
+      // 2) Fallback: restore from Firebase persistent (LOCAL) auth session
+      var auth = window.FirebaseApp && window.FirebaseApp.auth;
+      if (auth && auth.onAuthStateChanged) {
+        var resolved = false;
+        var timer = setTimeout(function() {
+          if (!resolved) { resolved = true; window.location.replace("login.html"); }
+        }, 5000);
+        auth.onAuthStateChanged(function(user) {
+          if (resolved) return;
+          resolved = true;
+          clearTimeout(timer);
+          if (user && user.email) {
+            var restored = {
+              name: user.displayName || "Aprendiz",
+              email: user.email,
+              uid: user.uid
+            };
+            try {
+              if (window.BrailleStore && window.BrailleStore.saveSession) {
+                window.BrailleStore.saveSession(restored);
+              } else {
+                localStorage.setItem("bl_user", JSON.stringify(restored));
+              }
+            } catch (e) {}
+          } else {
+            window.location.replace("login.html");
+          }
+        });
+        return;
+      }
+
+      // 3) No session anywhere
+      window.location.replace("login.html");
     })();
   </script>
   <style>
