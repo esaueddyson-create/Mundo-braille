@@ -212,6 +212,15 @@
 
 // --- Shared Store (localStorage-based) ---
 window.BrailleStore = {
+  // How long the backup cookie persists (1 year) so the session survives
+  // browser/app restarts even if localStorage is wiped.
+  SESSION_COOKIE_MAX_AGE: 60 * 60 * 24 * 365,
+
+  hasSession: function() {
+    var s = this.getSession();
+    return !!(s && s.email);
+  },
+
   set: function(key, value) {
     try { localStorage.setItem("bl_" + key, JSON.stringify(value)); } catch (e) {}
   },
@@ -232,7 +241,11 @@ window.BrailleStore = {
   saveSession: function(user) {
     this.setUser(user);
     try { sessionStorage.setItem("bl_user", JSON.stringify(user)); } catch (e1) {}
-    try { document.cookie = "bl_user=" + encodeURIComponent(JSON.stringify(user)) + "; path=/"; } catch (e2) {}
+    try {
+      var expires = new Date(Date.now() + this.SESSION_COOKIE_MAX_AGE * 1000).toUTCString();
+      document.cookie = "bl_user=" + encodeURIComponent(JSON.stringify(user)) +
+        "; path=/; max-age=" + this.SESSION_COOKIE_MAX_AGE + "; expires=" + expires + "; SameSite=Lax";
+    } catch (e2) {}
   },
   getSession: function() {
     var raw = null;
@@ -252,9 +265,60 @@ window.BrailleStore = {
     try { sessionStorage.removeItem("bl_user"); } catch (e1) {}
     try { document.cookie = "bl_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"; } catch (e2) {}
   },
-  getProgress: function() { return this.get("progress") || { streak: 0, lessons: {} }; },
-  setProgress: function(progress) { this.set("progress", progress); },
-  completeLesson: function(lessonId) {
+getProgress: function() {
+      var p = this.get("progress") || { streak: 0, lessons: {} };
+      if (p.totalPoints == null) p.totalPoints = 0;
+      if (!p.badges) p.badges = [];
+      if (!p.level) p.level = 0;
+      return p;
+    },
+    setProgress: function(progress) { this.set("progress", progress); },
+    getLevel: function(points) {
+      var p = Math.max(0, points || 0);
+      if (p <= 100) return { level: 0, name: "Principiante", icon: "🌱", min: 0, max: 100 };
+      if (p <= 250) return { level: 1, name: "Explorador", icon: "🔎", min: 101, max: 250 };
+      if (p <= 500) return { level: 2, name: "Aprendiz", icon: "📚", min: 251, max: 500 };
+      if (p <= 800) return { level: 3, name: "Practicante", icon: "✏️", min: 501, max: 800 };
+      if (p <= 1200) return { level: 4, name: "Estudiante Braille", icon: "🎓", min: 801, max: 1200 };
+      if (p <= 1700) return { level: 5, name: "Experto", icon: "⭐", min: 1201, max: 1700 };
+      if (p <= 2500) return { level: 6, name: "Maestro Braille", icon: "🏆", min: 1701, max: 2500 };
+      if (p <= 3500) return { level: 7, name: "Maestro Avanzado", icon: "💎", min: 2501, max: 3500 };
+      if (p <= 5000) return { level: 8, name: "Gran Maestro Braille", icon: "👑", min: 3501, max: 5000 };
+      return { level: 9, name: "Leyenda Braille", icon: "👑", min: 5001, max: Infinity };
+    },
+    getLevelInfo: function(points) {
+      var p = Math.max(0, points || 0);
+      var info = this.getLevel(p);
+      if (info.max === Infinity) return Object.assign({}, info, { percent: 100 });
+      var range = info.max - info.min;
+      var current = p - info.min;
+      var percent = range <= 0 ? 100 : Math.min(Math.round((current / range) * 100), 100);
+      if (percent < 0) percent = 0;
+      if (percent > 100) percent = 100;
+      return Object.assign({}, info, { percent: percent });
+    },
+    addPoints: function(pts) {
+      var p = this.getProgress();
+      p.totalPoints = (p.totalPoints || 0) + pts;
+      var info = this.getLevelInfo(p.totalPoints);
+      p.level = info.level;
+      this.setProgress(p);
+      return p;
+    },
+    getBadges: function() {
+      var p = this.getProgress();
+      return p.badges || [];
+    },
+    addBadge: function(badgeId) {
+      var p = this.getProgress();
+      if (!p.badges) p.badges = [];
+      if (p.badges.indexOf(badgeId) === -1) {
+        p.badges.push(badgeId);
+        this.setProgress(p);
+      }
+      return p.badges;
+    },
+    completeLesson: function(lessonId) {
     var p = this.getProgress();
     p.lessons[lessonId] = { completed: true, date: new Date().toISOString() };
     p.streak = (p.streak || 0) + 1;
@@ -1004,7 +1068,7 @@ window.ExerciseBank = {
     ],
     correctIndex: 0,
     successMessage: "¡Correcto! El número es 999.",
-    next: "null"
+    next: null
   },
 
 
@@ -1021,9 +1085,9 @@ window.ExerciseBank = {
     displayLabel: "¿Qué palabra es?",
     answer: "hola",
     braille: [
-      [1,0,1,1,0,0],
-      [1,0,0,1,1,0],
+      [1,1,0,0,1,0],
       [1,0,1,0,1,0],
+      [1,1,1,0,0,0],
       [1,0,0,0,0,0]
     ],
     successMessage: "¡Excelente! Has traducido 'hola' correctamente.",
@@ -1041,9 +1105,9 @@ window.ExerciseBank = {
     displayLabel: "¿Qué palabra es?",
     answer: "mama",
     braille: [
-      [1,1,0,0,1,0],
+      [1,0,1,1,0,0],
       [1,0,0,0,0,0],
-      [1,1,0,0,1,0],
+      [1,0,1,1,0,0],
       [1,0,0,0,0,0]
     ],
     successMessage: "¡Correcto! Has traducido 'mamá' (mama).",
@@ -1061,9 +1125,9 @@ window.ExerciseBank = {
     displayLabel: "¿Qué palabra es?",
     answer: "sol",
     braille: [
-      [0,1,1,0,1,0],
-      [1,0,0,1,1,0],
-      [1,0,1,0,1,0]
+      [0,1,1,1,0,0],
+      [1,0,1,0,1,0],
+      [1,1,1,0,0,0]
     ],
     successMessage: "¡Muy bien! 'Sol' se escribe así en Braille.",
     next: "traducir-abeja"
@@ -1081,9 +1145,9 @@ window.ExerciseBank = {
     answer: "abeja",
     braille: [
       [1,0,0,0,0,0],
-      [1,0,1,0,0,0],
-      [1,0,0,1,0,0],
-      [1,1,0,1,0,0],
+      [1,1,0,0,0,0],
+      [1,0,0,0,1,0],
+      [0,1,0,1,1,0],
       [1,0,0,0,0,0]
     ],
     successMessage: "¡Perfecto! Has completado todos los ejercicios de palabras.",
@@ -1091,7 +1155,8 @@ window.ExerciseBank = {
   }
 };
 
-// --- Alfabeto Braille (A-Z) tabla compartida ---
+// --- Alfabeto Braille (A-Z + Ñ) tabla compartida - FUENTE ÚNICA DE VERDAD ---
+// Esta es la única definición de equivalencias letra → dots. Alfabeto Braille y Reto del día deben usarla.
 window.BrailleAlphabet = [
   { letter: "A", dots: [1,0,0,0,0,0] },
   { letter: "B", dots: [1,1,0,0,0,0] },
@@ -1118,15 +1183,47 @@ window.BrailleAlphabet = [
   { letter: "W", dots: [0,1,0,1,1,1] },
   { letter: "X", dots: [1,0,1,1,0,1] },
   { letter: "Y", dots: [1,0,1,1,1,1] },
-  { letter: "Z", dots: [1,0,1,0,1,1] }
+  { letter: "Z", dots: [1,0,1,0,1,1] },
+  { letter: "Ñ", dots: [1,1,1,1,1,1] }
 ];
+
+// --- Números Braille (0-9) tabla compartida - espejo de Alfabeto ---
+window.BrailleNumbers = [
+  { number: "1", dots: [1,0,0,0,0,0] },
+  { number: "2", dots: [1,1,0,0,0,0] },
+  { number: "3", dots: [1,0,0,1,0,0] },
+  { number: "4", dots: [1,0,0,1,1,0] },
+  { number: "5", dots: [1,0,0,0,1,0] },
+  { number: "6", dots: [1,1,0,1,0,0] },
+  { number: "7", dots: [1,1,0,1,1,0] },
+  { number: "8", dots: [1,1,0,0,1,0] },
+  { number: "9", dots: [0,1,0,1,0,0] },
+  { number: "0", dots: [0,1,0,1,1,0] }
+];
+
+// --- Palabras y Frases Braille - generadas desde BrailleAlphabet (fuente de verdad) ---
+window.BrailleWords = (function(){
+  var map = {};
+  window.BrailleAlphabet.forEach(function(e){ map[e.letter] = e.dots; });
+  function wordToBraille(w){
+    return w.toUpperCase().split('').map(function(ch){
+      // Solo A-Z tienen equivalencia; espacio se ignora
+      return map[ch] || null;
+    }).filter(Boolean);
+  }
+  // Lista curada: solo letras A-Z, sin tildes/ñ, correcta según alfabeto
+  var list = ["hola","mama","sol","abeja","casa","luz","pan","mesa","libro","agua"];
+  return list.map(function(w){
+    return { word: w, braille: wordToBraille(w) };
+  });
+})();
 
 // --- Course Router (centralized navigation) ---
 window.CourseRouter = {
   categories: {
     "alfabeto":  { page: "ejercicio_practica.html", course: "braille-basico", lesson: "alphabet-eval" },
-    "numeros":   { page: "ejercicio_practica.html", course: "numeros",        lesson: "leccion-numero-1" },
-    "palabras":  { page: "ejercicio_practica.html", course: "palabras",       lesson: "traducir-hola" },
+    "numeros":   { page: "ejercicio_practica.html", course: "numeros",        lesson: "numeros-eval" },
+    "palabras":  { page: "ejercicio_practica.html", course: "palabras",       lesson: "palabras-eval" },
     "lectura":   { page: "ejercicio_practica.html", course: "braille-basico", lesson: "leccion-letra-b" },
     "escritura": { page: "ejercicio_practica.html", course: "braille-basico", lesson: "identificar-letra-a" }
   },

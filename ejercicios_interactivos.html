@@ -3,31 +3,91 @@
 <html class="light" lang="es"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Mundo Braille - Ejercicios Interactivos</title>
+<title>Mundo Braille - Ejercicios</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script src="assets/js/tailwind-config.js"></script>
 <link rel="stylesheet" href="assets/css/shared.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;0,800;1,400&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <style>
-    .custom-scroll::-webkit-scrollbar {
-      width: 4px;
+    body { min-height: max(884px, 100dvh); }
+    .braille-cell-dot {
+        width: 22px; height: 22px; border-radius: 50%;
+        background: #fff8e1;
+        box-shadow: inset 1px 1px 2px rgba(0,0,0,0.06), 1px 1px 1px rgba(255,255,255,0.8);
+        transition: all 0.15s ease;
+        cursor: pointer;
+        border: 2px solid #ffcc80;
     }
-    .custom-scroll::-webkit-scrollbar-track {
-      background: transparent;
+    .braille-cell-dot:hover {
+        border-color: #ffb74d;
+        transform: scale(1.15);
+        box-shadow: 0 0 8px rgba(255,183,77,0.3);
     }
-    .custom-scroll::-webkit-scrollbar-thumb {
-      background: #dcd9d9;
-      border-radius: 10px;
+    .braille-cell-dot.active {
+        background: #ff8f00;
+        box-shadow: 0 2px 6px rgba(255,143,0,0.3);
+        border-color: #ff8f00;
     }
-  </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
+    .braille-cell-dot.on-dark {
+        background: rgba(255,248,225,0.12);
+        border-color: rgba(255,204,128,0.35);
+        box-shadow: inset 1px 1px 2px rgba(0,0,0,0.15);
     }
-  </style>
+    .braille-cell-dot.on-dark:hover {
+        border-color: #ffcc80;
+        background: rgba(255,204,128,0.18);
+        box-shadow: 0 0 8px rgba(255,204,128,0.15);
+    }
+    .braille-cell-dot.on-dark.active {
+        background: #ffab40;
+        border-color: #ffab40;
+        box-shadow: 0 0 12px rgba(255,171,64,0.25);
+    }
+    .dot-label { font-size:10px; color:#ffb74d; font-weight:700; text-align:center; pointer-events:none; position:absolute; bottom:-14px; left:50%; transform:translateX(-50%); }
+    .braille-cell-dot.on-dark .dot-label { color:#ffe0b2; }
+    .braille-cell-dot { position:relative; padding-bottom:14px; }
+    .braille-cell-grid { display:inline-grid; grid-template-columns:1fr 1fr; gap:6px; padding:20px; border-radius:16px; border:2px solid #ffcc80; background:#fff8e1; }
+    .braille-cell-grid.on-dark { background:rgba(255,248,225,0.06); border-color:rgba(255,204,128,0.25); }
+    .fade-in { animation: fadeIn 0.5s ease-out both; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .hero-glow { position: relative; overflow: hidden; }
+    .hero-glow::before { content:''; position:absolute; top:-50%; right:-30%; width:200px; height:200px; border-radius:50%; background:rgba(255,183,77,0.08); }
+    .hero-glow::after { content:''; position:absolute; bottom:-20%; left:-10%; width:140px; height:140px; border-radius:50%; background:rgba(255,248,225,0.06); }
+    .progress-fill { transition: width 1s ease; }
+    .card-hover { transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1); }
+    .card-hover:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,6,19,0.12); }
+    .btn-primary { background:#ff8f00; color:#ffffff; font-weight:700; padding:12px 24px; border-radius:12px; border:none; cursor:pointer; transition:all 0.15s; }
+    .btn-primary:hover { filter:brightness(1.1); }
+    .btn-primary:active { transform:scale(0.97); }
+    .btn-outline-reto { background:transparent; border:2px solid #ff8f00; color:#ff8f00; font-weight:700; padding:12px 24px; border-radius:12px; cursor:pointer; transition:all 0.15s; }
+    .btn-outline-reto:hover { background:#ff8f00; color:#ffffff; }
+    .btn-outline-reto:active { transform:scale(0.97); }
+    .stat-card { transition: all 0.2s; }
+    .stat-card:hover { transform:scale(1.03); }
+    .input-field { width:100%; padding:12px 16px; background:#e5e2e1; border:2px solid #c4c6cf; border-radius:12px; font-family:'Atkinson Hyperlegible Next',sans-serif; font-size:16px; color:#1c1b1b; transition:border-color 0.2s; }
+    .input-field:focus { outline:none; border-color:#000613; }
+    .input-field::placeholder { color:#43474e; }
+    textarea.input-field { resize:vertical; min-height:80px; }
+    select.input-field { appearance:none; cursor:pointer; }
+    .activity-item { transition: all 0.2s; }
+    .activity-item:hover { box-shadow: 0 4px 16px rgba(0,6,19,0.1); }
+    .section-title { font-family:'Atkinson Hyperlegible Next',sans-serif; font-weight:800; }
+    .hero-bg { background: linear-gradient(135deg, #ffecda 0%, #ffe0b2 50%, #ffcc80 100%); }
+    /* Pop-up felicitación Reto del día */
+    #reto-popup { display:none; }
+    #reto-popup.show { display:flex; animation: retoPopIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+    #reto-popup.hide { animation: retoPopOut 0.25s ease both; }
+    @keyframes retoPopIn { from{opacity:0; transform:scale(0.8);} to{opacity:1; transform:scale(1);} }
+    @keyframes retoPopOut { from{opacity:1; transform:scale(1);} to{opacity:0; transform:scale(0.85);} }
+    @keyframes retoBounce { 0%,100%{transform:translateY(0) scale(1);} 50%{transform:translateY(-6px) scale(1.08);} }
+    .reto-popup-icon { animation: retoBounce 0.9s ease 0.3s 2; }
+    @keyframes confettiFall { 0%{transform: translateY(-20px) rotate(0deg); opacity:1;} 100%{transform: translateY(120px) rotate(360deg); opacity:0;} }
+    .confetti { position:absolute; font-size:18px; animation: confettiFall 1.1s ease-out forwards; pointer-events:none; }
+</style>
 </head>
 <body class="bg-background text-on-surface min-h-screen pb-24 braille-pattern-bg">
+
 <!-- TopAppBar -->
 <header class="bg-surface border-b border-outline-variant fixed top-0 w-full z-50 shadow-sm flex items-center justify-center px-container-margin h-16">
 <div class="flex items-center gap-2">
@@ -35,110 +95,744 @@
 <h1 class="text-title-md font-title-md font-extrabold text-primary">Mundo Braille</h1>
 </div>
 </header>
+
 <main class="pt-20 px-container-margin max-w-4xl mx-auto space-y-stack-lg">
-<!-- Welcome / Hero -->
-<section>
-<div class="relative overflow-hidden rounded-3xl p-7 custom-shadow bg-gradient-to-br from-primary to-primary-container text-on-primary">
-<div class="pointer-events-none absolute -right-10 -top-10 w-40 h-40 rounded-full bg-white/10"></div>
-<div class="pointer-events-none absolute -left-6 bottom-0 w-24 h-24 rounded-full bg-white/5"></div>
-<div class="relative flex items-center gap-5">
-<div class="w-16 h-16 rounded-2xl bg-white/15 flex items-center justify-center backdrop-blur">
-<span class="material-symbols-outlined text-[34px]" style="font-variation-settings: 'FILL' 1;">explore</span>
+
+<!-- ========== RETO DEL DIA ========== -->
+<section class="fade-in" style="animation-delay:0s">
+<div class="flex items-center gap-2 mb-stack-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; color:#ff8f00;">auto_awesome</span>
+<h2 class="text-title-md font-title-md section-title" style="color:#ff8f00;">Reto del dia</h2>
 </div>
-<div>
-<h2 class="text-headline-lg-mobile font-headline-lg-mobile font-extrabold">Ejercicios Interactivos</h2>
-<p class="text-body-md font-body-md text-on-primary/80 mt-1">Practica y domina el sistema Braille con estas actividades.</p>
+<div class="hero-glow hero-bg rounded-3xl p-6 md:p-8 custom-shadow-lg">
+<div class="flex flex-col md:flex-row md:items-center gap-6">
+<div class="flex-1">
+<p class="text-label-sm font-label-sm text-on-surface-variant/80 uppercase tracking-wider mb-2">Desafio de hoy</p>
+<h3 class="text-headline-lg-mobile font-headline-lg-mobile section-title mb-1" style="color:#3e2723;">Identifica el Braille</h3>
+<p class="text-body-md font-body-md text-on-surface-variant/80 mb-4">Observa las cajetillas Braille y escribe la palabra correcta</p>
+<div class="flex items-center gap-3">
+<div class="bg-white/50 backdrop-blur rounded-full px-4 py-2 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-on-surface-variant text-lg" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-on-surface-variant font-bold" id="reto-puntos">+50</span>
+</div>
+<div class="bg-white/50 backdrop-blur rounded-full px-4 py-2 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-on-surface-variant text-lg" style="font-variation-settings: 'FILL' 1;">timer</span>
+<span class="text-on-surface-variant font-bold" id="reto-timer">30s</span>
 </div>
 </div>
+</div>
+<div class="flex flex-col items-center gap-3">
+<div id="reto-hint-text" class="text-body-md font-body-md font-bold mb-1" style="color:#4e342e;"></div>
+<div id="reto-palabra-label" class="hidden text-2xl font-extrabold tracking-widest text-primary mb-1">CASA</div>
+<div id="reto-word-display" class="flex flex-wrap gap-2 justify-center items-center min-h-[90px]">
+</div>
+<div id="reto-input-wrap" class="w-full max-w-[320px]">
+<input id="reto-palabra-input" type="text" class="input-field text-center !bg-white text-lg font-bold tracking-wide" placeholder="Escribe la palabra" autocomplete="off" aria-label="Palabra del reto" />
+</div>
+<div class="flex gap-3 w-full md:w-auto">
+<button id="btn-verificar" class="btn-primary flex-1 md:flex-none">Comprobar</button>
+</div>
+</div>
+</div>
+<div id="reto-feedback" class="mt-4 text-center min-h-[1.5rem]"></div>
 </div>
 </section>
-<!-- Exercises Grid -->
-<section class="space-y-stack-md">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary">grid_view</span>
-<h2 class="text-title-md font-title-md text-primary">Categorías de Ejercicio</h2>
+
+<!-- ========== LABORATORIO BRAILLE ========== -->
+<section class="fade-in" style="animation-delay:0.1s">
+<div class="flex items-center gap-2 mb-stack-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">science</span>
+<h2 class="text-title-md font-title-md section-title text-primary">Laboratorio Braille</h2>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-<!-- Alfabeto Card -->
-<div class="group relative bg-surface-container-lowest rounded-3xl p-6 tactile-card flex flex-col gap-4 border border-outline-variant/40 cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg active:scale-[0.98]" data-category="alfabeto" onclick="CourseRouter.openCategory('alfabeto')">
-<div class="w-14 h-14 rounded-2xl bg-secondary-container flex items-center justify-center text-on-secondary-container shadow-sm">
-<span class="material-symbols-outlined text-[30px]" style="font-variation-settings: 'FILL' 1;">abc</span>
+<!-- Alfabeto -->
+<div class="activity-card bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/30 cursor-pointer card-hover" onclick="window.location.href='ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=0'">
+<div class="w-14 h-14 rounded-2xl bg-secondary-container flex items-center justify-center text-on-secondary-container mb-4 shadow-sm">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">abc</span>
 </div>
-<div class="flex-1">
-<h4 class="text-title-md font-title-md text-primary">Alfabeto</h4>
-<p class="text-body-md font-body-md text-on-surface-variant mt-1">Aprende las letras del alfabeto Braille con lecciones y ejercicios interactivos.</p>
-</div>
-<div class="flex items-center justify-between pt-3 border-t border-surface-container">
-<span class="inline-flex items-center gap-1 text-label-sm font-label-sm text-on-secondary-container bg-secondary-container/40 px-3 py-1 rounded-full">26 actividades</span>
-<span class="material-symbols-outlined text-primary transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+<h3 class="text-title-md font-title-md section-title text-primary mb-1">Alfabeto</h3>
+<p class="text-body-md font-body-md text-on-surface-variant mb-3">Practica las 26 letras del sistema Braille</p>
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm text-on-surface-variant" id="lab-alfabeto-count">Cargando...</span>
+<span class="material-symbols-outlined text-primary">arrow_forward</span>
 </div>
 </div>
-<!-- Números Card -->
-<div class="group relative bg-surface-container-lowest rounded-3xl p-6 tactile-card flex flex-col gap-4 border border-outline-variant/40 cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg active:scale-[0.98]" data-category="numeros" onclick="CourseRouter.openCategory('numeros')">
-<div class="w-14 h-14 rounded-2xl bg-primary-fixed flex items-center justify-center text-on-primary-fixed shadow-sm">
-<span class="material-symbols-outlined text-[30px]" style="font-variation-settings: 'FILL' 1;">123</span>
+<!-- Numeros -->
+<div class="activity-card bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/30 cursor-pointer card-hover" onclick="window.location.href='ejercicio_practica.html?course=numeros&lesson=numeros-eval&i=0'">
+<div class="w-14 h-14 rounded-2xl bg-primary-fixed flex items-center justify-center text-on-primary-fixed mb-4 shadow-sm">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">123</span>
 </div>
-<div class="flex-1">
-<h4 class="text-title-md font-title-md text-primary">Números</h4>
-<p class="text-body-md font-body-md text-on-surface-variant mt-1">Domina los números en Braille mediante lecciones y práctica guiada.</p>
-</div>
-<div class="flex items-center justify-between pt-3 border-t border-surface-container">
-<span class="inline-flex items-center gap-1 text-label-sm font-label-sm text-on-primary-fixed bg-primary-fixed/50 px-3 py-1 rounded-full">34 actividades</span>
-<span class="material-symbols-outlined text-primary transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+<h3 class="text-title-md font-title-md section-title text-primary mb-1">Numeros</h3>
+<p class="text-body-md font-body-md text-on-surface-variant mb-3">Domina los numeros del sistema Braille</p>
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm text-on-surface-variant" id="lab-numeros-count">Cargando...</span>
+<span class="material-symbols-outlined text-primary">arrow_forward</span>
 </div>
 </div>
-<!-- Palabras Card -->
-<div class="group relative bg-surface-container-lowest rounded-3xl p-6 tactile-card flex flex-col gap-4 border border-outline-variant/40 cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg active:scale-[0.98]" data-category="palabras" onclick="CourseRouter.openCategory('palabras')">
-<div class="w-14 h-14 rounded-2xl bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed shadow-sm">
-<span class="material-symbols-outlined text-[30px]" style="font-variation-settings: 'FILL' 1;">translate</span>
+<!-- Palabras -->
+<div class="activity-card bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/30 cursor-pointer card-hover" onclick="window.location.href='ejercicio_practica.html?course=palabras&lesson=palabras-eval&i=0'">
+<div class="w-14 h-14 rounded-2xl bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed mb-4 shadow-sm">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">translate</span>
 </div>
-<div class="flex-1">
-<h4 class="text-title-md font-title-md text-primary">Palabras y Frases</h4>
-<p class="text-body-md font-body-md text-on-surface-variant mt-1">Traduce palabras escritas en Braille a texto convencional.</p>
-</div>
-<div class="flex items-center justify-between pt-3 border-t border-surface-container">
-<span class="inline-flex items-center gap-1 text-label-sm font-label-sm text-on-secondary-fixed bg-secondary-fixed/50 px-3 py-1 rounded-full">4 Actividades</span>
-<span class="material-symbols-outlined text-primary transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+<h3 class="text-title-md font-title-md section-title text-primary mb-1">Palabras</h3>
+<p class="text-body-md font-body-md text-on-surface-variant mb-3">Traduce palabras de texto a Braille</p>
+<div class="flex items-center justify-between">
+<span class="text-label-sm font-label-sm text-on-surface-variant" id="lab-palabras-count">Cargando...</span>
+<span class="material-symbols-outlined text-primary">arrow_forward</span>
 </div>
 </div>
 </div>
 </section>
 
+<!-- ========== MI PROGRESO ========== -->
+<section class="fade-in" style="animation-delay:0.2s">
+<div class="flex items-center gap-2 mb-stack-sm">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+<h2 class="text-title-md font-title-md section-title text-primary">Mi progreso</h2>
+</div>
+<div class="bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/30">
+<!-- Nivel y puntos -->
+<div class="flex items-center justify-between mb-6">
+<div>
+<p class="text-label-sm font-label-sm text-on-surface-variant" id="prog-level-label">Nivel</p>
+<h3 class="text-headline-lg-mobile font-headline-lg-mobile section-title" id="prog-level-name" style="color:#ff8f00;">🌱 Principiante</h3>
+</div>
+<div class="text-right">
+<p class="text-label-sm font-label-sm text-on-surface-variant">Puntos totales</p>
+<p class="text-headline-lg-mobile font-headline-lg-mobile section-title text-primary" id="prog-total-points">0</p>
+</div>
+</div>
+<!-- Barra de progreso del nivel -->
+<div class="mb-6">
+<div class="flex justify-between mb-1">
+<span class="text-label-sm font-label-sm text-on-surface-variant" id="prog-level-range">0–100</span>
+<span class="text-label-sm font-label-sm font-bold text-secondary" id="prog-level-pct">0%</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-3 overflow-hidden">
+<div class="h-full bg-secondary rounded-full progress-fill" id="prog-level-bar" style="width:0%"></div>
+</div>
+</div>
+<!-- Stats -->
+<div class="grid grid-cols-3 gap-4 mb-6">
+<div class="stat-card text-center p-5 bg-surface-container-highest rounded-2xl">
+<span class="material-symbols-outlined text-secondary text-3xl mb-2" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<p class="text-headline-lg-mobile font-headline-lg-mobile section-title text-primary" id="stat-streak">0</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Racha</p>
+</div>
+<div class="stat-card text-center p-5 bg-surface-container-highest rounded-2xl">
+<span class="material-symbols-outlined text-primary text-3xl mb-2" style="font-variation-settings: 'FILL' 1;">school</span>
+<p class="text-headline-lg-mobile font-headline-lg-mobile section-title text-primary" id="stat-lessons">0</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Lecciones</p>
+</div>
+<div class="stat-card text-center p-5 bg-surface-container-highest rounded-2xl">
+<span class="material-symbols-outlined text-on-secondary-container text-3xl mb-2" style="font-variation-settings: 'FILL' 1;">star</span>
+<p class="text-headline-lg-mobile font-headline-lg-mobile section-title text-primary" id="stat-points">0</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Puntos</p>
+</div>
+</div>
+<!-- Insignias -->
+<div class="mb-4">
+<h3 class="text-body-md font-body-md font-bold text-primary mb-2">🏅 Insignias</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant" id="prog-badges-count">0 obtenidas</p>
+<div class="flex flex-wrap gap-2 mt-2" id="prog-badges-list"></div>
+</div>
+<!-- Progreso por categoria -->
+<h3 class="text-body-md font-body-md font-bold text-primary mb-4">Progreso por categoria</h3>
+<div class="space-y-5">
+<div>
+<div class="flex justify-between mb-2">
+<span class="text-body-md font-body-md text-on-surface">Alfabeto</span>
+<span class="text-label-sm font-label-sm font-bold text-secondary" id="prog-alfabeto-pct">0%</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-3 overflow-hidden">
+<div class="h-full bg-secondary rounded-full progress-fill" id="prog-alfabeto-bar" style="width:0%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between mb-2">
+<span class="text-body-md font-body-md text-on-surface">Numeros</span>
+<span class="text-label-sm font-label-sm font-bold text-primary" id="prog-numeros-pct">0%</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-3 overflow-hidden">
+<div class="h-full bg-primary rounded-full progress-fill" id="prog-numeros-bar" style="width:0%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between mb-2">
+<span class="text-body-md font-body-md text-on-surface">Palabras</span>
+<span class="text-label-sm font-label-sm font-bold text-secondary" id="prog-palabras-pct">0%</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-3 overflow-hidden">
+<div class="h-full bg-secondary rounded-full progress-fill" id="prog-palabras-bar" style="width:0%"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ========== CREA UNA ACTIVIDAD ========== -->
+<section class="fade-in" style="animation-delay:0.3s">
+<div class="flex items-center gap-2 mb-stack-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">post_add</span>
+<h2 class="text-title-md font-title-md section-title text-primary">Crea una actividad</h2>
+</div>
+<div class="bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/30">
+<p class="text-body-md font-body-md text-on-surface-variant mb-5">Diseña ejercicios personalizados para el aula.</p>
+<form id="crea-form" class="space-y-4" onsubmit="return CreaActivity.handleSubmit(event)">
+<div>
+<label class="text-label-sm font-label-sm font-bold text-primary block mb-1">Nombre de la actividad</label>
+<input type="text" id="crea-nombre" class="input-field" placeholder="Ej: Practica de la letra A" required/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<label class="text-label-sm font-label-sm font-bold text-primary block mb-1">Categoria</label>
+<select id="crea-categoria" class="input-field">
+<option value="alfabeto">Alfabeto</option>
+<option value="numeros">Numeros</option>
+<option value="palabras">Palabras</option>
+</select>
+</div>
+<div>
+<label class="text-label-sm font-label-sm font-bold text-primary block mb-1">Puntos</label>
+<select id="crea-puntos" class="input-field">
+<option value="10">10 pts</option>
+<option value="25">25 pts</option>
+<option value="50">50 pts</option>
+<option value="100">100 pts</option>
+</select>
+</div>
+</div>
+<div>
+<label class="text-label-sm font-label-sm font-bold text-primary block mb-1">Descripcion</label>
+<textarea id="crea-descripcion" class="input-field" placeholder="Describe la actividad..." required></textarea>
+</div>
+<button type="submit" class="btn-primary w-full flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+Crear Actividad
+</button>
+</form>
+<div id="crea-resultado" class="mt-3 text-center min-h-[1.5rem]"></div>
+<div id="crea-list" class="mt-5 space-y-2"></div>
+</div>
+</section>
+
 </main>
+
+<!-- Pop-up felicitación Reto del día -->
+<div id="reto-popup" class="fixed inset-0 z-[70] items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+  <div class="bg-white rounded-[28px] p-8 max-w-sm w-full text-center shadow-2xl border-2 border-[#ffcc80] relative overflow-hidden">
+    <div id="reto-confetti" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+    <div id="reto-popup-icon" class="reto-popup-icon text-5xl mb-3">🎉</div>
+    <h3 class="text-2xl font-extrabold text-[#ff8f00] mb-2">¡EXCELENTE!</h3>
+    <p class="text-body-md font-body-md text-on-surface-variant mb-1">¡Has formado correctamente la palabra!</p>
+    <p id="reto-popup-frase" class="text-body-md font-body-md font-bold text-primary mb-4">⭐ ¡Lo hiciste genial!</p>
+    <div class="bg-[#fff8e1] rounded-2xl py-3 px-4 mb-5 border border-[#ffcc80]">
+      <span id="reto-popup-puntos" class="text-2xl font-extrabold text-[#ff8f00]">⭐ +35 puntos</span>
+    </div>
+    <button id="reto-popup-continuar" class="btn-primary w-full">Continuar</button>
+  </div>
+</div>
+
 <!-- BottomNavBar -->
-<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-surface-container shadow-[0_-4px_12px_rgba(0,0,0,0.1)] rounded-t-xl">
-<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="index.html">
-<span class="material-symbols-outlined text-[24px]">home</span>
-<span class="text-label-sm font-label-sm mt-1">Inicio</span>
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-surface-container dark:bg-tertiary shadow-[0_-4px_12px_rgba(0,0,0,0.1)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="index.html">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="text-label-sm font-label-sm">Inicio</span>
 </a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="reproductor_leccion.html">
-<span class="material-symbols-outlined text-[24px]">smart_display</span>
-<span class="text-label-sm font-label-sm mt-1">Videos</span>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="reproductor_leccion.html">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">smart_display</span>
+<span class="text-label-sm font-label-sm">Videos</span>
 </a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="ejercicios_interactivos.html">
-<span class="material-symbols-outlined text-[24px]">assignment</span>
-<span class="text-label-sm font-label-sm mt-1">Ejercicios</span>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="ejercicios_interactivos.html">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">assignment</span>
+<span class="text-label-sm font-label-sm">Ejercicios</span>
 </a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="perfil_usuario.html">
-<span class="material-symbols-outlined text-[24px]">person</span>
-<span class="text-label-sm font-label-sm mt-1">Perfil</span>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="perfil_usuario.html">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="text-label-sm font-label-sm">Perfil</span>
 </a>
 </nav>
 
 <script src="assets/js/app.js"></script>
 <script>
-        (function() {
-          document.querySelectorAll('.tactile-card').forEach(function(card) {
-            card.addEventListener('mouseenter', function() {
-              var dots = card.querySelectorAll('.braille-dot');
-              dots.forEach(function(dot, index) {
-                setTimeout(function() {
-                  dot.classList.add('active');
-                  setTimeout(function() { dot.classList.remove('active'); }, 1000);
-                }, index * 100);
-              });
+(function() {
+  var RetoDia = {
+    correctDots: null,
+    currentWord: null,
+    currentBraille: null,
+    currentPoints: 20,
+    STORAGE_KEY: 'bl_reto_palabras_usadas',
+
+    // Dificultad según puntos Braille de la palabra (estable, basada en letras del Alfabeto Braille)
+    // 🟢 Fácil (1-2 puntos promedio) → +20 | 🟡 Media (3 puntos promedio) → +35 | 🔴 Difícil (4+ promedio) → +50
+    getDifficulty: function(dots) {
+      var c = 0; for (var i=0;i<dots.length;i++) if(dots[i]) c++;
+      if (c <= 2) return { level: 'Fácil', points: 20, icon: '🟢' };
+      if (c === 3) return { level: 'Media', points: 35, icon: '🟡' };
+      return { level: 'Difícil', points: 50, icon: '🔴' };
+    },
+    getWordDifficulty: function(brailleArr) {
+      if (!brailleArr || !brailleArr.length) return { level: 'Fácil', points: 20, icon: '🟢' };
+      var total = 0; for (var i=0;i<brailleArr.length;i++) for (var j=0;j<brailleArr[i].length;j++) if(brailleArr[i][j]) total++;
+      var avg = total / brailleArr.length;
+      if (avg <= 2) return { level: 'Fácil', points: 20, icon: '🟢' };
+      if (avg <= 3) return { level: 'Media', points: 35, icon: '🟡' };
+      return { level: 'Difícil', points: 50, icon: '🔴' };
+    },
+
+    getUsedWords: function() {
+      try { var v = JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch(e) { return []; }
+    },
+    saveUsedWords: function(arr) {
+      try { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(arr)); } catch(e) {}
+    },
+    getNextWord: function() {
+      // Fuente única: BrailleWords generado desde BrailleAlphabet en app.js (ej: casa, hola, sol...)
+      var words = window.BrailleWords || [];
+      if (!words.length) {
+        var alpha = window.BrailleAlphabet || [];
+        var len = 4;
+        var w = ''; var b = [];
+        for (var i=0;i<len;i++){ var e = alpha[Math.floor(Math.random()*alpha.length)]; w+=e.letter.toLowerCase(); b.push(e.dots.slice()); }
+        return { word: w, braille: b };
+      }
+      var used = this.getUsedWords();
+      var available = words.filter(function(e){ return used.indexOf(e.word) === -1; });
+      if (available.length === 0) { used = []; available = words.slice(); }
+      var pick = available[Math.floor(Math.random() * available.length)];
+      used.push(pick.word);
+      this.saveUsedWords(used);
+      return pick;
+    },
+
+    // --- Límite 3 retos por día (1 de ellos inverso) ---
+    DATE_KEY: 'bl_reto_fecha',
+    DAILY_KEY: 'bl_reto_diarios',
+    IDX_KEY: 'bl_reto_idx',
+    INVERSE_KEY: 'bl_reto_inverso_idx',
+    currentMode: 'normal',
+    userBrailles: null,
+    getTodayStr: function() {
+      try { return new Date().toLocaleDateString('en-CA'); } catch(e) { return new Date().toISOString().slice(0,10); }
+    },
+    getDailySet: function() {
+      try { var v = JSON.parse(localStorage.getItem(this.DAILY_KEY) || 'null'); return Array.isArray(v) ? v : null; } catch(e) { return null; }
+    },
+    saveDailySet: function(arr) {
+      try { localStorage.setItem(this.DAILY_KEY, JSON.stringify(arr)); } catch(e) {}
+    },
+    getDailyIdx: function() {
+      try { var v = parseInt(localStorage.getItem(this.IDX_KEY) || '0',10); return isNaN(v)?0:v; } catch(e){ return 0; }
+    },
+    saveDailyIdx: function(i) {
+      try { localStorage.setItem(this.IDX_KEY, String(i)); } catch(e){}
+    },
+    getInverseIdx: function() {
+      try { var v = parseInt(localStorage.getItem(this.INVERSE_KEY) || '-1',10); return isNaN(v)?-1:v; } catch(e){ return -1; }
+    },
+    saveInverseIdx: function(i) { try { localStorage.setItem(this.INVERSE_KEY, String(i)); } catch(e){} },
+    ensureDailySet: function() {
+      var today = this.getTodayStr();
+      var storedDate = null; try { storedDate = localStorage.getItem(this.DATE_KEY); } catch(e){}
+      var daily = this.getDailySet();
+      var idx = this.getDailyIdx();
+      var inv = this.getInverseIdx();
+      if (storedDate !== today || !daily || daily.length !== 3 || inv<0 || inv>2) {
+        var picks = [];
+        for (var i=0;i<3;i++) {
+          var p = this.getNextWord();
+          var tries=0; while(p && picks.indexOf(p.word)!==-1 && tries<10){ p=this.getNextWord(); tries++; }
+          if(p) picks.push(p.word);
+        }
+        var invIdx = Math.floor(Math.random()*3);
+        this.saveDailySet(picks);
+        this.saveInverseIdx(invIdx);
+        try { localStorage.setItem(this.DATE_KEY, today); } catch(e){}
+        this.saveDailyIdx(0);
+        return { words: picks, idx: 0, inverseIdx: invIdx, today: today };
+      }
+      var wordsList = (window.BrailleWords||[]).map(function(e){return e.word;});
+      if (wordsList.length) {
+        var valid = daily.every(function(w){ return wordsList.indexOf(w)!==-1; });
+        if (!valid) {
+          var newPicks=[]; for(var k=0;k<3;k++) newPicks.push(this.getNextWord().word);
+          var newInv = Math.floor(Math.random()*3);
+          this.saveDailySet(newPicks); this.saveInverseIdx(newInv); this.saveDailyIdx(0); return { words: newPicks, idx:0, inverseIdx: newInv, today: today };
+        }
+      }
+      if (idx<0) idx=0; if(idx>3) idx=3;
+      if (inv<0||inv>2) { inv=Math.floor(Math.random()*3); this.saveInverseIdx(inv); }
+      return { words: daily, idx: idx, inverseIdx: inv, today: today };
+    },
+    isDailyCompleted: function() {
+      var s = this.ensureDailySet();
+      return s.idx >= 3;
+    },
+    getDailyEntry: function() {
+      var s = this.ensureDailySet();
+      if (s.idx >= 3) return null;
+      var word = s.words[s.idx];
+      // Resolver braille desde BrailleWords (fuente única)
+      var found = null;
+      var list = window.BrailleWords||[];
+      for(var i=0;i<list.length;i++) if(list[i].word===word){ found=list[i]; break; }
+      if (found) return found;
+      // Fallback: construir desde BrailleAlphabet
+      var map={}; (window.BrailleAlphabet||[]).forEach(function(e){ map[e.letter.toLowerCase()]=e.dots; });
+      var b=[]; for(var c=0;c<word.length;c++){ var d=map[word[c]]; if(d) b.push(d.slice()); }
+      return { word: word, braille: b };
+    },
+    advanceDaily: function() {
+      var idx = this.getDailyIdx();
+      idx++;
+      this.saveDailyIdx(idx);
+      return idx;
+    },
+
+    init: function() {
+      this.generate();
+      document.getElementById('btn-verificar').addEventListener('click', function() { RetoDia.verify(); });
+      var inp = document.getElementById('reto-palabra-input');
+      if (inp) {
+        inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); RetoDia.verify(); }});
+        inp.addEventListener('input', function(){ document.getElementById('reto-feedback').innerHTML=''; });
+      }
+    },
+
+    renderWord: function(brailleArr) {
+      // Modo normal: cajetillas estáticas
+      var container = document.getElementById('reto-word-display');
+      if (!container) container = document.getElementById('reto-cell-display');
+      if (!container) return;
+      container.innerHTML = '';
+      var isDark = Math.random() < 0.5;
+      for (var w=0; w<brailleArr.length; w++) {
+        var dots = brailleArr[w];
+        var cell = document.createElement('div');
+        cell.className = 'braille-cell-grid' + (isDark ? ' on-dark' : '');
+        cell.style.padding = '12px';
+        cell.style.gap = '4px';
+        var order = [0,3,1,4,2,5];
+        for (var j=0;j<6;j++) {
+          var pos = order[j];
+          var dot = document.createElement('div');
+          dot.className = 'braille-cell-dot' + (dots[pos] ? ' active' : '');
+          dot.style.width = '14px'; dot.style.height='14px';
+          dot.style.pointerEvents='none'; dot.style.cursor='default';
+          cell.appendChild(dot);
+        }
+        container.appendChild(cell);
+      }
+    },
+    renderInverse: function(brailleArr) {
+      // Modo inverso: cajetillas vacías interactivas (una por letra)
+      var container = document.getElementById('reto-word-display');
+      if (!container) return;
+      container.innerHTML = '';
+      // Inicializar estado usuario por cajetilla
+      this.userBrailles = [];
+      for (var w=0; w<brailleArr.length; w++) this.userBrailles.push([0,0,0,0,0,0]);
+      var isDark = false;
+      var order = [0,3,1,4,2,5];
+      var labels = ['1','2','3','4','5','6'];
+      for (var idx=0; idx<brailleArr.length; idx++) {
+        var cell = document.createElement('div');
+        cell.className = 'braille-cell-grid' + (isDark ? ' on-dark' : '');
+        cell.style.padding = '12px';
+        cell.style.gap = '4px';
+        cell.setAttribute('data-letter-idx', idx);
+        for (var j=0;j<6;j++) {
+          var pos = order[j];
+          var dot = document.createElement('div');
+          dot.className = 'braille-cell-dot';
+          dot.setAttribute('data-letter', idx);
+          dot.setAttribute('data-dot', pos);
+          var lab = document.createElement('div');
+          lab.className = 'dot-label';
+          lab.textContent = labels[pos];
+          dot.appendChild(lab);
+          (function(li, di, el){
+            el.addEventListener('click', function(){
+              RetoDia.userBrailles[li][di] = RetoDia.userBrailles[li][di] ? 0 : 1;
+              el.classList.toggle('active', RetoDia.userBrailles[li][di]===1);
+              document.getElementById('reto-feedback').innerHTML='';
             });
-          });
-        })();
-    </script>
+          })(idx, pos, dot);
+          cell.appendChild(dot);
+        }
+        container.appendChild(cell);
+      }
+    },
+
+    generate: function() {
+      var feedback = document.getElementById('reto-feedback');
+      var inp = document.getElementById('reto-palabra-input');
+      var labelEl = document.getElementById('reto-palabra-label');
+      var inputWrap = document.getElementById('reto-input-wrap');
+      var daily = this.ensureDailySet();
+      if (daily.idx >= 3) {
+        feedback.innerHTML = '<span class="font-bold" style="color:#2e7d32;">🎉 ¡Completaste los 3 retos de hoy!</span>';
+        var hint2 = document.getElementById('reto-hint-text');
+        if (hint2) hint2.textContent = 'Vuelve mañana para 3 nuevos retos';
+        var container = document.getElementById('reto-word-display');
+        if (container) container.innerHTML = '<p class="text-body-md font-body-md text-on-surface-variant text-center py-4">Has terminado los desafíos diarios.</p>';
+        if (labelEl) labelEl.classList.add('hidden');
+        var btnV = document.getElementById('btn-verificar');
+        var inp2 = document.getElementById('reto-palabra-input');
+        if (btnV) btnV.disabled = true; if (btnV) btnV.style.opacity='0.5';
+        if (inp2) inp2.disabled = true;
+        return;
+      }
+      var btnV2 = document.getElementById('btn-verificar');
+      var inp3 = document.getElementById('reto-palabra-input');
+      if (btnV2) { btnV2.disabled = false; btnV2.style.opacity='1'; }
+      if (inp3) inp3.disabled = false;
+
+      feedback.innerHTML = '';
+      if (inp) inp.value = '';
+
+      var entry = this.getDailyEntry();
+      if (!entry) return;
+      this.currentWord = entry.word;
+      this.currentBraille = entry.braille;
+      this.correctDots = entry.braille[0] ? entry.braille[0].slice() : null;
+      var isInverse = (daily.inverseIdx === daily.idx);
+      this.currentMode = isInverse ? 'inverso' : 'normal';
+      var diff = this.getWordDifficulty(entry.braille);
+      this.currentPoints = diff.points;
+      var ptsEl = document.getElementById('reto-puntos');
+      if (ptsEl) ptsEl.textContent = '+' + diff.points;
+      var hint = document.getElementById('reto-hint-text');
+      if (isInverse) {
+        if (hint) hint.textContent = 'Reto ' + (daily.idx+1) + '/3 — Forma la palabra en Braille';
+        if (labelEl) { labelEl.textContent = 'Palabra: ' + entry.word.toUpperCase(); labelEl.classList.remove('hidden'); }
+        if (inputWrap) inputWrap.classList.add('hidden');
+        this.renderInverse(entry.braille);
+      } else {
+        if (hint) hint.textContent = 'Reto ' + (daily.idx+1) + '/3 — ¿Qué palabra forman estas cajetillas?';
+        if (labelEl) labelEl.classList.add('hidden');
+        if (inputWrap) inputWrap.classList.remove('hidden');
+        this.renderWord(entry.braille);
+        if (inp) inp.focus();
+      }
+    },
+
+    // Mantener wireDots por compatibilidad (no usado en modo palabra, cajetillas son estáticas)
+    wireDots: function() {},
+
+    // --- Pop-up felicitación ---
+    showPopup: function(frase, pts, icon) {
+      var popup = document.getElementById('reto-popup');
+      var fraseEl = document.getElementById('reto-popup-frase');
+      var puntosEl = document.getElementById('reto-popup-puntos');
+      var confetti = document.getElementById('reto-confetti');
+      if (fraseEl) fraseEl.textContent = frase;
+      if (puntosEl) puntosEl.textContent = '⭐ +' + pts + ' puntos';
+      // Confeti sencillo: estrellas
+      if (confetti) {
+        confetti.innerHTML = '';
+        var emojis = ['⭐','✨','🎉','🌟','💫'];
+        for (var i=0;i<12;i++) {
+          var s = document.createElement('span');
+          s.className = 'confetti';
+          s.textContent = emojis[i % emojis.length];
+          s.style.left = (5 + Math.random()*90) + '%';
+          s.style.top = (Math.random()*20) + 'px';
+          s.style.animationDelay = (Math.random()*0.4) + 's';
+          confetti.appendChild(s);
+        }
+      }
+      if (popup) { popup.classList.remove('hide'); popup.classList.add('show'); }
+    },
+    hidePopup: function() {
+      var popup = document.getElementById('reto-popup');
+      if (!popup) return;
+      popup.classList.remove('show');
+      popup.classList.add('hide');
+      setTimeout(function(){ popup.classList.remove('hide'); popup.style.display='none'; popup.classList.remove('show'); }, 250);
+      // Reset display
+      setTimeout(function(){ if(popup) popup.style.display=''; }, 300);
+    },
+
+    verify: function() {
+      var feedback = document.getElementById('reto-feedback');
+      if (this.isDailyCompleted()) {
+        feedback.innerHTML = '<span class="font-bold" style="color:#2e7d32;">🎉 ¡Completaste los 3 retos de hoy!</span>';
+        return;
+      }
+      var isInverse = (this.currentMode === 'inverso');
+      var correct = false;
+      if (isInverse) {
+        // Validación por cajetillas: cada cajetilla debe coincidir exactamente con la letra (fuente BrailleAlphabet)
+        if (this.userBrailles && this.currentBraille && this.userBrailles.length === this.currentBraille.length) {
+          correct = true;
+          for (var w=0; w<this.currentBraille.length; w++) {
+            for (var d=0; d<6; d++) {
+              if ((this.userBrailles[w][d]|0) !== (this.currentBraille[w][d]|0)) { correct = false; break; }
+            }
+            if (!correct) break;
+          }
+        } else { correct = false; }
+      } else {
+        var inp = document.getElementById('reto-palabra-input');
+        var raw = inp ? inp.value : '';
+        var normalizedInput = (raw || '').trim().toLowerCase();
+        var normalizedExpected = (this.currentWord || '').trim().toLowerCase();
+        correct = normalizedInput !== '' && normalizedInput === normalizedExpected;
+      }
+      if (correct) {
+        var pts = this.currentPoints || 35;
+        var diff = this.getWordDifficulty(this.currentBraille);
+        pts = diff.points;
+        this.currentPoints = pts;
+        var updated = BrailleStore.addPoints(pts);
+        var badgeId = 'points_' + updated.totalPoints;
+        BrailleStore.addBadge(badgeId);
+        var frases = ['🎉 ¡Excelente trabajo!','👏 ¡Muy bien!','⭐ ¡Lo hiciste genial!','🔥 ¡Sigue así!','🏆 ¡Perfecto!','✨ ¡Buen trabajo!'];
+        var frase = frases[Math.floor(Math.random()*frases.length)];
+        this._pendingAdvance = true;
+        updateProgress();
+        this.showPopup(frase, pts, diff.icon);
+      } else {
+        feedback.innerHTML = '<span class="font-bold" style="color:#c62828;">❌ Inténtalo nuevamente.</span>';
+      }
+    }
+  };
+
+  function updateLabCounts() {
+    var prog = BrailleStore.getProgress();
+    var lessons = prog.lessons || {};
+    var a = Object.keys(lessons).filter(function(k){ return k.indexOf('alfabeto-letra-')===0; }).length;
+    var n = Object.keys(lessons).filter(function(k){ return k.indexOf('numeros-numero-')===0; }).length;
+    var p = Object.keys(lessons).filter(function(k){ return k.indexOf('palabras-palabra-')===0; }).length;
+    var ae = document.getElementById('lab-alfabeto-count');
+    if (ae) ae.textContent = a + '/26 completadas';
+    var ne = document.getElementById('lab-numeros-count');
+    if (ne) ne.textContent = n + '/10 completados';
+    var pe = document.getElementById('lab-palabras-count');
+    if (pe) pe.textContent = p + '/4 completadas';
+  }
+
+  function updateProgress() {
+    var prog = BrailleStore.getProgress();
+    var streak = prog.streak || 0;
+    var lessons = prog.lessons || {};
+    var lessonCount = Object.keys(lessons).length;
+    var totalPoints = prog.totalPoints || 0;
+    var badges = prog.badges || [];
+    var levelInfo = BrailleStore.getLevelInfo(totalPoints);
+
+    var se = document.getElementById('stat-streak');
+    if (se) se.textContent = streak;
+    var le = document.getElementById('stat-lessons');
+    if (le) le.textContent = lessonCount;
+    var pe2 = document.getElementById('stat-points');
+    if (pe2) pe2.textContent = totalPoints;
+
+    var pl = document.getElementById('prog-level-name');
+    if (pl) pl.textContent = levelInfo.icon + ' ' + levelInfo.name;
+    var plLabel = document.getElementById('prog-level-label');
+    if (plLabel) plLabel.textContent = 'Nivel ' + levelInfo.level;
+    var plRange = document.getElementById('prog-level-range');
+    if (plRange) plRange.textContent = levelInfo.min + '–' + (levelInfo.max === Infinity ? '+∞' : levelInfo.max);
+    var plPct = document.getElementById('prog-level-pct');
+    if (plPct) plPct.textContent = levelInfo.percent + '%';
+    var plBar = document.getElementById('prog-level-bar');
+    if (plBar) plBar.style.width = levelInfo.percent + '%';
+    var tp = document.getElementById('prog-total-points');
+    if (tp) tp.textContent = totalPoints;
+
+    var bc = document.getElementById('prog-badges-count');
+    if (bc) bc.textContent = badges.length + ' obtenida' + (badges.length !== 1 ? 's' : '');
+    var bl = document.getElementById('prog-badges-list');
+    if (bl) {
+      var icons = ['⭐','🏅','🎖️','🏆','💎'];
+      bl.innerHTML = badges.map(function(b, i) {
+        return '<span class="text-2xl">' + (icons[i % icons.length]) + '</span>';
+      }).join('');
+    }
+
+    var aP = Math.min(Object.keys(lessons).filter(function(k){ return k.indexOf('alfabeto-letra-')===0; }).length / 26 * 100, 100);
+    var nP = Math.min(Object.keys(lessons).filter(function(k){ return k.indexOf('numeros-numero-')===0; }).length / 10 * 100, 100);
+    var pP = Math.min(Object.keys(lessons).filter(function(k){ return k.indexOf('palabras-palabra-')===0; }).length / 4 * 100, 100);
+
+    setBar('prog-alfabeto', aP);
+    setBar('prog-numeros', nP);
+    setBar('prog-palabras', pP);
+  }
+
+  function setBar(id, pct) {
+    var bar = document.getElementById(id + '-bar');
+    var pctEl = document.getElementById(id + '-pct');
+    if (bar) bar.style.width = pct + '%';
+    if (pctEl) pctEl.textContent = Math.round(pct) + '%';
+  }
+
+  var CreaActivity = {
+    handleSubmit: function(e) {
+      e.preventDefault();
+      var nombre = document.getElementById('crea-nombre').value.trim();
+      var categoria = document.getElementById('crea-categoria').value;
+      var descripcion = document.getElementById('crea-descripcion').value.trim();
+      if (!nombre || !descripcion) return false;
+      var activities = [];
+      try { activities = JSON.parse(localStorage.getItem('bl_custom_activities') || '[]'); } catch(err) { activities = []; }
+      activities.push({ id: Date.now(), nombre: nombre, categoria: categoria, descripcion: descripcion, fecha: new Date().toISOString() });
+      try { localStorage.setItem('bl_custom_activities', JSON.stringify(activities)); } catch(err) {}
+      document.getElementById('crea-resultado').innerHTML = '<span class="font-bold" style="color:#2e7d32;">Actividad "' + nombre + '" creada!</span>';
+      document.getElementById('crea-nombre').value = '';
+      document.getElementById('crea-descripcion').value = '';
+      this.renderList();
+      return false;
+    },
+    renderList: function() {
+      var activities = [];
+      try { activities = JSON.parse(localStorage.getItem('bl_custom_activities') || '[]'); } catch(err) { activities = []; }
+      var list = document.getElementById('crea-list');
+      if (!list) return;
+      if (activities.length === 0) { list.innerHTML = '<p class="text-on-surface-variant text-center py-3 text-body-md font-body-md">Sin actividades creadas</p>'; return; }
+      var labels = { alfabeto:'Alfabeto', numeros:'Numeros', palabras:'Palabras' };
+      var html = '';
+      activities.forEach(function(a) {
+        html += '<div class="activity-item flex items-center gap-3 p-3 bg-surface-container-highest rounded-2xl border border-outline-variant/20">' +
+          '<div class="w-10 h-10 rounded-xl bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-sm">' + a.categoria.charAt(0).toUpperCase() + '</div>' +
+          '<div class="flex-1"><p class="text-body-md font-body-md font-bold text-primary">' + a.nombre + '</p><p class="text-label-sm font-label-sm text-on-surface-variant">' + (labels[a.categoria]||a.categoria) + ' - ' + a.descripcion.substring(0,30) + '</p></div>' +
+          '<span class="material-symbols-outlined text-on-surface-variant text-xl" style="font-variation-settings:\'FILL\' 1;">check_circle</span>' +
+        '</div>';
+      });
+      list.innerHTML = html;
+    },
+    init: function() { this.renderList(); }
+  };
+
+  RetoDia.init();
+  // Pop-up Continuar: cierra y avanza al siguiente reto
+  var popupBtn = document.getElementById('reto-popup-continuar');
+  var popupEl = document.getElementById('reto-popup');
+  if (popupBtn && popupEl) {
+    popupBtn.addEventListener('click', function(){
+      RetoDia.hidePopup();
+      if (RetoDia._pendingAdvance) {
+        RetoDia._pendingAdvance = false;
+        var newIdx = RetoDia.advanceDaily();
+        var fb = document.getElementById('reto-feedback');
+        if (newIdx >= 3) {
+          if (fb) fb.innerHTML = '<span class="font-bold" style="color:#2e7d32;">🎉 ¡Completaste los 3 retos de hoy!</span>';
+        } else {
+          if (fb) fb.innerHTML = '';
+        }
+        setTimeout(function(){ RetoDia.generate(); updateProgress(); }, 250);
+      }
+    });
+    popupEl.addEventListener('click', function(e){ if(e.target===popupEl) { popupBtn.click(); }});
+  }
+  updateLabCounts();
+  updateProgress();
+  CreaActivity.init();
+
+  var refreshAll = function() { updateLabCounts(); updateProgress(); CreaActivity.init(); };
+  window.addEventListener('focus', refreshAll);
+  window.addEventListener('pageshow', refreshAll);
+})();
+</script>
 </body></html>

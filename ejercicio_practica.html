@@ -99,20 +99,20 @@
 
 <!-- BottomNavBar -->
 <nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-surface-container dark:bg-tertiary shadow-[0_-4px_12px_rgba(0,0,0,0.1)] rounded-t-xl">
-<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="index.html">
-<span class="material-symbols-outlined text-[24px]">home</span>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="index.html">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">home</span>
 <span class="text-label-sm font-label-sm">Inicio</span>
 </a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="reproductor_leccion.html">
-<span class="material-symbols-outlined text-[24px]">smart_display</span>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="reproductor_leccion.html">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">smart_display</span>
 <span class="text-label-sm font-label-sm">Videos</span>
 </a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="ejercicios_interactivos.html">
-<span class="material-symbols-outlined text-[24px]">assignment</span>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="ejercicios_interactivos.html">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">assignment</span>
 <span class="text-label-sm font-label-sm">Ejercicios</span>
 </a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="perfil_usuario.html">
-<span class="material-symbols-outlined text-[24px]">person</span>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="perfil_usuario.html">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">person</span>
 <span class="text-label-sm font-label-sm">Perfil</span>
 </a>
 </nav>
@@ -136,8 +136,38 @@
   };
   window.addEventListener('scroll', scrollHandler);
 
+  // Escape -> volver directo a pantalla ejercicios (debe registrarse antes del return de alphabet-eval)
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' || e.key === 'Esc') {
+      e.preventDefault();
+      window.location.href = 'ejercicios_interactivos.html';
+    }
+  });
+
+  // Helper solo navegación: flecha superior izquierda -> ejercicios para letras en braille
+  function setBackToEjercicios() {
+    var btn = document.querySelector('header button[onclick*="goBack"]');
+    if (btn) {
+      btn.setAttribute('onclick', "window.location.href='ejercicios_interactivos.html'");
+      btn.onclick = function() { window.location.href = 'ejercicios_interactivos.html'; };
+    }
+  }
+
   if (lessonSlug === 'alphabet-eval') {
+    setBackToEjercicios();
     buildAlphabetEvaluation();
+    return;
+  }
+
+  if (lessonSlug === 'numeros-eval') {
+    setBackToEjercicios();
+    buildNumerosEvaluation();
+    return;
+  }
+
+  if (lessonSlug === 'palabras-eval') {
+    setBackToEjercicios();
+    buildPalabrasEvaluation();
     return;
   }
 
@@ -146,6 +176,15 @@
   if (!exercise) {
     document.getElementById('main-content').innerHTML = '<p class="text-center text-on-surface-variant py-20">Ejercicio no encontrado.</p>';
     return;
+  }
+
+  // Flecha regreso para Números, Alfabeto y Palabras -> directo a ejercicios (solo navegación)
+  if (exercise.category === 'numeros' || exercise.category === 'alfabeto' || exercise.category === 'palabras') {
+    setBackToEjercicios();
+  }
+  // Guardar último ejercicio visitado para persistencia de Números (resume) - legacy
+  if (exercise.category === 'numeros') {
+    try { if (window.BrailleStore) BrailleStore.set('numeros_last_lesson', lessonSlug); } catch(e) {}
   }
 
   // ============ RENDER ============
@@ -202,12 +241,14 @@
     html += '<p class="text-body-md font-body-md text-on-surface leading-relaxed">' + ex.description + '</p>';
     html += '</article>';
 
-    // Audio button
-    html += '<div class="flex justify-center">';
-    html += '<button class="flex items-center gap-2 bg-surface-container-highest hover:bg-surface-container-high text-primary px-6 py-3 rounded-full transition-colors active:scale-95 duration-150 custom-shadow" onclick="this.querySelector(\'.material-symbols-outlined\').textContent=this.querySelector(\'.material-symbols-outlined\').textContent==\'volume_up\'?\'volume_off\':\'volume_up\'">';
-    html += '<span class="material-symbols-outlined text-[20px]">volume_up</span>';
-    html += '<span class="font-bold text-label-sm font-label-sm">' + (ex.audioLabel || 'Escuchar pronunciación') + '</span>';
-    html += '</button></div>';
+    // Audio button - eliminado para categoría numeros
+    if (ex.category !== 'numeros') {
+      html += '<div class="flex justify-center">';
+      html += '<button class="flex items-center gap-2 bg-surface-container-highest hover:bg-surface-container-high text-primary px-6 py-3 rounded-full transition-colors active:scale-95 duration-150 custom-shadow" onclick="this.querySelector(\'.material-symbols-outlined\').textContent=this.querySelector(\'.material-symbols-outlined\').textContent==\'volume_up\'?\'volume_off\':\'volume_up\'">';
+      html += '<span class="material-symbols-outlined text-[20px]">volume_up</span>';
+      html += '<span class="font-bold text-label-sm font-label-sm">' + (ex.audioLabel || 'Escuchar pronunciación') + '</span>';
+      html += '</button></div>';
+    }
 
     // Mnemonic
     if (ex.mnemonic) {
@@ -233,6 +274,7 @@
   }
 
   function buildInteractiveLesson(ex) {
+    window.__ejercicioActual = ex;
     var userDots = [0,0,0,0,0,0];
     var verified = false;
     var html = '';
@@ -267,12 +309,14 @@
     html += '<p class="text-body-md font-body-md text-on-surface leading-relaxed">' + ex.description + '</p>';
     html += '</article>';
 
-    // Audio button
-    html += '<div class="flex justify-center">';
-    html += '<button class="flex items-center gap-2 bg-surface-container-highest hover:bg-surface-container-high text-primary px-6 py-3 rounded-full transition-colors active:scale-95 duration-150 custom-shadow" onclick="this.querySelector(\'.material-symbols-outlined\').textContent=this.querySelector(\'.material-symbols-outlined\').textContent==\'volume_up\'?\'volume_off\':\'volume_up\'">';
-    html += '<span class="material-symbols-outlined text-[20px]">volume_up</span>';
-    html += '<span class="font-bold text-label-sm font-label-sm">' + (ex.audioLabel || 'Escuchar pronunciación') + '</span>';
-    html += '</button></div>';
+    // Audio button - eliminado para categoría numeros
+    if (ex.category !== 'numeros') {
+      html += '<div class="flex justify-center">';
+      html += '<button class="flex items-center gap-2 bg-surface-container-highest hover:bg-surface-container-high text-primary px-6 py-3 rounded-full transition-colors active:scale-95 duration-150 custom-shadow" onclick="this.querySelector(\'.material-symbols-outlined\').textContent=this.querySelector(\'.material-symbols-outlined\').textContent==\'volume_up\'?\'volume_off\':\'volume_up\'">';
+      html += '<span class="material-symbols-outlined text-[20px]">volume_up</span>';
+      html += '<span class="font-bold text-label-sm font-label-sm">' + (ex.audioLabel || 'Escuchar pronunciación') + '</span>';
+      html += '</button></div>';
+    }
 
     // Feedback + check button
     html += '<div class="max-w-sm mx-auto w-full space-y-4">';
@@ -320,6 +364,7 @@
   }
 
   function buildTraduccion(ex) {
+    window.__ejercicioActual = ex;
     var html = '';
 
     // Progress
@@ -401,6 +446,7 @@
   }
 
   function buildQuiz(ex) {
+    window.__ejercicioActual = ex;
     var selectedOption = null;
     var html = '';
 
@@ -484,6 +530,7 @@
   }
 
   function buildEvaluation(ex, onComplete) {
+    window.__ejercicioActual = ex;
     var userDots = [0,0,0,0,0,0];
     var html = '';
 
@@ -566,20 +613,54 @@
   }
 
   var ALPHA_EVAL_KEY = 'bl_alphabet_eval';
+  var ALPHA_EVAL_LS_KEY = 'bl_alphabet_eval';
+  var ALPHA_PROGRESS_KEY = 'alphabet_progress'; // via BrailleStore -> bl_alphabet_progress
 
   function getAlphaEval() {
+    // 1) sessionStorage (sesión actual)
     try {
       var raw = sessionStorage.getItem(ALPHA_EVAL_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch (e) { return null; }
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    // 2) localStorage (recarga / cierre navegador)
+    try {
+      var rawLS = localStorage.getItem(ALPHA_EVAL_LS_KEY);
+      if (rawLS) return JSON.parse(rawLS);
+    } catch (e2) {}
+    // 3) BrailleStore fallback (bl_alphabet_progress)
+    try {
+      if (window.BrailleStore) {
+        var p = BrailleStore.get(ALPHA_PROGRESS_KEY);
+        if (p && p.order && typeof p.index === 'number') return { order: p.order, index: p.index };
+      }
+    } catch (e3) {}
+    return null;
   }
 
   function setAlphaEval(order, index) {
-    try { sessionStorage.setItem(ALPHA_EVAL_KEY, JSON.stringify({ order: order, index: index })); } catch (e) {}
+    var data = JSON.stringify({ order: order, index: index });
+    try { sessionStorage.setItem(ALPHA_EVAL_KEY, data); } catch (e) {}
+    try { localStorage.setItem(ALPHA_EVAL_LS_KEY, data); } catch (e2) {}
+    // Persistencia estructurada para ejercicios_interactivos.html: {index, total}
+    try {
+      if (window.BrailleStore) {
+        BrailleStore.set(ALPHA_PROGRESS_KEY, { index: index, total: 26, order: order, updatedAt: new Date().toISOString() });
+        // Marca de inicio para que getProgress() refleje que se entró al alfabeto
+        var prog = BrailleStore.getProgress();
+        if (!prog.lessons['alfabeto-iniciado']) {
+          prog.lessons['alfabeto-iniciado'] = { started: true, date: new Date().toISOString() };
+          BrailleStore.setProgress(prog);
+        }
+      }
+    } catch (e3) {}
   }
 
   function clearAlphaEval() {
     try { sessionStorage.removeItem(ALPHA_EVAL_KEY); } catch (e) {}
+    try { localStorage.removeItem(ALPHA_EVAL_LS_KEY); } catch (e2) {}
+    // No borramos BrailleStore alphabet_progress aquí: se mantiene para mostrar 26/26 al completar
+    // Solo se limpia al reiniciar manualmente. Si se quiere reset al 100%, descomentar:
+    // try { if (window.BrailleStore) BrailleStore.remove(ALPHA_PROGRESS_KEY); } catch(e3){}
   }
 
   function isSorted(arr) {
@@ -613,13 +694,27 @@
     var hasIndex = params.has('i') && !isNaN(indexParam);
 
     var order, index;
+    var persisted = getAlphaEval();
     if (hasIndex) {
-      var state = getAlphaEval();
-      order = (state && state.order && state.order.length === 26) ? state.order : shuffleLetters();
+      // Navegación con ?i=N: respetar índice URL pero reutilizar orden guardado
+      order = (persisted && persisted.order && persisted.order.length === 26) ? persisted.order : shuffleLetters();
       index = Math.min(Math.max(indexParam, 0), 25);
     } else {
-      order = shuffleLetters();
-      index = 0;
+      // Entrada sin ?i: reanudar progreso guardado si existe, si no iniciar nuevo
+      if (persisted && persisted.order && persisted.order.length === 26 && typeof persisted.index === 'number') {
+        order = persisted.order;
+        index = Math.min(Math.max(persisted.index, 0), 25);
+        // Si ya completó 26 (índice fuera de rango) reiniciar
+        if (index >= 26) { order = shuffleLetters(); index = 0; }
+      } else {
+        order = shuffleLetters();
+        index = 0;
+      }
+      // Sincronizar URL sin recargar: añade ?i para que recarga mantenga posición
+      try {
+        var newUrl = 'ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=' + index;
+        if (window.location.search.indexOf('i=') === -1) window.history.replaceState(null, '', newUrl);
+      } catch (e) {}
     }
     setAlphaEval(order, index);
 
@@ -650,6 +745,249 @@
     });
   }
 
+  // ===== NÚMEROS EVAL - espejo exacto de Alfabeto, adaptado a números (0-9) =====
+  var NUMEROS_EVAL_KEY = 'bl_numeros_eval';
+  var NUMEROS_EVAL_LS_KEY = 'bl_numeros_eval';
+  var NUMEROS_PROGRESS_KEY = 'numeros_progress';
+
+  function getNumerosEval() {
+    try {
+      var raw = sessionStorage.getItem(NUMEROS_EVAL_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    try {
+      var rawLS = localStorage.getItem(NUMEROS_EVAL_LS_KEY);
+      if (rawLS) return JSON.parse(rawLS);
+    } catch (e2) {}
+    try {
+      if (window.BrailleStore) {
+        var p = BrailleStore.get(NUMEROS_PROGRESS_KEY);
+        if (p && p.order && typeof p.index === 'number') return { order: p.order, index: p.index };
+      }
+    } catch (e3) {}
+    return null;
+  }
+
+  function setNumerosEval(order, index) {
+    var data = JSON.stringify({ order: order, index: index });
+    try { sessionStorage.setItem(NUMEROS_EVAL_KEY, data); } catch (e) {}
+    try { localStorage.setItem(NUMEROS_EVAL_LS_KEY, data); } catch (e2) {}
+    try {
+      if (window.BrailleStore) {
+        BrailleStore.set(NUMEROS_PROGRESS_KEY, { index: index, total: 10, order: order, updatedAt: new Date().toISOString() });
+        var prog = BrailleStore.getProgress();
+        if (!prog.lessons['numeros-iniciado']) {
+          prog.lessons['numeros-iniciado'] = { started: true, date: new Date().toISOString() };
+          BrailleStore.setProgress(prog);
+        }
+      }
+    } catch (e3) {}
+  }
+
+  function clearNumerosEval() {
+    try { sessionStorage.removeItem(NUMEROS_EVAL_KEY); } catch (e) {}
+    try { localStorage.removeItem(NUMEROS_EVAL_LS_KEY); } catch (e2) {}
+  }
+
+  function shuffleNumbers() {
+    var base = window.BrailleNumbers.map(function(e) { return e.number; });
+    var out;
+    do {
+      out = base.slice();
+      for (var i = out.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = out[i]; out[i] = out[j]; out[j] = tmp;
+      }
+    } while (isSorted(out));
+    return out;
+  }
+
+  function showNumerosCongrats() {
+    document.getElementById('congrats-message').textContent = 'Has completado exitosamente los 10 números del sistema Braille.';
+    document.getElementById('completion-overlay').classList.add('hidden');
+    document.getElementById('congrats-overlay').classList.remove('hidden');
+  }
+
+  function buildNumerosEvaluation() {
+    var indexParam = parseInt(params.get('i'), 10);
+    var hasIndex = params.has('i') && !isNaN(indexParam);
+    var order, index;
+    var persisted = getNumerosEval();
+    if (hasIndex) {
+      order = (persisted && persisted.order && persisted.order.length === 10) ? persisted.order : shuffleNumbers();
+      index = Math.min(Math.max(indexParam, 0), 9);
+    } else {
+      if (persisted && persisted.order && persisted.order.length === 10 && typeof persisted.index === 'number') {
+        order = persisted.order;
+        index = Math.min(Math.max(persisted.index, 0), 9);
+        if (index >= 10) { order = shuffleNumbers(); index = 0; }
+      } else {
+        order = shuffleNumbers();
+        index = 0;
+      }
+      try {
+        var newUrl = 'ejercicio_practica.html?course=numeros&lesson=numeros-eval&i=' + index;
+        if (window.location.search.indexOf('i=') === -1) window.history.replaceState(null, '', newUrl);
+      } catch (e) {}
+    }
+    setNumerosEval(order, index);
+    var numStr = order[index];
+    var entry = null;
+    for (var k = 0; k < window.BrailleNumbers.length; k++) {
+      if (window.BrailleNumbers[k].number === numStr) { entry = window.BrailleNumbers[k]; break; }
+    }
+    var ex = {
+      label: 'Evaluación de Números',
+      progressCurrent: index + 1,
+      progressTotal: 10,
+      character: entry.number,
+      dots: entry.dots
+    };
+    buildEvaluation(ex, function() {
+      if (window.BrailleStore) BrailleStore.completeLesson('numeros-numero-' + numStr);
+      var next = index + 1;
+      if (next >= 10) {
+        clearNumerosEval();
+        showNumerosCongrats();
+      } else {
+        setNumerosEval(order, next);
+        window.location.href = 'ejercicio_practica.html?course=numeros&lesson=numeros-eval&i=' + next;
+      }
+    });
+  }
+
+  // ===== PALABRAS EVAL - espejo de Alfabeto/Números, basado en BrailleAlphabet =====
+  var PALABRAS_EVAL_KEY = 'bl_palabras_eval';
+  var PALABRAS_EVAL_LS_KEY = 'bl_palabras_eval';
+  var PALABRAS_PROGRESS_KEY = 'palabras_progress';
+  var PALABRAS_TOTAL = (window.BrailleWords ? window.BrailleWords.length : 10);
+
+  function getPalabrasEval() {
+    try { var raw = sessionStorage.getItem(PALABRAS_EVAL_KEY); if (raw) return JSON.parse(raw); } catch(e) {}
+    try { var rawLS = localStorage.getItem(PALABRAS_EVAL_LS_KEY); if (rawLS) return JSON.parse(rawLS); } catch(e2) {}
+    try { if (window.BrailleStore) { var p = BrailleStore.get(PALABRAS_PROGRESS_KEY); if (p && p.order && typeof p.index === 'number') return { order: p.order, index: p.index }; } } catch(e3) {}
+    return null;
+  }
+  function setPalabrasEval(order, index) {
+    var data = JSON.stringify({ order: order, index: index });
+    try { sessionStorage.setItem(PALABRAS_EVAL_KEY, data); } catch(e) {}
+    try { localStorage.setItem(PALABRAS_EVAL_LS_KEY, data); } catch(e2) {}
+    try {
+      if (window.BrailleStore) {
+        BrailleStore.set(PALABRAS_PROGRESS_KEY, { index: index, total: PALABRAS_TOTAL, order: order, updatedAt: new Date().toISOString() });
+        var prog = BrailleStore.getProgress();
+        if (!prog.lessons['palabras-iniciado']) { prog.lessons['palabras-iniciado'] = { started: true, date: new Date().toISOString() }; BrailleStore.setProgress(prog); }
+      }
+    } catch(e3) {}
+  }
+  function clearPalabrasEval() {
+    try { sessionStorage.removeItem(PALABRAS_EVAL_KEY); } catch(e) {}
+    try { localStorage.removeItem(PALABRAS_EVAL_LS_KEY); } catch(e2) {}
+  }
+  function shufflePalabras() {
+    var base = window.BrailleWords.map(function(e){ return e.word; });
+    var out;
+    do {
+      out = base.slice();
+      for (var i = out.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var tmp = out[i]; out[i] = out[j]; out[j] = tmp; }
+    } while (isSorted(out));
+    return out;
+  }
+  function showPalabrasCongrats() {
+    document.getElementById('congrats-message').textContent = 'Has completado exitosamente las ' + PALABRAS_TOTAL + ' palabras en Braille.';
+    document.getElementById('completion-overlay').classList.add('hidden');
+    document.getElementById('congrats-overlay').classList.remove('hidden');
+  }
+  function buildPalabrasEvaluation() {
+    var indexParam = parseInt(params.get('i'), 10);
+    var hasIndex = params.has('i') && !isNaN(indexParam);
+    var order, index;
+    var persisted = getPalabrasEval();
+    if (hasIndex) {
+      order = (persisted && persisted.order && persisted.order.length === PALABRAS_TOTAL) ? persisted.order : shufflePalabras();
+      index = Math.min(Math.max(indexParam, 0), PALABRAS_TOTAL - 1);
+    } else {
+      if (persisted && persisted.order && persisted.order.length === PALABRAS_TOTAL && typeof persisted.index === 'number') {
+        order = persisted.order;
+        index = Math.min(Math.max(persisted.index, 0), PALABRAS_TOTAL - 1);
+        if (index >= PALABRAS_TOTAL) { order = shufflePalabras(); index = 0; }
+      } else { order = shufflePalabras(); index = 0; }
+      try { var newUrl = 'ejercicio_practica.html?course=palabras&lesson=palabras-eval&i=' + index; if (window.location.search.indexOf('i=') === -1) window.history.replaceState(null, '', newUrl); } catch(e) {}
+    }
+    setPalabrasEval(order, index);
+    var wordStr = order[index];
+    var entry = null;
+    for (var k = 0; k < window.BrailleWords.length; k++) { if (window.BrailleWords[k].word === wordStr) { entry = window.BrailleWords[k]; break; } }
+    // Render traducción espejo de buildTraduccion pero con progreso persistente
+    var ex = {
+      label: 'Palabras y Frases',
+      progressCurrent: index + 1,
+      progressTotal: PALABRAS_TOTAL,
+      question: 'Traduce la siguiente palabra en Braille:',
+      hint: 'Escribe la palabra en texto convencional.',
+      displayLabel: '¿Qué palabra es?',
+      answer: entry.word,
+      braille: entry.braille,
+      successMessage: '¡Correcto! Has traducido \'' + entry.word + '\'.'
+    };
+    // Reutilizar diseño de buildTraduccion con callback propio
+    var html = '';
+    html += '<section class="space-y-stack-sm">';
+    html += '<div class="flex justify-between items-center">';
+    html += '<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">' + ex.label + '</span>';
+    html += '<span class="text-title-md font-title-md font-bold text-secondary">' + ex.progressCurrent + '/' + ex.progressTotal + '</span>';
+    html += '</div>';
+    html += '<div class="w-full bg-surface-container-highest rounded-full h-3 overflow-hidden">';
+    html += '<div class="h-full bg-secondary-container rounded-full shadow-inner transition-all duration-1000 ease-out" style="width:' + (ex.progressCurrent / ex.progressTotal * 100) + '%"></div>';
+    html += '</div></section>';
+    html += '<div class="text-center space-y-stack-sm">';
+    html += '<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-primary leading-tight">' + ex.question + '</h2>';
+    html += '<p class="text-body-md font-body-md text-on-surface-variant">' + ex.hint + '</p></div>';
+    html += '<div class="flex justify-center items-center gap-2 py-6 flex-wrap">';
+    for (var i = 0; i < ex.braille.length; i++) {
+      html += '<div class="bg-surface-container-lowest rounded-xl custom-shadow border border-outline-variant/30 p-3">';
+      html += renderBrailleCell(ex.braille[i], 'w-8 h-8');
+      html += '</div>';
+    }
+    html += '</div>';
+    html += '<div class="text-center"><p class="text-title-md font-title-md font-bold text-primary">' + ex.displayLabel + '</p></div>';
+    html += '<div class="max-w-sm mx-auto w-full space-y-4" id="traduccion-area">';
+    html += '<input type="text" id="traduccion-input" class="w-full h-14 px-4 bg-surface-container-lowest border-2 border-outline-variant rounded-xl text-center text-headline-lg-mobile font-headline-lg-mobile text-primary focus:border-primary focus:ring-0 transition-all placeholder:text-on-surface-variant" placeholder="Escribe aquí..." autocomplete="off" autocapitalize="off">';
+    html += '<div id="traduccion-feedback" class="text-center text-body-md font-body-md min-h-[2rem]"></div>';
+    html += '<button id="btn-traducir" class="w-full bg-primary text-on-primary font-bold py-4 rounded-2xl tracking-widest transition-all duration-300 uppercase shadow-lg hover:brightness-110 active:scale-[0.98]">Comprobar</button>';
+    html += '<button id="btn-reintentar" class="w-full bg-surface-container-highest text-on-surface-variant font-bold py-3 rounded-xl hidden hover:bg-surface-container-high transition-colors active:scale-[0.98]">Reintentar</button>';
+    html += '</div>';
+    main.innerHTML = html;
+    var input = document.getElementById('traduccion-input');
+    var feedback = document.getElementById('traduccion-feedback');
+    var submitBtn = document.getElementById('btn-traducir');
+    var retryBtn = document.getElementById('btn-reintentar');
+    function checkAnswer() {
+      var userAnswer = input.value.trim().toLowerCase();
+      if (!userAnswer) return;
+      if (userAnswer === ex.answer) {
+        if (window.BrailleStore) BrailleStore.completeLesson('palabras-palabra-' + wordStr);
+        var next = index + 1;
+        if (next >= PALABRAS_TOTAL) { clearPalabrasEval(); showPalabrasCongrats(); }
+        else { setPalabrasEval(order, next); window.location.href = 'ejercicio_practica.html?course=palabras&lesson=palabras-eval&i=' + next; }
+      } else {
+        input.classList.add('border-red-500', 'bg-red-50');
+        input.disabled = true;
+        submitBtn.classList.add('hidden');
+        feedback.innerHTML = '<span class="text-red-500 font-bold">✗ Incorrecto. La palabra no es \"' + userAnswer + '\".</span>';
+        retryBtn.classList.remove('hidden');
+      }
+    }
+    submitBtn.addEventListener('click', checkAnswer);
+    input.addEventListener('keydown', function(e){ if (e.key === 'Enter') checkAnswer(); });
+    retryBtn.addEventListener('click', function(){
+      input.classList.remove('border-red-500', 'bg-red-50');
+      input.disabled = false; input.value = ''; input.focus();
+      feedback.innerHTML = ''; submitBtn.classList.remove('hidden'); retryBtn.classList.add('hidden');
+    });
+    setTimeout(function(){ input.focus(); }, 100);
+  }
+
   function handleCompletion(ex) {
     if (CourseRouter.isLastStep(lessonSlug)) {
       var catName = { alfabeto: 'el Alfabeto', numeros: 'los Números', palabras: 'Palabras y Frases' }[ex.category] || 'esta actividad';
@@ -665,8 +1003,9 @@
     }
   }
 
-  // Render based on mode
+  // Render based on mode - flecha solo navegación para letras en braille
   if (exercise.category === 'alfabeto') {
+    setBackToEjercicios();
     buildEvaluation(exercise);
   } else if (exercise.mode === 'lesson') {
     buildLesson(exercise);
@@ -678,4 +1017,5 @@
 
 })();
 </script>
+<script src="assets/js/feedback_inmediato.js"></script>
 </body></html>

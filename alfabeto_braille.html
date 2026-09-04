@@ -9,8 +9,68 @@
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script src="assets/js/tailwind-config.js"></script>
-<style>
+  <style>
     body { min-height: max(884px, 100dvh); }
+    @keyframes braille-pop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+    .braille-pop {
+      animation: braille-pop 0.3s ease;
+    }
+    .tactile-card { cursor: pointer; }
+    @keyframes braille-popup-in {
+      0%   { opacity: 0; transform: scale(0.6); }
+      60%  { opacity: 1; transform: scale(1.08); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes braille-popup-out {
+      0%   { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.6); }
+    }
+    #braille-popup {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px);
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    #braille-popup .popup-card {
+      background: var(--surface, #fff);
+      border-radius: 28px;
+      padding: 32px;
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+      border: 3px solid #c4c6cf;
+    }
+    #braille-popup .popup-image { font-size: 42vw; line-height: 1; }
+    #braille-popup .popup-letter { font-size: 18vw; font-weight: 800; color: var(--primary, #000); line-height: 1; }
+    #braille-popup .popup-word { font-size: 6vw; color: var(--on-surface-variant, #555); }
+    #braille-popup .popup-braille { width: 60vw; max-width: 320px; }
+    @media (min-width: 768px) {
+      #braille-popup .popup-image { font-size: 320px; }
+      #braille-popup .popup-letter { font-size: 140px; }
+      #braille-popup .popup-word { font-size: 40px; }
+    }
+    #braille-popup.show { visibility: visible; pointer-events: auto; animation: braille-popup-in 0.25s ease; }
+    #braille-popup.hide { visibility: visible; pointer-events: none; animation: braille-popup-out 0.2s ease forwards; }
   </style>
 </head>
 <body class="bg-background text-on-surface min-h-screen flex flex-col">
@@ -39,36 +99,24 @@
 <script src="assets/js/app.js"></script>
 <script>
 (function() {
-  // celda Braille: [dot1, dot2, dot3, dot4, dot5, dot6]
-  var data = [
-    { letter: 'A', word: 'Avión', image: '✈️', dots: [1,0,0,0,0,0] },
-    { letter: 'B', word: 'Bola', image: '⚽', dots: [1,1,0,0,0,0] },
-    { letter: 'C', word: 'Conejo', image: '🐰', dots: [1,0,0,1,0,0] },
-    { letter: 'D', word: 'Delfín', image: '🐬', dots: [1,0,0,1,1,0] },
-    { letter: 'E', word: 'Elefante', image: '🐘', dots: [1,0,0,0,1,0] },
-    { letter: 'F', word: 'Fresa', image: '🍓', dots: [1,1,0,1,0,0] },
-    { letter: 'G', word: 'Guitarra', image: '🎸', dots: [1,1,0,1,1,0] },
-    { letter: 'H', word: 'Huevo', image: '🥚', dots: [1,1,0,0,1,0] },
-    { letter: 'I', word: 'Isla', image: '🏝️', dots: [0,1,0,1,0,0] },
-    { letter: 'J', word: 'Jirafa', image: '🦒', dots: [0,1,0,1,1,0] },
-    { letter: 'K', word: 'Kiwi', image: '🥝', dots: [1,0,1,0,0,0] },
-    { letter: 'L', word: 'León', image: '🦁', dots: [1,1,1,0,0,0] },
-    { letter: 'M', word: 'Melón', image: '🍈', dots: [1,0,1,1,0,0] },
-    { letter: 'N', word: 'Nube', image: '☁️', dots: [1,0,1,1,1,0] },
-    { letter: 'Ñ', word: 'Ñu', image: '🦬', dots: [1,1,1,1,1,1] },
-    { letter: 'O', word: 'Oso', image: '🐻', dots: [1,0,1,0,1,0] },
-    { letter: 'P', word: 'Pizza', image: '🍕', dots: [1,1,1,1,0,0] },
-    { letter: 'Q', word: 'Queso', image: '🧀', dots: [1,1,1,1,1,0] },
-    { letter: 'R', word: 'Rosa', image: '🌹', dots: [1,1,1,0,1,0] },
-    { letter: 'S', word: 'Sol', image: '☀️', dots: [0,1,1,1,0,0] },
-    { letter: 'T', word: 'Tortuga', image: '🐢', dots: [0,1,1,1,1,0] },
-    { letter: 'U', word: 'Uva', image: '🍇', dots: [1,0,1,0,0,1] },
-    { letter: 'V', word: 'Vaca', image: '🐄', dots: [1,1,1,0,0,1] },
-    { letter: 'W', word: 'Waffle', image: '🧇', dots: [0,1,0,1,1,1] },
-    { letter: 'X', word: 'Xilófono', image: '🎼', dots: [1,0,1,1,0,1] },
-    { letter: 'Y', word: 'Yoyo', image: '🪀', dots: [1,0,1,1,1,1] },
-    { letter: 'Z', word: 'Zorro', image: '🦊', dots: [1,0,1,0,1,1] }
-  ];
+  // FUENTE ÚNICA: reutiliza window.BrailleAlphabet definido en app.js
+  // Solo datos visuales (word/image) se mantienen aquí
+  var wordMap = {
+    'A':{word:'Avión',image:'✈️'}, 'B':{word:'Bola',image:'⚽'}, 'C':{word:'Conejo',image:'🐰'},
+    'D':{word:'Delfín',image:'🐬'}, 'E':{word:'Elefante',image:'🐘'}, 'F':{word:'Fresa',image:'🍓'},
+    'G':{word:'Guitarra',image:'🎸'}, 'H':{word:'Huevo',image:'🥚'}, 'I':{word:'Isla',image:'🏝️'},
+    'J':{word:'Jirafa',image:'🦒'}, 'K':{word:'Kiwi',image:'🥝'}, 'L':{word:'León',image:'🦁'},
+    'M':{word:'Melón',image:'🍈'}, 'N':{word:'Nube',image:'☁️'}, 'Ñ':{word:'Ñu',image:'🦬'},
+    'O':{word:'Oso',image:'🐻'}, 'P':{word:'Pizza',image:'🍕'}, 'Q':{word:'Queso',image:'🧀'},
+    'R':{word:'Rosa',image:'🌹'}, 'S':{word:'Sol',image:'☀️'}, 'T':{word:'Tortuga',image:'🐢'},
+    'U':{word:'Uva',image:'🍇'}, 'V':{word:'Vaca',image:'🐄'}, 'W':{word:'Waffle',image:'🧇'},
+    'X':{word:'Xilófono',image:'🎼'}, 'Y':{word:'Yoyo',image:'🪀'}, 'Z':{word:'Zorro',image:'🦊'}
+  };
+  // celda Braille: [dot1, dot2, dot3, dot4, dot5, dot6] — viene de BrailleAlphabet
+  var data = window.BrailleAlphabet.map(function(e){
+    var meta = wordMap[e.letter] || {word:e.letter, image:'🔤'};
+    return { letter: e.letter, word: meta.word, image: meta.image, dots: e.dots };
+  });
 
   var isDark = document.documentElement.classList.contains('dark');
   var activeFill = isDark ? '#afc8f0' : '#000613';
@@ -94,8 +142,52 @@
       '<div class="text-[44px] leading-none" role="img" aria-label="' + item.word + '">' + item.image + '</div>' +
       '<div class="bg-surface-container-low rounded-xl py-2 px-3 w-full flex items-center justify-center">' + svg + '</div>' +
       '<p class="text-label-sm font-label-sm text-on-surface-variant">' + item.word + '</p>';
+    card.addEventListener('click', function() {
+      card.classList.remove('braille-pop');
+      void card.offsetWidth;
+      card.classList.add('braille-pop');
+      showPopup(card, item);
+    });
     container.appendChild(card);
+  });
+
+  var popup = document.getElementById('braille-popup');
+  var popupTimer = null;
+  function showPopup(card, item) {
+    var isDark = document.documentElement.classList.contains('dark');
+    var activeFill = isDark ? '#afc8f0' : '#000613';
+    var inactiveFill = isDark ? '#3a3a3a' : '#e5e2e1';
+    var inactiveStroke = isDark ? '#44474e' : '#c4c6cf';
+    var pos = [[12,14],[12,30],[12,46],[38,14],[38,30],[38,46]];
+    var svg = '<svg viewBox="0 0 50 70" class="popup-braille" xmlns="http://www.w3.org/2000/svg">';
+    for (var d = 0; d < 6; d++) {
+      var fill = item.dots[d] ? activeFill : inactiveFill;
+      var stroke = item.dots[d] ? activeFill : inactiveStroke;
+      svg += '<circle cx="' + pos[d][0] + '" cy="' + pos[d][1] + '" r="6" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1"/>';
+    }
+    svg += '</svg>';
+    popup.innerHTML =
+      '<div class="popup-card">' +
+        '<div class="popup-image" role="img" aria-label="' + item.word + '">' + item.image + '</div>' +
+        '<div class="popup-letter">' + item.letter + '</div>' +
+        svg +
+        '<div class="popup-word">' + item.word + '</div>' +
+      '</div>';
+    popup.classList.remove('hide');
+    popup.classList.add('show');
+    clearTimeout(popupTimer);
+  }
+  function hidePopup() {
+    popup.classList.remove('show');
+    popup.classList.add('hide');
+  }
+  popup.addEventListener('click', hidePopup);
+  popup.addEventListener('animationend', function() {
+    if (popup.classList.contains('hide')) {
+      popup.classList.remove('hide');
+    }
   });
 })();
 </script>
+<div id="braille-popup"></div>
 </body></html>
