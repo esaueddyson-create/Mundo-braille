@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html class="light" lang="es"><head>
 <meta charset="utf-8"/>
@@ -94,6 +94,16 @@
 <h2 class="text-headline-lg-mobile font-headline-lg-mobile text-primary">¡Felicidades!</h2>
 <p class="text-body-md font-body-md text-on-surface-variant" id="congrats-message">Has completado exitosamente todos los ejercicios de esta actividad.</p>
 <button class="w-full bg-primary text-on-primary font-bold py-3 rounded-xl shadow-lg hover:brightness-110 transition-all active:scale-[0.98]" onclick="window.location.href='ejercicios_interactivos.html'">Volver a ejercicios</button>
+</div>
+</div>
+<!-- Alfabeto puntos felicitación - solo Alfabeto -->
+<div id="alfabeto-puntos-modal" class="fixed inset-0 z-50 bg-primary/60 flex items-center justify-center px-6 hidden">
+<div class="bg-surface-container-lowest rounded-3xl p-8 max-w-sm w-full text-center space-y-4 custom-shadow-xl fade-in">
+<div class="text-4xl">🎉</div>
+<h3 class="text-headline-lg-mobile font-headline-lg-mobile text-primary">¡Felicidades!</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">¡Respuesta correcta!</p>
+<p class="text-2xl font-extrabold text-secondary" id="alfabeto-puntos-valor">+200 puntos</p>
+<button id="alfabeto-puntos-aceptar" class="w-full bg-primary text-on-primary font-bold py-3 rounded-xl shadow-lg hover:brightness-110 transition-all active:scale-[0.98]">Aceptar</button>
 </div>
 </div>
 
@@ -612,7 +622,7 @@
     });
   }
 
-  var ALPHA_EVAL_KEY = 'bl_alphabet_eval';
+    var ALPHA_EVAL_KEY = 'bl_alphabet_eval';
   var ALPHA_EVAL_LS_KEY = 'bl_alphabet_eval';
   var ALPHA_PROGRESS_KEY = 'alphabet_progress'; // via BrailleStore -> bl_alphabet_progress
 
@@ -671,7 +681,10 @@
   }
 
   function shuffleLetters() {
-    var base = window.BrailleAlphabet.map(function(e) { return e.letter; });
+    var src = window.BrailleAlphabet || [];
+    var base = [];
+    for (var k = 0; k < src.length; k++) { var lt = src[k].letter; if (lt >= 'A' && lt <= 'Z') base.push(lt); }
+    if (base.length !== 26) { base.sort(function(a,b){ return a.localeCompare(b); }); if (base.length > 26) base = base.slice(0,26); }
     var out;
     do {
       out = base.slice();
@@ -689,6 +702,29 @@
     document.getElementById('congrats-overlay').classList.remove('hidden');
   }
 
+  // --- Puntuación Alfabeto según dificultad (reutiliza lógica puntos existente) ---
+  var ALFABETO_PUNTOS_CLAIMED_KEY = 'alfabeto_puntos_claimed';
+  function getAlfabetoDificultadPuntos(dots) {
+    var c = 0; for (var i = 0; i < dots.length; i++) if (dots[i]) c++;
+    if (c <= 2) return { nivel: 'Fácil', puntos: 100 };
+    if (c === 3) return { nivel: 'Media', puntos: 200 };
+    return { nivel: 'Difícil', puntos: 300 };
+  }
+  function getAlfabetoPuntosClaimed() {
+    try { var arr = window.BrailleStore ? BrailleStore.get(ALFABETO_PUNTOS_CLAIMED_KEY) : null; return Array.isArray(arr) ? arr.slice() : []; } catch(e){ return []; }
+  }
+  function isAlfabetoPuntosClaimed(letter) {
+    return getAlfabetoPuntosClaimed().indexOf((letter||'').toUpperCase()) !== -1;
+  }
+  function marcarAlfabetoPuntosClaimed(letter) {
+    letter = (letter||'').toUpperCase();
+    var arr = getAlfabetoPuntosClaimed();
+    if (arr.indexOf(letter) !== -1) return false;
+    arr.push(letter);
+    try { if (window.BrailleStore) BrailleStore.set(ALFABETO_PUNTOS_CLAIMED_KEY, arr); } catch(e){}
+    return true;
+  }
+
   function buildAlphabetEvaluation() {
     var indexParam = parseInt(params.get('i'), 10);
     var hasIndex = params.has('i') && !isNaN(indexParam);
@@ -696,14 +732,19 @@
     var order, index;
     var persisted = getAlphaEval();
     if (hasIndex) {
-      // Navegación con ?i=N: respetar índice URL pero reutilizar orden guardado
-      order = (persisted && persisted.order && persisted.order.length === 26) ? persisted.order : shuffleLetters();
-      index = Math.min(Math.max(indexParam, 0), 25);
+      order = (persisted && Array.isArray(persisted.order) && persisted.order.length) ? persisted.order : shuffleLetters();
+      var requestedAlpha = Math.min(Math.max(indexParam, 0), 25);
+      if (persisted && typeof persisted.index === 'number' && persisted.index > requestedAlpha) {
+        index = Math.min(Math.max(persisted.index, 0), Math.min(25, (persisted.order ? persisted.order.length-1 : 25)));
+        try { window.history.replaceState(null, '', 'ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=' + index); } catch (e2) {}
+      } else {
+        index = requestedAlpha;
+      }
     } else {
-      // Entrada sin ?i: reanudar progreso guardado si existe, si no iniciar nuevo
-      if (persisted && persisted.order && persisted.order.length === 26 && typeof persisted.index === 'number') {
+      // Entrada sin ?i: reanudar progreso guardado si existe, si no iniciar nuevo - conserva IDENTIDAD (order) no solo índice
+      if (persisted && Array.isArray(persisted.order) && persisted.order.length && typeof persisted.index === 'number') {
         order = persisted.order;
-        index = Math.min(Math.max(persisted.index, 0), 25);
+        index = Math.min(Math.max(persisted.index, 0), Math.min(25, order.length-1));
         // Si ya completó 26 (índice fuera de rango) reiniciar
         if (index >= 26) { order = shuffleLetters(); index = 0; }
       } else {
@@ -733,19 +774,48 @@
     };
 
     buildEvaluation(ex, function() {
-      if (window.BrailleStore) BrailleStore.completeLesson('alfabeto-letra-' + letter.toLowerCase());
-      var next = index + 1;
-      if (next >= 26) {
-        clearAlphaEval();
-        showAlphabetCongrats();
+      // 1-4: comprobar correcta ya hecho, identificar dificultad y puntos, agregar al sistema existente, evitar duplicados
+      var dif = getAlfabetoDificultadPuntos(entry.dots);
+      var puntos = dif.puntos;
+      var esNueva = !isAlfabetoPuntosClaimed(letter);
+      var puntosOtorgados = 0;
+      if (esNueva) {
+        if (window.BrailleStore) BrailleStore.completeLesson('alfabeto-letra-' + letter.toLowerCase());
+        try { if (window.BrailleStore && window.BrailleStore.addPoints) BrailleStore.addPoints(puntos); } catch(e){}
+        marcarAlfabetoPuntosClaimed(letter);
+        puntosOtorgados = puntos;
       } else {
-        setAlphaEval(order, next);
-        window.location.href = 'ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=' + next;
+        if (window.BrailleStore) BrailleStore.completeLesson('alfabeto-letra-' + letter.toLowerCase());
+        // Ya reclamado: no otorgar de nuevo, continuar sin ventana para no duplicar
+        var nextDup = index + 1;
+        if (nextDup >= 26) { clearAlphaEval(); showAlphabetCongrats(); } else { setAlphaEval(order, nextDup); window.location.href = 'ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=' + nextDup; }
+        return;
       }
+      // 5-8: ventana felicitación con puntos exactos
+      var modal = document.getElementById('alfabeto-puntos-modal');
+      var valorEl = document.getElementById('alfabeto-puntos-valor');
+      var btnAceptar = document.getElementById('alfabeto-puntos-aceptar');
+      if (valorEl) valorEl.textContent = '+' + puntosOtorgados + ' puntos';
+      if (modal) modal.classList.remove('hidden');
+      var aceptado = false;
+      function continuarTrasAceptar() {
+        if (aceptado) return;
+        aceptado = true;
+        if (modal) modal.classList.add('hidden');
+        // 9-10: cerrar y continuar flujo normal
+        var next = index + 1;
+        if (next >= 26) {
+          clearAlphaEval();
+          showAlphabetCongrats();
+        } else {
+          setAlphaEval(order, next);
+          window.location.href = 'ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=' + next;
+        }
+      }
+      if (btnAceptar) btnAceptar.onclick = continuarTrasAceptar;
     });
   }
-
-  // ===== NÚMEROS EVAL - espejo exacto de Alfabeto, adaptado a números (0-9) =====
+// ===== NÚMEROS EVAL - espejo exacto de Alfabeto, adaptado a números (0-9) =====
   var NUMEROS_EVAL_KEY = 'bl_numeros_eval';
   var NUMEROS_EVAL_LS_KEY = 'bl_numeros_eval';
   var NUMEROS_PROGRESS_KEY = 'numeros_progress';
@@ -815,7 +885,13 @@
     var persisted = getNumerosEval();
     if (hasIndex) {
       order = (persisted && persisted.order && persisted.order.length === 10) ? persisted.order : shuffleNumbers();
-      index = Math.min(Math.max(indexParam, 0), 9);
+      var requestedNum = Math.min(Math.max(indexParam, 0), 9);
+      if (persisted && typeof persisted.index === 'number' && persisted.index > requestedNum) {
+        index = Math.min(Math.max(persisted.index, 0), 9);
+        try { window.history.replaceState(null, '', 'ejercicio_practica.html?course=numeros&lesson=numeros-eval&i=' + index); } catch (e2) {}
+      } else {
+        index = requestedNum;
+      }
     } else {
       if (persisted && persisted.order && persisted.order.length === 10 && typeof persisted.index === 'number') {
         order = persisted.order;
@@ -905,7 +981,13 @@
     var persisted = getPalabrasEval();
     if (hasIndex) {
       order = (persisted && persisted.order && persisted.order.length === PALABRAS_TOTAL) ? persisted.order : shufflePalabras();
-      index = Math.min(Math.max(indexParam, 0), PALABRAS_TOTAL - 1);
+      var requestedPal = Math.min(Math.max(indexParam, 0), PALABRAS_TOTAL - 1);
+      if (persisted && typeof persisted.index === 'number' && persisted.index > requestedPal) {
+        index = Math.min(Math.max(persisted.index, 0), PALABRAS_TOTAL - 1);
+        try { window.history.replaceState(null, '', 'ejercicio_practica.html?course=palabras&lesson=palabras-eval&i=' + index); } catch (e2) {}
+      } else {
+        index = requestedPal;
+      }
     } else {
       if (persisted && persisted.order && persisted.order.length === PALABRAS_TOTAL && typeof persisted.index === 'number') {
         order = persisted.order;
