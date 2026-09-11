@@ -2,7 +2,7 @@
 
 <html class="light" lang="es"><head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <title>Mundo Braille - Ejercicios</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script src="assets/js/tailwind-config.js"></script>
@@ -10,7 +10,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;0,800;1,400&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <style>
-    body { min-height: max(884px, 100dvh); }
+    body {
+      min-height: 100dvh;
+      min-height: 100svh;
+    }
+    @media (max-width: 600px) {
+      body { min-height: 100dvh; }
+    }
     .braille-cell-dot {
         width: 22px; height: 22px; border-radius: 50%;
         background: #fff8e1;
@@ -98,16 +104,16 @@
 
 <main class="pt-20 px-container-margin max-w-4xl mx-auto space-y-stack-lg">
 
-<!-- ========== RETO DEL DIA ========== -->
+<!-- ========== RETO DEL DÍA ========== -->
 <section class="fade-in" style="animation-delay:0s">
 <div class="flex items-center gap-2 mb-stack-sm">
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; color:#ff8f00;">auto_awesome</span>
-<h2 class="text-title-md font-title-md section-title" style="color:#ff8f00;">Reto del dia</h2>
+<h2 class="text-title-md font-title-md section-title" style="color:#ff8f00;">Reto del día</h2>
 </div>
 <div class="hero-glow hero-bg rounded-3xl p-6 md:p-8 custom-shadow-lg">
 <div class="flex flex-col md:flex-row md:items-center gap-6">
 <div class="flex-1">
-<p class="text-label-sm font-label-sm text-on-surface-variant/80 uppercase tracking-wider mb-2">Desafio de hoy</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant/80 uppercase tracking-wider mb-2">Desafío de hoy</p>
 <h3 class="text-headline-lg-mobile font-headline-lg-mobile section-title mb-1" style="color:#3e2723;">Identifica el Braille</h3>
 <p class="text-body-md font-body-md text-on-surface-variant/80 mb-4">Observa las cajetillas Braille y escribe la palabra correcta</p>
 <div class="flex items-center gap-3">
@@ -157,13 +163,13 @@
 <span class="material-symbols-outlined text-primary">arrow_forward</span>
 </div>
 </div>
-<!-- Numeros -->
+<!-- Números -->
 <div class="activity-card bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/30 cursor-pointer card-hover" onclick="window.location.href='ejercicio_practica.html?course=numeros&lesson=numeros-eval&i=0'">
 <div class="w-14 h-14 rounded-2xl bg-primary-fixed flex items-center justify-center text-on-primary-fixed mb-4 shadow-sm">
 <span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">123</span>
 </div>
-<h3 class="text-title-md font-title-md section-title text-primary mb-1">Numeros</h3>
-<p class="text-body-md font-body-md text-on-surface-variant mb-3">Domina los numeros del sistema Braille</p>
+<h3 class="text-title-md font-title-md section-title text-primary mb-1">Números</h3>
+<p class="text-body-md font-body-md text-on-surface-variant mb-3">Domina los números del sistema Braille</p>
 <div class="flex items-center justify-between">
 <span class="text-label-sm font-label-sm text-on-surface-variant" id="lab-numeros-count">Cargando...</span>
 <span class="material-symbols-outlined text-primary">arrow_forward</span>
@@ -236,8 +242,8 @@
 <p class="text-label-sm font-label-sm text-on-surface-variant" id="prog-badges-count">0 obtenidas</p>
 <div class="flex flex-wrap gap-2 mt-2" id="prog-badges-list"></div>
 </div>
-<!-- Progreso por categoria -->
-<h3 class="text-body-md font-body-md font-bold text-primary mb-4">Progreso por categoria</h3>
+<!-- Progreso por categoría -->
+<h3 class="text-body-md font-body-md font-bold text-primary mb-4">Progreso por categoría</h3>
 <div class="space-y-5">
 <div>
 <div class="flex justify-between mb-2">
@@ -250,7 +256,7 @@
 </div>
 <div>
 <div class="flex justify-between mb-2">
-<span class="text-body-md font-body-md text-on-surface">Numeros</span>
+<span class="text-body-md font-body-md text-on-surface">Números</span>
 <span class="text-label-sm font-label-sm font-bold text-primary" id="prog-numeros-pct">0%</span>
 </div>
 <div class="w-full bg-surface-container-highest rounded-full h-3 overflow-hidden">
@@ -281,14 +287,14 @@
 <form id="crea-form" class="space-y-4" onsubmit="return CreaActivity.handleSubmit(event)">
 <div>
 <label class="text-label-sm font-label-sm font-bold text-primary block mb-1">Nombre de la actividad</label>
-<input type="text" id="crea-nombre" class="input-field" placeholder="Ej: Practica de la letra A" required/>
+<input type="text" id="crea-nombre" class="input-field" placeholder="Ej: Práctica de la letra A" required/>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 <div>
-<label class="text-label-sm font-label-sm font-bold text-primary block mb-1">Categoria</label>
+<label class="text-label-sm font-label-sm font-bold text-primary block mb-1">Categoría</label>
 <select id="crea-categoria" class="input-field">
 <option value="alfabeto">Alfabeto</option>
-<option value="numeros">Numeros</option>
+<option value="numeros">Números</option>
 <option value="palabras">Palabras</option>
 </select>
 </div>
@@ -303,7 +309,7 @@
 </div>
 </div>
 <div>
-<label class="text-label-sm font-label-sm font-bold text-primary block mb-1">Descripcion</label>
+<label class="text-label-sm font-label-sm font-bold text-primary block mb-1">Descripción</label>
 <textarea id="crea-descripcion" class="input-field" placeholder="Describe la actividad..." required></textarea>
 </div>
 <button type="submit" class="btn-primary w-full flex items-center justify-center gap-2">
@@ -791,7 +797,7 @@ Crear Actividad
       var list = document.getElementById('crea-list');
       if (!list) return;
       if (activities.length === 0) { list.innerHTML = '<p class="text-on-surface-variant text-center py-3 text-body-md font-body-md">Sin actividades creadas</p>'; return; }
-      var labels = { alfabeto:'Alfabeto', numeros:'Numeros', palabras:'Palabras' };
+      var labels = { alfabeto:'Alfabeto', numeros:'Números', palabras:'Palabras' };
       var html = '';
       activities.forEach(function(a) {
         html += '<div class="activity-item flex items-center gap-3 p-3 bg-surface-container-highest rounded-2xl border border-outline-variant/20">' +

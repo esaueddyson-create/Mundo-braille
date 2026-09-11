@@ -78,7 +78,11 @@
   </script>
   <style>
     body {
-      min-height: max(884px, 100dvh);
+      min-height: 100dvh;
+      min-height: 100svh;
+    }
+    @media (max-width: 600px) {
+      body { min-height: 100dvh; }
     }
     .search-highlight {
       background: #d4e3ff;

@@ -211,3 +211,357 @@ html.dark body {
 .carousel-track.dragging .carousel-item {
   pointer-events: none;
 }
+
+/* ============================================================
+   RESPONSIVE MOBILE ADAPTATION - Mundo Braille
+   Todas las pantallas adaptadas a dispositivos móviles
+   ============================================================ */
+
+/* --- Reset global responsive --- */
+html {
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  /* anula el max(884px, 100dvh) forzado en <style> inline : usar 100dvh fluido */
+  min-height: 100dvh !important;
+  min-height: 100svh !important;
+}
+img, svg, video, iframe, canvas {
+  max-width: 100%;
+}
+* {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+.pb-safe {
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+/* --- Contenedor fluido: px-container-margin y spacing --- */
+.px-container-margin {
+  padding-left: clamp(12px, 4vw, 24px) !important;
+  padding-right: clamp(12px, 4vw, 24px) !important;
+}
+
+/* --- Tipografía fluida para evitar overflow en móviles --- */
+.text-headline-lg-mobile {
+  font-size: clamp(20px, 6vw, 28px) !important;
+  line-height: 1.2 !important;
+}
+.text-headline-lg {
+  font-size: clamp(22px, 6.5vw, 32px) !important;
+}
+.text-display-lg {
+  font-size: clamp(28px, 8vw, 40px) !important;
+}
+.text-title-md {
+  font-size: clamp(16px, 4.5vw, 20px) !important;
+}
+.text-body-lg, .text-body-md {
+  word-break: break-word;
+}
+
+/* Evitar texto gigante que desborda en móviles */
+.text-8xl {
+  font-size: clamp(3rem, 18vw, 6rem) !important;
+}
+.text-\[44px\], .text-\[28px\] {
+  line-height: 1 !important;
+}
+
+/* --- Header y BottomNav responsive --- */
+header {
+  max-width: 100vw;
+}
+header h1 {
+  font-size: clamp(14px, 4vw, 20px) !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+nav.fixed.bottom-0 {
+  max-width: 100vw;
+  gap: 2px;
+}
+nav.fixed.bottom-0 a {
+  min-width: 44px;
+  min-height: 44px;
+  flex: 1;
+  padding: 6px 2px !important;
+}
+nav.fixed.bottom-0 .material-symbols-outlined {
+  font-size: clamp(20px, 6vw, 24px) !important;
+}
+nav.fixed.bottom-0 .text-label-sm {
+  font-size: clamp(10px, 2.8vw, 12px) !important;
+  white-space: nowrap;
+}
+
+/* --- Main padding compensado por header fijo --- */
+main {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* --- Grids adaptativos --- */
+/* Alfabeto y Números: 2 cols en móvil pequeño -> 1 col en <=360px */
+#cards-container {
+  width: 100%;
+}
+#cards-container.grid {
+  gap: clamp(8px, 2vw, 12px) !important;
+}
+@media (max-width: 360px) {
+  #cards-container.grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+  .tactile-card {
+    padding: 12px !important;
+  }
+}
+@media (min-width: 361px) and (max-width: 480px) {
+  #cards-container.grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Signos puntuación: 1 col móvil -> 2 cols tablet */
+@media (max-width: 640px) {
+  #cards-container.grid-cols-1.md\:grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+}
+
+/* --- Braille dots/cells responsive --- */
+.braille-dot-cell {
+  width: clamp(10px, 3.5vw, 14px) !important;
+  height: clamp(10px, 3.5vw, 14px) !important;
+}
+#interactive-dots .braille-dot-cell,
+#eval-dots .braille-dot-cell {
+  width: clamp(36px, 12vw, 56px) !important;
+  height: clamp(36px, 12vw, 56px) !important;
+}
+.braille-cell-grid {
+  padding: clamp(8px, 2.5vw, 20px) !important;
+  gap: clamp(4px, 1.5vw, 6px) !important;
+}
+.braille-cell-dot {
+  width: clamp(16px, 5vw, 22px) !important;
+  height: clamp(16px, 5vw, 22px) !important;
+}
+.option-card {
+  aspect-ratio: auto !important;
+  min-height: 110px;
+  padding: clamp(8px, 2vw, 16px) !important;
+}
+@media (max-width: 380px) {
+  #options-grid.grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+  .option-card {
+    flex-direction: row !important;
+    gap: 12px;
+    justify-content: flex-start !important;
+  }
+}
+
+/* Ejercicio práctica: cards de caracter y opciones */
+@media (max-width: 480px) {
+  section.bg-surface-container-lowest.flex.items-center.justify-around {
+    flex-direction: column !important;
+    gap: 20px !important;
+    padding: 20px 16px !important;
+  }
+}
+
+/* --- Carousel responsive --- */
+.carousel-item {
+  width: clamp(120px, 38vw, 160px) !important;
+}
+.carousel-item .w-40 { width: 100% !important; }
+.carousel-track {
+  gap: clamp(8px, 3vw, 16px) !important;
+}
+
+/* --- Cards y Bento responsive --- */
+.tactile-card, .custom-shadow {
+  max-width: 100%;
+}
+.hero-glow .flex-col.md\:flex-row {
+  gap: 16px !important;
+}
+
+/* --- Formularios login/registro responsive --- */
+@media (max-width: 480px) {
+  #loginForm .h-14, #registerForm .h-14, .input-field {
+    height: 48px !important;
+    font-size: 16px !important; /* previene zoom iOS */
+  }
+  .p-stack-lg {
+    padding: 20px !important;
+  }
+  .w-20.h-20 {
+    width: 64px !important;
+    height: 64px !important;
+  }
+}
+
+/* --- Input tipo texto en traducción y reto: 16px mínimo --- */
+input[type="text"], input[type="email"], input[type="password"], textarea, select {
+  font-size: 16px !important;
+  max-width: 100%;
+}
+#traduccion-input {
+  font-size: clamp(18px, 5vw, 28px) !important;
+}
+
+/* --- Video player responsive --- */
+.relative.bg-primary.overflow-hidden.aspect-video {
+  aspect-ratio: 16 / 9;
+  max-height: 56vw;
+}
+@media (max-width: 768px) {
+  .max-w-7xl.lg\:grid {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .lg\:col-span-8, .lg\:col-span-4 {
+    width: 100% !important;
+  }
+  #related-lessons .group {
+    flex-direction: row !important;
+  }
+}
+
+/* --- Ejercicios interactivos: stats y laboratorio --- */
+@media (max-width: 480px) {
+  .grid.grid-cols-3 {
+    gap: 8px !important;
+  }
+  .stat-card {
+    padding: 12px 8px !important;
+  }
+  .stat-card .text-3xl {
+    font-size: 24px !important;
+  }
+  .grid.grid-cols-1.md\:grid-cols-3 {
+    gap: 12px !important;
+  }
+  .hero-glow {
+    padding: 16px !important;
+  }
+  #reto-word-display {
+    gap: 6px !important;
+  }
+}
+@media (max-width: 360px) {
+  .grid.grid-cols-3 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+  .grid.grid-cols-3 .stat-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 12px !important;
+    text-align: left !important;
+    padding: 12px 16px !important;
+  }
+}
+
+/* --- Perfil responsive --- */
+@media (max-width: 480px) {
+  .w-32.h-32 {
+    width: 96px !important;
+    height: 96px !important;
+  }
+  .md\:w-40.md\:h-40 {
+    width: 96px !important;
+    height: 96px !important;
+  }
+  section .tactile-card.flex.gap-4 {
+    flex-direction: column !important;
+    text-align: center;
+  }
+  section .tactile-card.flex.gap-4 .w-20.h-20 {
+    width: 100% !important;
+    height: 120px !important;
+  }
+}
+
+/* --- Popup Braille responsive --- */
+#braille-popup .popup-card {
+  padding: clamp(16px, 4vw, 32px) !important;
+  width: min(90vw, 360px) !important;
+}
+#braille-popup .popup-image {
+  font-size: clamp(64px, 22vw, 160px) !important;
+}
+#braille-popup .popup-letter {
+  font-size: clamp(48px, 16vw, 120px) !important;
+}
+#braille-popup .popup-word {
+  font-size: clamp(16px, 4.5vw, 28px) !important;
+}
+#braille-popup .popup-braille {
+  width: clamp(180px, 50vw, 280px) !important;
+}
+
+/* --- Overlays de completado responsive --- */
+#completion-overlay > div, #congrats-overlay > div, #alfabeto-puntos-modal > div, #reto-popup > div {
+  width: min(92vw, 360px) !important;
+  padding: clamp(16px, 4vw, 32px) !important;
+  max-height: 90dvh;
+  overflow-y: auto;
+}
+
+/* --- Botones: asegurar área táctil mínima 44px --- */
+button, a[href], [role="button"], .cursor-pointer {
+  min-height: 44px;
+}
+button.w-10.h-10, a.w-10.h-10 {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* --- Evitar scroll horizontal por 884px min-height inline --- */
+body[style*="884px"], html[style*="884px"] {
+  min-height: 100dvh !important;
+}
+@media (max-width: 600px) {
+  body {
+    min-height: 100dvh !important;
+  }
+  main.pt-20 {
+    padding-top: 68px !important;
+  }
+  main.pt-16 {
+    padding-top: 60px !important;
+  }
+  main.pb-32, main.pb-28, main.pb-24 {
+    padding-bottom: 88px !important;
+  }
+}
+
+/* --- Tablas y flex wraps seguros --- */
+.flex-wrap {
+  max-width: 100%;
+}
+.truncate {
+  max-width: 100%;
+}
+
+/* --- Safe area para iPhone notch --- */
+@supports (padding: max(0px)) {
+  header {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+  nav.fixed.bottom-0 {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}

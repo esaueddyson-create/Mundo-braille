@@ -25,7 +25,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <style>
     body {
-      min-height: max(884px, 100dvh);
+      min-height: 100dvh;
+      min-height: 100svh;
+    }
+    @media (max-width: 600px) {
+      body { min-height: 100dvh; }
     }
   </style>
 </head>

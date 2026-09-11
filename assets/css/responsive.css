@@ -1,0 +1,6 @@
+/* Mundo Braille - Responsive Mobile Layer (fallback standalone) */
+/* Importado automáticamente vía shared.css - este archivo es referencia */
+/* Si se vincula manualmente, asegura adaptación móvil completa */
+/* Contenido duplicado de shared.css sección responsive para carga independiente */
+html{-webkit-text-size-adjust:100%;overflow-x:hidden}
+body{overflow-x:hidden;max-width:100vw;min-height:100dvh!important;min-height:100svh!important}

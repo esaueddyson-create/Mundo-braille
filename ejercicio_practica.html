@@ -45,7 +45,13 @@
     to { opacity: 1; transform: scale(1); }
   }
   .fade-in { animation: fadeIn 0.3s ease-out; }
-  body { min-height: max(884px, 100dvh); }
+  body {
+      min-height: 100dvh;
+      min-height: 100svh;
+    }
+    @media (max-width: 600px) {
+      body { min-height: 100dvh; }
+    }
 </style>
 </head>
 <body class="bg-background text-on-background min-h-screen braille-pattern-bg">
@@ -154,7 +160,7 @@
     }
   });
 
-  // Helper solo navegación: flecha superior izquierda -> ejercicios para letras en braille
+  // Helper solo navegación: flecha superior izquierda -> ejercicios para letras en Braille
   function setBackToEjercicios() {
     var btn = document.querySelector('header button[onclick*="goBack"]');
     if (btn) {
@@ -434,7 +440,7 @@
         input.classList.add('border-red-500', 'bg-red-50');
         input.disabled = true;
         submitBtn.classList.add('hidden');
-        feedback.innerHTML = '<span class="text-red-500 font-bold">✗ Incorrecto. La palabra no es "' + userAnswer + '".</span>';
+        feedback.innerHTML = '<span class="text-red-500 font-bold">? Incorrecto. La palabra no es "' + userAnswer + '".</span>';
         retryBtn.classList.remove('hidden');
       }
     }
@@ -1056,7 +1062,7 @@
         input.classList.add('border-red-500', 'bg-red-50');
         input.disabled = true;
         submitBtn.classList.add('hidden');
-        feedback.innerHTML = '<span class="text-red-500 font-bold">✗ Incorrecto. La palabra no es \"' + userAnswer + '\".</span>';
+        feedback.innerHTML = '<span class="text-red-500 font-bold">? Incorrecto. La palabra no es \"' + userAnswer + '\".</span>';
         retryBtn.classList.remove('hidden');
       }
     }
@@ -1085,7 +1091,7 @@
     }
   }
 
-  // Render based on mode - flecha solo navegación para letras en braille
+  // Render based on mode - flecha solo navegación para letras en Braille
   if (exercise.category === 'alfabeto') {
     setBackToEjercicios();
     buildEvaluation(exercise);

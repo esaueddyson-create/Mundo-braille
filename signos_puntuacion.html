@@ -10,7 +10,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script src="assets/js/tailwind-config.js"></script>
 <style>
-    body { min-height: max(884px, 100dvh); }
+    body {
+      min-height: 100dvh;
+      min-height: 100svh;
+    }
+    @media (max-width: 600px) {
+      body { min-height: 100dvh; }
+    }
   </style>
 </head>
 <body class="bg-background text-on-surface min-h-screen flex flex-col">
