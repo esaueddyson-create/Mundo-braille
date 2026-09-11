@@ -52,6 +52,27 @@
     @media (max-width: 600px) {
       body { min-height: 100dvh; }
     }
+  /* === FIX MÓVIL: práctica siempre visible === */
+  #main-content {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    min-height: 40vh;
+  }
+  @media (max-width: 768px) {
+    #main-content {
+      padding-bottom: 24px !important;
+    }
+    #main-content section {
+      display: flex !important;
+      flex-direction: column !important;
+      visibility: visible !important;
+    }
+    .braille-dot-cell {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+  }
 </style>
 </head>
 <body class="bg-background text-on-background min-h-screen braille-pattern-bg">
@@ -143,6 +164,42 @@
   // Update streak
   var progress = window.BrailleStore ? BrailleStore.getProgress() : { streak: 0 };
   document.getElementById('streak-display').textContent = progress.streak || 0;
+
+  // Fallback BrailleAlphabet si app.js no cargó (móvil offline / caché)
+  if (!window.BrailleAlphabet || !window.BrailleAlphabet.length) {
+    window.BrailleAlphabet = [
+      { letter: "A", dots: [1,0,0,0,0,0] },{ letter: "B", dots: [1,1,0,0,0,0] },{ letter: "C", dots: [1,0,0,1,0,0] },{ letter: "D", dots: [1,0,0,1,1,0] },{ letter: "E", dots: [1,0,0,0,1,0] },{ letter: "F", dots: [1,1,0,1,0,0] },{ letter: "G", dots: [1,1,0,1,1,0] },{ letter: "H", dots: [1,1,0,0,1,0] },{ letter: "I", dots: [0,1,0,1,0,0] },{ letter: "J", dots: [0,1,0,1,1,0] },{ letter: "K", dots: [1,0,1,0,0,0] },{ letter: "L", dots: [1,1,1,0,0,0] },{ letter: "M", dots: [1,0,1,1,0,0] },{ letter: "N", dots: [1,0,1,1,1,0] },{ letter: "O", dots: [1,0,1,0,1,0] },{ letter: "P", dots: [1,1,1,1,0,0] },{ letter: "Q", dots: [1,1,1,1,1,0] },{ letter: "R", dots: [1,1,1,0,1,0] },{ letter: "S", dots: [0,1,1,1,0,0] },{ letter: "T", dots: [0,1,1,1,1,0] },{ letter: "U", dots: [1,0,1,0,0,1] },{ letter: "V", dots: [1,1,1,0,0,1] },{ letter: "W", dots: [0,1,0,1,1,1] },{ letter: "X", dots: [1,0,1,1,0,1] },{ letter: "Y", dots: [1,0,1,1,1,1] },{ letter: "Z", dots: [1,0,1,0,1,1] },{ letter: "Ñ", dots: [1,1,1,1,1,1] }
+    ];
+  }
+  if (!window.BrailleNumbers || !window.BrailleNumbers.length) {
+    window.BrailleNumbers = [
+      { number: "1", dots: [1,0,0,0,0,0] },{ number: "2", dots: [1,1,0,0,0,0] },{ number: "3", dots: [1,0,0,1,0,0] },{ number: "4", dots: [1,0,0,1,1,0] },{ number: "5", dots: [1,0,0,0,1,0] },{ number: "6", dots: [1,1,0,1,0,0] },{ number: "7", dots: [1,1,0,1,1,0] },{ number: "8", dots: [1,1,0,0,1,0] },{ number: "9", dots: [0,1,0,1,0,0] },{ number: "0", dots: [0,1,0,1,1,0] }
+    ];
+  }
+  if (!window.BrailleWords) {
+    window.BrailleWords = (function(){ var map={}; window.BrailleAlphabet.forEach(function(e){ map[e.letter]=e.dots; }); function w2b(w){ return w.toUpperCase().split('').map(function(c){ return map[c]||null; }).filter(Boolean); } return ["hola","mama","sol","abeja","casa","luz","pan","mesa","libro","agua"].map(function(w){ return {word:w, braille:w2b(w)}; }); })();
+  }
+  // Fallback CourseRouter / ExerciseBank para móviles sin caché o file://
+  if (!window.ExerciseBank) {
+    window.ExerciseBank = {
+      "leccion-letra-b": { mode:"lesson", category:"alfabeto", label:"El Alfabeto Braille", progressCurrent:1, progressTotal:6, character:"B", dots:[1,1,0,0,0,0], interactive:true, description:'Forma la letra <b>B</b> activando los puntos <b>1 y 2</b> del cajetín Braille.', audioLabel:"Escuchar pronunciación", mnemonic:'Ejemplo: <b>B</b> de Braille.', next:"identificar-letra-a" }
+    };
+  }
+  if (!window.CourseRouter) {
+    window.CourseRouter = {
+      getExercise: function(slug){ return window.ExerciseBank ? window.ExerciseBank[slug] : null; },
+      isLastStep: function(slug){ return true; },
+      goNext: function(slug){ window.location.href='ejercicios_interactivos.html'; },
+      goBack: function(){ window.location.href='ejercicios_interactivos.html'; }
+    };
+  }
+  if (!window.BrailleStore) {
+    window.BrailleStore = {
+      getProgress: function(){ return {streak:0, lessons:{}, totalPoints:0, badges:[]}; },
+      setProgress: function(){},
+      get: function(){return null;}, set: function(){}, completeLesson: function(){}, addPoints: function(){return {totalPoints:0};}, addBadge: function(){}
+    };
+  }
 
   var main = document.getElementById('main-content');
   var scrollHandler = function() {
@@ -440,7 +497,7 @@
         input.classList.add('border-red-500', 'bg-red-50');
         input.disabled = true;
         submitBtn.classList.add('hidden');
-        feedback.innerHTML = '<span class="text-red-500 font-bold">? Incorrecto. La palabra no es "' + userAnswer + '".</span>';
+        feedback.innerHTML = '<span class="text-red-500 font-bold">✗ Incorrecto. La palabra no es "' + userAnswer + '".</span>';
         retryBtn.classList.remove('hidden');
       }
     }
@@ -1062,7 +1119,7 @@
         input.classList.add('border-red-500', 'bg-red-50');
         input.disabled = true;
         submitBtn.classList.add('hidden');
-        feedback.innerHTML = '<span class="text-red-500 font-bold">? Incorrecto. La palabra no es \"' + userAnswer + '\".</span>';
+        feedback.innerHTML = '<span class="text-red-500 font-bold">✗ Incorrecto. La palabra no es \"' + userAnswer + '\".</span>';
         retryBtn.classList.remove('hidden');
       }
     }
@@ -1102,6 +1159,16 @@
   } else {
     buildQuiz(exercise);
   }
+
+  // Asegurar visibilidad en móviles: si main sigue vacío tras 600ms, forzar mensaje
+  setTimeout(function() {
+    var m = document.getElementById('main-content');
+    if (m && m.innerHTML.trim() === '') {
+      m.innerHTML = '<p class="text-center text-on-surface-variant py-12">Cargando ejercicio...<br><span class="text-sm">Si no aparece, recarga la página.</span></p>';
+      m.style.display = 'block';
+      m.style.visibility = 'visible';
+    }
+  }, 600);
 
 })();
 </script>
