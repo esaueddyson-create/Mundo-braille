@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BrailleLearn - Ejercicios Interactivos</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="assets/js/tailwind-config.js"></script>
+<link rel="stylesheet" href="assets/css/shared.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;0,800;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    .custom-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #dcd9d9;
+      border-radius: 10px;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen pb-24 braille-pattern-bg">
+<!-- TopAppBar -->
+<header class="bg-surface border-b border-outline-variant fixed top-0 w-full z-50 shadow-sm flex justify-between items-center px-container-margin h-16">
+<div class="flex items-center gap-base">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">menu</span>
+<h1 class="text-title-md font-title-md font-extrabold text-primary">BrailleLearn</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">search</span>
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-label-sm">JD</div>
+</div>
+</header>
+<main class="pt-20 px-container-margin max-w-4xl mx-auto space-y-stack-lg">
+<!-- Welcome Section -->
+<section>
+<div class="bg-surface-container-lowest rounded-2xl p-6 custom-shadow border border-outline-variant/30 flex items-center gap-5">
+<div class="w-14 h-14 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container flex-shrink-0">
+<span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">explore</span>
+</div>
+<div>
+<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-primary">Ejercicios Interactivos</h2>
+<p class="text-body-md font-body-md text-on-surface-variant">Practica y domina el sistema Braille con estas actividades.</p>
+</div>
+</div>
+</section>
+<!-- Exercises Grid -->
+<section class="space-y-stack-md">
+<h2 class="text-title-md font-title-md text-primary">Categorías de Ejercicio</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Alfabeto Card -->
+<div class="bg-white p-stack-md rounded-xl tactile-card flex flex-col gap-4 border-l-4 border-secondary-container cursor-pointer transition-all hover:shadow-md active:scale-[0.98]" data-category="alfabeto" onclick="CourseRouter.openCategory('alfabeto')">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined text-[32px]">abc</span>
+</div>
+<div>
+<h4 class="text-title-md font-title-md">Alfabeto</h4>
+<p class="text-body-md font-body-md text-on-surface-variant">Aprende las letras del alfabeto Braille con lecciones y ejercicios interactivos.</p>
+</div>
+<div class="mt-auto pt-4 flex justify-between items-center border-t border-surface-container">
+<span class="text-label-sm font-label-sm text-secondary">6 Actividades</span>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+<!-- Números Card -->
+<div class="bg-white p-stack-md rounded-xl tactile-card flex flex-col gap-4 border-l-4 border-primary cursor-pointer transition-all hover:shadow-md active:scale-[0.98]" data-category="numeros" onclick="CourseRouter.openCategory('numeros')">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined text-[32px]">123</span>
+</div>
+<div>
+<h4 class="text-title-md font-title-md">Números</h4>
+<p class="text-body-md font-body-md text-on-surface-variant">Domina los números en Braille mediante lecciones y práctica guiada.</p>
+</div>
+<div class="mt-auto pt-4 flex justify-between items-center border-t border-surface-container">
+<span class="text-label-sm font-label-sm text-secondary">4 Actividades</span>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+<!-- Palabras Card -->
+<div class="bg-white p-stack-md rounded-xl tactile-card flex flex-col gap-4 border-l-4 border-on-primary-container cursor-pointer transition-all hover:shadow-md active:scale-[0.98]" data-category="palabras" onclick="CourseRouter.openCategory('palabras')">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined text-[32px]">translate</span>
+</div>
+<div>
+<h4 class="text-title-md font-title-md">Palabras y Frases</h4>
+<p class="text-body-md font-body-md text-on-surface-variant">Traduce palabras escritas en Braille a texto convencional.</p>
+</div>
+<div class="mt-auto pt-4 flex justify-between items-center border-t border-surface-container">
+<span class="text-label-sm font-label-sm text-secondary">4 Actividades</span>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+</div>
+</section>
+
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-surface-container shadow-[0_-4px_12px_rgba(0,0,0,0.1)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="index.html">
+<span class="material-symbols-outlined text-[24px]">home</span>
+<span class="text-label-sm font-label-sm mt-1">Inicio</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="reproductor_leccion.html">
+<span class="material-symbols-outlined text-[24px]">smart_display</span>
+<span class="text-label-sm font-label-sm mt-1">Videos</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="ejercicios_interactivos.html">
+<span class="material-symbols-outlined text-[24px]">assignment</span>
+<span class="text-label-sm font-label-sm mt-1">Ejercicios</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-highest transition-all" href="perfil_usuario.html">
+<span class="material-symbols-outlined text-[24px]">person</span>
+<span class="text-label-sm font-label-sm mt-1">Perfil</span>
+</a>
+</nav>
+<!-- FAB (Only for Explore/Dashboard context) -->
+<button class="fixed bottom-24 right-6 w-14 h-14 rounded-full bg-primary text-white shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-40">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</button>
+<script src="assets/js/app.js"></script>
+<script>
+        document.querySelectorAll('.tactile-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                const dots = card.querySelectorAll('.braille-dot');
+                dots.forEach((dot, index) => {
+                    setTimeout(() => {
+                        dot.classList.add('active');
+                        setTimeout(() => dot.classList.remove('active'), 1000);
+                    }, index * 100);
+                });
+            });
+        });
+    </script>
+</body></html>

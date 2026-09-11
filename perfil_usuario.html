@@ -187,6 +187,21 @@
 <div class="toggle-dot w-6 h-6 bg-white rounded-full shadow-sm transition-transform duration-300"></div>
 </div>
 </div>
+<!-- Sounds Toggle -->
+<div class="flex items-center justify-between p-stack-md bg-surface border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors cursor-pointer focus-ring-heavy" onclick="toggleSounds()">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-secondary-container/20 rounded-full flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" id="sounds-icon" style="font-variation-settings: 'FILL' 1;">volume_up</span>
+</div>
+<div>
+<h3 class="font-title-md text-title-md font-bold text-on-surface">Sonidos</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Activa efectos de sonido y retroalimentación auditiva.</p>
+</div>
+</div>
+<div class="w-14 h-8 bg-outline-variant rounded-full p-1 transition-colors duration-300 relative" id="sounds-toggle">
+<div class="toggle-dot w-6 h-6 bg-white rounded-full shadow-sm transition-transform duration-300"></div>
+</div>
+</div>
 </div>
 </section>
 <!-- Logout Section -->
@@ -275,13 +290,30 @@ Cerrar sesión
         if (fontSizeLabel) fontSizeLabel.textContent = info.label;
       }
 
+      function playToggleSound(on) {
+        if (!isSoundsEnabled && on) return;
+        try {
+          var ctx = new (window.AudioContext || window.webkitAudioContext)();
+          var o = ctx.createOscillator();
+          var g = ctx.createGain();
+          o.type = 'sine';
+          o.frequency.value = on ? 880 : 440;
+          o.connect(g); g.connect(ctx.destination);
+          g.gain.setValueAtTime(0.15, ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+          o.start(); o.stop(ctx.currentTime + 0.15);
+        } catch(e) {}
+      }
+
       function saveVisualPrefs() {
         try {
           localStorage.setItem("bl_visualPrefs", JSON.stringify({
             fontSize: parseInt(document.getElementById('font-slider').value),
             darkMode: isDarkMode,
-            adhdMode: isADHDMode
+            adhdMode: isADHDMode,
+            sounds: isSoundsEnabled
           }));
+          try { localStorage.setItem("bl_sounds", isSoundsEnabled ? "on" : "off"); } catch(e2) {}
         } catch (e) {}
       }
 
@@ -302,6 +334,10 @@ Cerrar sesión
 
       var isDarkMode = !!(savedPrefs && savedPrefs.darkMode);
       var isADHDMode = !!(savedPrefs && savedPrefs.adhdMode);
+      var isSoundsEnabled = !!(savedPrefs && savedPrefs.sounds === true);
+      try { var s = localStorage.getItem("bl_sounds"); if (s === "off") isSoundsEnabled = false; if (s === "on") isSoundsEnabled = true; } catch(e) {}
+      // por defecto apagado: el usuario debe activarlo
+      window.BrailleSoundsEnabled = isSoundsEnabled;
 
       function initToggleUI() {
         var darkToggle = document.getElementById('dark-mode-toggle');
@@ -320,6 +356,18 @@ Cerrar sesión
           if (isADHDMode) {
             adhdToggle.classList.replace('bg-outline-variant', 'bg-secondary-container');
             dot2.style.transform = 'translateX(24px)';
+          }
+        }
+        var soundsToggle = document.getElementById('sounds-toggle');
+        var soundsIcon = document.getElementById('sounds-icon');
+        if (soundsToggle && soundsToggle.querySelector('.toggle-dot')) {
+          var dot3 = soundsToggle.querySelector('.toggle-dot');
+          if (isSoundsEnabled) {
+            soundsToggle.classList.replace('bg-outline-variant', 'bg-secondary-container');
+            dot3.style.transform = 'translateX(24px)';
+            if (soundsIcon) soundsIcon.textContent = 'volume_up';
+          } else {
+            if (soundsIcon) soundsIcon.textContent = 'volume_off';
           }
         }
       }
@@ -365,6 +413,26 @@ Cerrar sesión
           dot.style.transform = 'translateX(0)';
         }
         saveVisualPrefs();
+      }
+
+      function toggleSounds() {
+        isSoundsEnabled = !isSoundsEnabled;
+        window.BrailleSoundsEnabled = isSoundsEnabled;
+        var toggle = document.getElementById('sounds-toggle');
+        if (!toggle) return;
+        var dot = toggle.querySelector('.toggle-dot');
+        var icon = document.getElementById('sounds-icon');
+        if (isSoundsEnabled) {
+          toggle.classList.replace('bg-outline-variant', 'bg-secondary-container');
+          dot.style.transform = 'translateX(24px)';
+          if (icon) icon.textContent = 'volume_up';
+        } else {
+          toggle.classList.replace('bg-secondary-container', 'bg-outline-variant');
+          dot.style.transform = 'translateX(0)';
+          if (icon) icon.textContent = 'volume_off';
+        }
+        saveVisualPrefs();
+        playToggleSound(isSoundsEnabled);
       }
 
       initToggleUI();
