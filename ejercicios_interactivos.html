@@ -139,49 +139,201 @@
 </section>
 
 <!-- ========== LABORATORIO BRAILLE ========== -->
+<style>
+  .lab-header-icon {
+    width: 48px; height: 48px; border-radius: 16px;
+    background: linear-gradient(135deg, #feaa00, #ffcc80);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(254,170,0,0.3);
+  }
+  .lab-station-card {
+    position: relative; overflow: hidden;
+    border-radius: 24px; padding: 0;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
+    border: 1px solid rgba(196,198,207,0.3);
+    background: #ffffff;
+  }
+  .lab-station-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 16px 40px rgba(0,6,19,0.14);
+  }
+  .lab-station-card:active {
+    transform: translateY(-2px) scale(0.98);
+  }
+  .lab-station-card .station-glow {
+    position: absolute; top: -30px; right: -30px;
+    width: 100px; height: 100px; border-radius: 50%;
+    opacity: 0.12; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .lab-station-card:hover .station-glow { opacity: 0.25; }
+  .lab-station-card .station-icon-wrap {
+    width: 56px; height: 56px; border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .lab-station-card .station-braille-preview {
+    display: flex; gap: 4px; align-items: center; justify-content: center;
+    margin: 12px 0;
+  }
+  .lab-station-card .station-braille-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #c4c6cf; transition: all 0.3s;
+  }
+  .lab-station-card .station-braille-dot.on {
+    background: #feaa00; box-shadow: 0 2px 6px rgba(254,170,0,0.4);
+  }
+  .lab-station-card .station-progress-track {
+    width: 100%; height: 6px; border-radius: 3px;
+    background: #e5e2e1; overflow: hidden; margin-top: 14px;
+  }
+  .lab-station-card .station-progress-fill {
+    height: 100%; border-radius: 3px; width: 0%;
+    background: linear-gradient(90deg, #feaa00, #ffcc80);
+    transition: width 0.6s ease;
+  }
+  .lab-station-card .station-progress-label {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-top: 6px;
+  }
+  .lab-station-card .station-arrow {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #feaa00; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 10px rgba(254,170,0,0.3);
+    transition: transform 0.3s;
+  }
+  .lab-station-card:hover .station-arrow { transform: translateX(3px); }
+  .lab-station-card.station-alfabeto .station-icon-wrap { background: #d4e3ff; }
+  .lab-station-card.station-alfabeto .station-glow { background: #d4e3ff; }
+  .lab-station-card.station-alfabeto .station-progress-fill { background: linear-gradient(90deg, #006b6b, #001c3a); }
+  .lab-station-card.station-numeros .station-icon-wrap { background: #fff3e0; }
+  .lab-station-card.station-numeros .station-glow { background: #fff3e0; }
+  .lab-station-card.station-numeros .station-progress-fill { background: linear-gradient(90deg, #e65100, #ff8f00); }
+  .lab-station-card.station-palabras .station-icon-wrap { background: #e8f5e9; }
+  .lab-station-card.station-palabras .station-glow { background: #e8f5e9; }
+  .lab-station-card.station-palabras .station-progress-fill { background: linear-gradient(90deg, #2e7d32, #66bb6a); }
+  .lab-station-card .station-title {
+    font-family: 'Atkinson Hyperlegible Next', sans-serif;
+    font-weight: 800; font-size: 1.25rem; color: #1c1b1b; margin-bottom: 4px;
+  }
+  .lab-station-card .station-desc {
+    font-family: 'Atkinson Hyperlegible Next', sans-serif;
+    font-weight: 400; font-size: 0.875rem; color: #43474e; line-height: 1.4;
+  }
+  @keyframes labFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  .lab-station-card .station-deco { animation: labFloat 3s ease-in-out infinite; }
+  .lab-station-card:nth-child(2) .station-deco { animation-delay: 0.5s; }
+  .lab-station-card:nth-child(3) .station-deco { animation-delay: 1s; }
+</style>
 <section class="fade-in" style="animation-delay:0.1s">
-<div class="flex items-center gap-2 mb-stack-sm">
-<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">science</span>
-<h2 class="text-title-md font-title-md section-title text-primary">Laboratorio Braille</h2>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-<!-- Alfabeto -->
-<div class="activity-card bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/30 cursor-pointer card-hover" onclick="window.location.href='ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=0'">
-<div class="w-14 h-14 rounded-2xl bg-secondary-container flex items-center justify-center text-on-secondary-container mb-4 shadow-sm">
-<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">abc</span>
-</div>
-<h3 class="text-title-md font-title-md section-title text-primary mb-1">Alfabeto</h3>
-<p class="text-body-md font-body-md text-on-surface-variant mb-3">Practica las 26 letras del sistema Braille</p>
-<div class="flex items-center justify-between">
-<span class="text-label-sm font-label-sm text-on-surface-variant" id="lab-alfabeto-count">Cargando...</span>
-<span class="material-symbols-outlined text-primary">arrow_forward</span>
-</div>
-</div>
-<!-- Numeros -->
-<div class="activity-card bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/30 cursor-pointer card-hover" onclick="window.location.href='ejercicio_practica.html?course=numeros&lesson=numeros-eval&i=0'">
-<div class="w-14 h-14 rounded-2xl bg-primary-fixed flex items-center justify-center text-on-primary-fixed mb-4 shadow-sm">
-<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">123</span>
-</div>
-<h3 class="text-title-md font-title-md section-title text-primary mb-1">Numeros</h3>
-<p class="text-body-md font-body-md text-on-surface-variant mb-3">Domina los numeros del sistema Braille</p>
-<div class="flex items-center justify-between">
-<span class="text-label-sm font-label-sm text-on-surface-variant" id="lab-numeros-count">Cargando...</span>
-<span class="material-symbols-outlined text-primary">arrow_forward</span>
-</div>
-</div>
-<!-- Palabras -->
-<div class="activity-card bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/30 cursor-pointer card-hover" onclick="window.location.href='ejercicio_practica.html?course=palabras&lesson=palabras-eval&i=0'">
-<div class="w-14 h-14 rounded-2xl bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed mb-4 shadow-sm">
-<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">translate</span>
-</div>
-<h3 class="text-title-md font-title-md section-title text-primary mb-1">Palabras</h3>
-<p class="text-body-md font-body-md text-on-surface-variant mb-3">Traduce palabras de texto a Braille</p>
-<div class="flex items-center justify-between">
-<span class="text-label-sm font-label-sm text-on-surface-variant" id="lab-palabras-count">Cargando...</span>
-<span class="material-symbols-outlined text-primary">arrow_forward</span>
-</div>
-</div>
-</div>
+  <div class="flex items-center gap-3 mb-stack-sm">
+    <div class="lab-header-icon">
+      <span class="material-symbols-outlined text-on-primary-fixed text-xl" style="font-variation-settings: 'FILL' 1;">science</span>
+    </div>
+    <div>
+      <h2 class="text-title-md font-title-md section-title text-primary">Laboratorio Braille</h2>
+      <p class="text-label-sm font-label-sm text-on-surface-variant">Explora y practica el Braille de forma interactiva.</p>
+    </div>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <!-- Alfabeto -->
+    <div class="lab-station-card station-alfabeto p-6 sm:p-7" onclick="window.location.href='ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=0'">
+      <div class="station-glow"></div>
+      <div class="relative z-10">
+        <div class="station-icon-wrap station-deco">
+          <span class="material-symbols-outlined text-2xl text-primary" style="font-variation-settings: 'FILL' 1;">abc</span>
+        </div>
+        <div class="station-braille-preview">
+          <div class="station-braille-dot on"></div>
+          <div class="station-braille-dot"></div>
+          <div class="station-braille-dot on"></div>
+          <div class="station-braille-dot on"></div>
+          <div class="station-braille-dot"></div>
+          <div class="station-braille-dot"></div>
+        </div>
+        <h3 class="station-title">Alfabeto Braille</h3>
+        <p class="station-desc">Aprende y practica las letras en Braille.</p>
+        <div class="station-progress-label">
+          <span class="text-label-sm font-label-sm font-bold text-primary">Progreso</span>
+          <span class="text-label-sm font-label-sm text-on-surface-variant" id="lab-alfabeto-count">Cargando...</span>
+        </div>
+        <div class="station-progress-track">
+          <div class="station-progress-fill" id="lab-alfabeto-bar"></div>
+        </div>
+        <div class="flex items-center justify-end mt-3">
+          <div class="station-arrow">
+            <span class="material-symbols-outlined text-on-primary-fixed text-sm" style="font-variation-settings: 'FILL' 0;">arrow_forward</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Numeros -->
+    <div class="lab-station-card station-numeros p-6 sm:p-7" onclick="window.location.href='ejercicio_practica.html?course=numeros&lesson=numeros-eval&i=0'">
+      <div class="station-glow"></div>
+      <div class="relative z-10">
+        <div class="station-icon-wrap station-deco">
+          <span class="material-symbols-outlined text-2xl text-primary" style="font-variation-settings: 'FILL' 1;">123</span>
+        </div>
+        <div class="station-braille-preview">
+          <div class="station-braille-dot on"></div>
+          <div class="station-braille-dot on"></div>
+          <div class="station-braille-dot"></div>
+          <div class="station-braille-dot on"></div>
+          <div class="station-braille-dot"></div>
+          <div class="station-braille-dot"></div>
+        </div>
+        <h3 class="station-title">Números</h3>
+        <p class="station-desc">Practica la representación de números en Braille.</p>
+        <div class="station-progress-label">
+          <span class="text-label-sm font-label-sm font-bold text-primary">Progreso</span>
+          <span class="text-label-sm font-label-sm text-on-surface-variant" id="lab-numeros-count">Cargando...</span>
+        </div>
+        <div class="station-progress-track">
+          <div class="station-progress-fill" id="lab-numeros-bar"></div>
+        </div>
+        <div class="flex items-center justify-end mt-3">
+          <div class="station-arrow">
+            <span class="material-symbols-outlined text-on-primary-fixed text-sm" style="font-variation-settings: 'FILL' 0;">arrow_forward</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Palabras -->
+    <div class="lab-station-card station-palabras p-6 sm:p-7" onclick="window.location.href='ejercicio_practica.html?course=palabras&lesson=palabras-eval&i=0'">
+      <div class="station-glow"></div>
+      <div class="relative z-10">
+        <div class="station-icon-wrap station-deco">
+          <span class="material-symbols-outlined text-2xl text-primary" style="font-variation-settings: 'FILL' 1;">translate</span>
+        </div>
+        <div class="station-braille-preview">
+          <div class="station-braille-dot on"></div>
+          <div class="station-braille-dot on"></div>
+          <div class="station-braille-dot on"></div>
+          <div class="station-braille-dot"></div>
+          <div class="station-braille-dot on"></div>
+          <div class="station-braille-dot on"></div>
+        </div>
+        <h3 class="station-title">Palabras</h3>
+        <p class="station-desc">Pon en práctica el Braille formando palabras.</p>
+        <div class="station-progress-label">
+          <span class="text-label-sm font-label-sm font-bold text-primary">Progreso</span>
+          <span class="text-label-sm font-label-sm text-on-surface-variant" id="lab-palabras-count">Cargando...</span>
+        </div>
+        <div class="station-progress-track">
+          <div class="station-progress-fill" id="lab-palabras-bar"></div>
+        </div>
+        <div class="flex items-center justify-end mt-3">
+          <div class="station-arrow">
+            <span class="material-symbols-outlined text-on-primary-fixed text-sm" style="font-variation-settings: 'FILL' 0;">arrow_forward</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ========== MI PROGRESO ========== -->
@@ -700,17 +852,14 @@ Crear Actividad
   };
 
   function updateLabCounts() {
-    var prog = BrailleStore.getProgress();
-    var lessons = prog.lessons || {};
-    var a = Object.keys(lessons).filter(function(k){ return k.indexOf('alfabeto-letra-')===0; }).length;
-    var n = Object.keys(lessons).filter(function(k){ return k.indexOf('numeros-numero-')===0; }).length;
-    var p = Object.keys(lessons).filter(function(k){ return k.indexOf('palabras-palabra-')===0; }).length;
+    // PLACEHOLDER VISUAL - no conecta con datos reales en este paso de diseño
     var ae = document.getElementById('lab-alfabeto-count');
-    if (ae) ae.textContent = a + '/26 completadas';
+    if (ae) ae.textContent = '0%';
     var ne = document.getElementById('lab-numeros-count');
-    if (ne) ne.textContent = n + '/10 completados';
+    if (ne) ne.textContent = '0%';
     var pe = document.getElementById('lab-palabras-count');
-    if (pe) pe.textContent = p + '/4 completadas';
+    if (pe) pe.textContent = '0%';
+    // Barras vacías (0%) - reservado para futuro progreso dinámico
   }
 
   function updateProgress() {
