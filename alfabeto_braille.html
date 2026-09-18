@@ -96,13 +96,14 @@
 </div>
 <div>
 <h2 class="text-headline-lg-mobile font-headline-lg-mobile text-primary">Alfabeto Braille</h2>
-<p class="text-body-md font-body-md text-on-surface-variant">Aprende cada letra del alfabeto con su representaci\u00f3n en puntos Braille.</p>
+<p class="text-body-md font-body-md text-on-surface-variant">Aprende cada letra del alfabeto con su representación en puntos Braille.</p>
 </div>
 </div>
 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3" id="cards-container"></div>
 </section>
 </main>
 <script src="assets/js/app.js"></script>
+<div id="braille-popup"></div>
 <script>
 (function() {
   // FUENTE ÚNICA: reutiliza window.BrailleAlphabet definido en app.js
@@ -119,27 +120,52 @@
     'X':{word:'Xilófono',image:'🎼'}, 'Y':{word:'Yoyo',image:'🪀'}, 'Z':{word:'Zorro',image:'🦊'}
   };
   // celda Braille: [dot1, dot2, dot3, dot4, dot5, dot6] — viene de BrailleAlphabet
-  var data = window.BrailleAlphabet.map(function(e){
-    var meta = wordMap[e.letter] || {word:e.letter, image:'🔤'};
-    return { letter: e.letter, word: meta.word, image: meta.image, dots: e.dots };
-  });
+  // En modo Quechua se usan EXACTAMENTE las 18 letras de BrailleQuechuaAlphabet
+  // (A, I, U + 15 consonantes, sin aspiradas ni glotalizadas), con sus palabras ejemplo.
+  var QU = (window.isQuechuaMode && window.isQuechuaMode()) &&
+           window.BrailleQuechuaAlphabet && window.BrailleQuechuaWords;
+  var data;
+  if (QU) {
+    data = window.BrailleQuechuaAlphabet.map(function(e){
+      var meta = null;
+      for (var m = 0; m < window.BrailleQuechuaWords.length; m++) {
+        if (window.BrailleQuechuaWords[m].grapheme === e.grapheme) { meta = window.BrailleQuechuaWords[m]; break; }
+      }
+      meta = meta || { word: e.grapheme.toLowerCase(), emoji: "🔤" };
+      return { letter: e.grapheme, word: meta.word, image: meta.emoji, cells: e.cells };
+    });
+  } else {
+    data = window.BrailleAlphabet.map(function(e){
+      var meta = wordMap[e.letter] || {word:e.letter, image:'🔤'};
+      return { letter: e.letter, word: meta.word, image: meta.image, cells: [e.dots] };
+    });
+  }
 
   var isDark = document.documentElement.classList.contains('dark');
   var activeFill = isDark ? '#afc8f0' : '#000613';
   var inactiveFill = isDark ? '#3a3a3a' : '#e5e2e1';
   var inactiveStroke = isDark ? '#44474e' : '#c4c6cf';
 
+  function cellsSVG(cells, cls) {
+    if (window.BrailleCellsSVG) {
+      return window.BrailleCellsSVG(cells, cls, { active: activeFill, inactive: inactiveFill, stroke: inactiveStroke });
+    }
+    var svg = '<svg viewBox="0 0 ' + (50 * cells.length) + ' 70" class="' + cls + '" xmlns="http://www.w3.org/2000/svg">';
+    var pos = [[12,14],[12,30],[12,46],[38,14],[38,30],[38,46]];
+    for (var ci = 0; ci < cells.length; ci++) {
+      for (var d = 0; d < 6; d++) {
+        var fill = cells[ci][d] ? activeFill : inactiveFill;
+        var stroke = cells[ci][d] ? activeFill : inactiveStroke;
+        svg += '<circle cx="' + (pos[d][0] + ci * 50) + '" cy="' + pos[d][1] + '" r="6" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1"/>';
+      }
+    }
+    return svg + '</svg>';
+  }
+
   var borderColors = ['border-secondary-container', 'border-primary', 'border-on-primary-container'];
   var container = document.getElementById('cards-container');
   data.forEach(function(item, i) {
-    var svg = '<svg viewBox="0 0 50 70" class="w-full h-16" xmlns="http://www.w3.org/2000/svg">';
-    var pos = [[12,14],[12,30],[12,46],[38,14],[38,30],[38,46]];
-    for (var d = 0; d < 6; d++) {
-      var fill = item.dots[d] ? activeFill : inactiveFill;
-      var stroke = item.dots[d] ? activeFill : inactiveStroke;
-      svg += '<circle cx="' + pos[d][0] + '" cy="' + pos[d][1] + '" r="6" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1"/>';
-    }
-    svg += '</svg>';
+    var svg = cellsSVG(item.cells, 'w-full h-16');
 
     var card = document.createElement('div');
     card.className = 'bg-white rounded-2xl p-4 tactile-card flex flex-col items-center gap-2 text-center border-l-4 ' + borderColors[i % 3];
@@ -160,18 +186,7 @@
   var popup = document.getElementById('braille-popup');
   var popupTimer = null;
   function showPopup(card, item) {
-    var isDark = document.documentElement.classList.contains('dark');
-    var activeFill = isDark ? '#afc8f0' : '#000613';
-    var inactiveFill = isDark ? '#3a3a3a' : '#e5e2e1';
-    var inactiveStroke = isDark ? '#44474e' : '#c4c6cf';
-    var pos = [[12,14],[12,30],[12,46],[38,14],[38,30],[38,46]];
-    var svg = '<svg viewBox="0 0 50 70" class="popup-braille" xmlns="http://www.w3.org/2000/svg">';
-    for (var d = 0; d < 6; d++) {
-      var fill = item.dots[d] ? activeFill : inactiveFill;
-      var stroke = item.dots[d] ? activeFill : inactiveStroke;
-      svg += '<circle cx="' + pos[d][0] + '" cy="' + pos[d][1] + '" r="6" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1"/>';
-    }
-    svg += '</svg>';
+    var svg = cellsSVG(item.cells, 'popup-braille');
     popup.innerHTML =
       '<div class="popup-card">' +
         '<div class="popup-image" role="img" aria-label="' + item.word + '">' + item.image + '</div>' +
@@ -195,5 +210,4 @@
   });
 })();
 </script>
-<div id="braille-popup"></div>
 </body></html>

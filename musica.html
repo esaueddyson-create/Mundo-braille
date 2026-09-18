@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Música - Mundo Braille</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link rel="stylesheet" href="assets/css/shared.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="assets/js/tailwind-config.js"></script>
+<style>
+    body {
+      min-height: 100dvh;
+      min-height: 100svh;
+    }
+    @media (max-width: 600px) {
+      body { min-height: 100dvh; }
+    }
+</style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col">
+<header class="fixed top-0 left-0 w-full z-50 bg-surface border-b border-outline-variant shadow-sm h-16 flex items-center gap-2 px-container-margin">
+<a href="index.html" class="p-2 hover:bg-surface-container-high transition-colors rounded-full active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</a>
+<h1 class="text-title-md font-title-md font-extrabold text-primary">Música</h1>
+</header>
+<main class="flex-grow pt-20 pb-28 px-container-margin max-w-4xl mx-auto relative">
+<div class="fixed inset-0 braille-pattern-bg pointer-events-none z-0"></div>
+<section class="relative z-10 space-y-stack-md">
+<div class="bg-surface-container-lowest rounded-2xl p-5 custom-shadow border border-outline-variant/30 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container flex-shrink-0">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">music_note</span>
+</div>
+<div>
+<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-primary">Música en Braille</h2>
+<p class="text-body-md font-body-md text-on-surface-variant">Aprende a leer y escribir notas musicales en Braille.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-sm" id="cards-container"></div>
+<script src="assets/js/app.js"></script>
+<script>
+(function() {
+  var data = [
+    { sym: '♪', name: 'Nota Musical',      desc: 'Representa un sonido en el sistema Braille musical.', dots: [0,1,0,0,1,0] },
+    { sym: '♩', name: 'Corchea',            desc: 'Nota con valor de tiempo reducido.', dots: [0,1,1,0,0,0] },
+    { sym: '♫', name: 'Fusa',               desc: 'Nota con valor de tiempo aún menor.', dots: [0,1,0,0,0,1] },
+    { sym: '♬', name: 'Compás Musical',     desc: 'Indica el número de tiempos por compás.', dots: [1,1,0,0,0,1] },
+    { sym: '♭', name: 'Bemol',             desc: 'Baja el tono medio un semitono.', dots: [0,1,0,0,0,0] },
+    { sym: '♯', name: 'Sostenido',         desc: 'Eleva el tono medio un semitono.', dots: [0,1,1,0,1,0] },
+    { sym: '𝄞', name: 'Signo de Corcheo',   desc: 'Indica el inicio del sistema de compases.', dots: [1,1,1,0,0,0] },
+    { sym: '𝄢', name: 'Signo de Llave',     desc: 'Define el rango de alturas del pentagrama.', dots: [1,1,0,0,1,0] }
+  ];
+  var borderColors = ['border-secondary-container','border-primary','border-on-primary-container','border-secondary-container','border-primary','border-on-primary-container','border-secondary-container','border-on-primary-container'];
+  var container = document.getElementById('cards-container');
+  data.forEach(function(item, i) {
+    var svg = '<svg viewBox="0 0 50 70" class="w-full h-20" xmlns="http://www.w3.org/2000/svg">';
+    var pos = [[12,14],[12,30],[12,46],[38,14],[38,30],[38,46]];
+    for (var d = 0; d < 6; d++) {
+      var fill = item.dots[d] ? '#000613' : '#e5e2e1';
+      var stroke = item.dots[d] ? '#000613' : '#c4c6cf';
+      svg += '<circle cx="' + pos[d][0] + '" cy="' + pos[d][1] + '" r="6" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1"/>';
+    }
+    svg += '</svg>';
+    var card = document.createElement('div');
+    card.className = 'bg-white rounded-xl p-5 tactile-card flex flex-col gap-3 border-l-4 ' + borderColors[i];
+    card.innerHTML =
+      '<div class="flex items-center justify-center bg-surface-container-low rounded-xl py-3">' + svg + '</div>' +
+      '<div class="flex items-center gap-3">' +
+        '<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary shadow-sm flex-shrink-0"><span class="text-title-md font-bold">' + item.sym + '</span></div>' +
+        '<div class="flex-1 min-w-0"><h4 class="text-title-sm font-title-sm font-bold text-on-surface">' + item.name + '</h4></div>' +
+      '</div>' +
+      '<p class="text-body-md font-body-md text-on-surface-variant">' + item.desc + '</p>';
+    container.appendChild(card);
+  });
+})();
+</script>
+</section>
+</main>
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-surface border-t border-outline-variant shadow-sm h-16 flex items-center justify-around px-container-margin pb-safe">
+<a href="index.html" class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="text-label-sm font-label-sm">Inicio</span>
+</a>
+<a href="ejercicios_interactivos.html" class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">explore</span>
+<span class="text-label-sm font-label-sm">Ejercicios</span>
+</a>
+<a href="reproductor_leccion.html" class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">play_circle</span>
+<span class="text-label-sm font-label-sm">Mi aprendizaje</span>
+</a>
+</nav>
+</body>
+</html>

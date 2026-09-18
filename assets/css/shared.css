@@ -6,11 +6,13 @@ body {
 }
 
 /* ========== ADHD MODE ========== */
+/* Zona de enfoque: sin zona seleccionada la pantalla se ve normal; al elegir
+   una zona (body.adhd-focus) solo ella queda resaltada y el resto se atenúa. */
 body.adhd-mode {
   background-color: #0d0d0d !important;
 }
 
-body.adhd-mode::after {
+body.adhd-mode.adhd-focus::after {
   content: '';
   position: fixed;
   inset: 0;

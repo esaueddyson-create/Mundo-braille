@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script src="assets/js/tailwind-config.js"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
 <style>
         .braille-bg {
             background-image: radial-gradient(circle, #74777f 1px, transparent 1px);
@@ -27,6 +28,62 @@
         .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #74777f;
             border-radius: 10px;
+        }
+        .resume-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            z-index: 10;
+            border-radius: inherit;
+        }
+        .resume-btn {
+            background: #ff6b00;
+            color: white;
+            padding: 12px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .resume-btn:hover {
+            background: #e55500;
+            transform: scale(1.05);
+        }
+        .complete-badge {
+            background: #2e7d32;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .progress-save-indicator {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 5;
+        }
+        .progress-save-indicator.show {
+            opacity: 1;
         }
         @media (max-width: 768px) {
             .mobile-padding-bottom { padding-bottom: 96px; }
@@ -49,7 +106,7 @@
 <span class="material-symbols-outlined text-[24px]">arrow_back</span>
 </a>
 <div class="flex items-center gap-2">
-<img src="logo.jpg" alt="Logo Mundo Braille" class="w-8 h-8 rounded-full object-cover"/>
+<img src="logo.jpeg" alt="Logo Mundo Braille" class="w-8 h-8 rounded-full object-cover"/>
 <h1 class="text-title-md font-title-md font-extrabold text-primary">Mundo Braille</h1>
 </div>
 </header>
@@ -58,10 +115,17 @@
 <div class="absolute inset-0 braille-bg pointer-events-none"></div>
 <!-- Video Player Section -->
 <section class="relative bg-primary overflow-hidden w-full aspect-video md:max-h-[618px]">
-<div class="absolute inset-0 w-full h-full flex items-center justify-center">
-<div id="video-background" class="w-full h-full bg-cover bg-center" data-alt="A cinematic close-up shot of hands gently touching raised Braille dots on heavy white paper. The lighting is soft and directional, casting subtle shadows that emphasize the tactile texture. The scene is shot with a shallow depth of field, creating a professional educational video aesthetic. The color palette is composed of soft whites, deep charcoals, and a warm amber glow." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAByJviF9o43voRr_6aCzC-1zCSODe3wkjRyJxtp7-v_ozp5Vw8IDMKa71XFcmYmqQw8F8yKB3YD589sRDoMuWF99IsgmpP-Ky_DmBUTTdo09WZgRS7G1QEDuQjnc__NqkrfOzeJH6saNJvmZratbrFTiqtFQpIhysgejulN4muBFcCdw7VR_7kzqRngYSd4sL3H_ldU9aym63sn8Q8VQVGTdNPAJLw32SNBvS8YWyZRz2mxhbJ2Z5RTQ')"></div>
+<div id="video-background" class="absolute inset-0 w-full h-full bg-cover bg-center" data-alt="A cinematic close-up shot of hands gently touching raised Braille dots on heavy white paper. The lighting is soft and directional, casting subtle shadows that emphasize the tactile texture. The scene is shot with a shallow depth of field, creating a professional educational video aesthetic. The color palette is composed of soft whites, deep charcoals, and a warm amber glow." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAByJviF9o43voRr_6aCzC-1zCSODe3wkjRyJxtp7-v_ozp5Vw8IDMKa71XFcmYmqQw8F8yKB3YD589sRDoMuWF99IsgmpP-Ky_DmBUTTdo09WZgRS7G1QEDuQjnc__NqkrfOzeJH6saNJvmZratbrFTiqtFQpIhysgejulN4muBFcCdw7VR_7kzqRngYSd4sL3H_ldU9aym63sn8Q8VQVGTdNPAJLw32SNBvS8YWyZRz2mxhbJ2Z5RTQ')"></div>
 <div class="absolute inset-0 video-gradient"></div>
+<div id="player-container" style="position:absolute;inset:0;z-index:2;"></div>
+<div id="resume-overlay" class="resume-overlay" style="display:none;z-index:10;">
+<div class="complete-badge" id="complete-badge" style="display:none;">Completado</div>
+<button id="resume-btn" class="resume-btn" style="display:none;">
+<span class="material-symbols-outlined text-[24px]">play_arrow</span>
+Continuar viendo
+</button>
 </div>
+<div id="progress-save-indicator" class="progress-save-indicator">Progreso guardado</div>
 <!-- Video Controls -->
 <div class="absolute bottom-0 left-0 w-full p-4 md:p-8 flex flex-col gap-4">
 <!-- Progress Bar -->
@@ -72,9 +136,9 @@
 </div>
 <div class="flex items-center justify-between">
 <div class="flex items-center gap-4 md:gap-8">
-<button class="text-on-secondary material-symbols-outlined text-[32px] hover:text-secondary-fixed-dim transition-colors" style="font-variation-settings: 'FILL' 1;">replay_10</button>
-<button class="text-on-secondary material-symbols-outlined text-[48px] hover:scale-110 active:scale-90 transition-all" style="font-variation-settings: 'FILL' 1;">play_arrow</button>
-<button class="text-on-secondary material-symbols-outlined text-[32px] hover:text-secondary-fixed-dim transition-colors" style="font-variation-settings: 'FILL' 1;">forward_10</button>
+<button id="btn-replay" class="text-on-secondary material-symbols-outlined text-[32px] hover:text-secondary-fixed-dim transition-colors" style="font-variation-settings: 'FILL' 1;">replay_10</button>
+<button id="btn-playpause" class="text-on-secondary material-symbols-outlined text-[48px] hover:scale-110 active:scale-90 transition-all" style="font-variation-settings: 'FILL' 1;">play_arrow</button>
+<button id="btn-forward" class="text-on-secondary material-symbols-outlined text-[32px] hover:text-secondary-fixed-dim transition-colors" style="font-variation-settings: 'FILL' 1;">forward_10</button>
 <div class="hidden md:flex items-center gap-2 text-on-secondary font-label-sm">
 <span id="time-current">04:12</span>
 <span>/</span>
@@ -126,7 +190,7 @@
 </a>
 <a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="reproductor_leccion.html">
 <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">smart_display</span>
-<span class="text-label-sm font-label-sm">Videos</span>
+<span class="text-label-sm font-label-sm">Mi aprendizaje</span>
 </a>
 <a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="ejercicios_interactivos.html">
 <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">assignment</span>
@@ -180,7 +244,7 @@
       },
       related: [
         { course: 'braille-basico', lesson: 'introduccion-alfabeto', title: 'Introducción al Alfabeto Braille', duration: '08:45', level: 'Principiante', module: 'Módulo 1', background: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAByJviF9o43voRr_6aCzC-1zCSODe3wkjRyJxtp7-v_ozp5Vw8IDMKa71XFcmYmqQw8F8yKB3YD589sRDoMuWF99IsgmpP-Ky_DmBUTTdo09WZgRS7G1QEDuQjnc__NqkrfOzeJH6saNJvmZratbrFTiqtFQpIhysgejulN4muBFcCdw7VR_7kzqRngYSd4sL3H_ldU9aym63sn8Q8VQVGTdNPAJLw32SNBvS8YWyZRz2mxhbJ2Z5RTQ' },
-        { course: 'historia-braille', lesson: 'dispositivos-tactiles', title: 'Dispositivos de Salida Táctil', duration: '15:40', level: 'Avanzado', module: 'Módulo 5', background: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCyAuYpY76d2gE8youpLbhhKfVpavRcoJuOmmVHyLU4XD6Keszf73Tkq8Frm1g9R9Js71bry6Hn1QvjhlOmS3AF8vZET_kf8x9U_FKpuPvgKxXKAzp8pEhSmQZixb1e1eL3JdVEJhcvAxsZCYL1qRUOihVJ-ALTkwUjfYy7qc2p9LxyUyVr-Ylkf9ptdV6QfOvOsGvy_Uzo2SQgwHFPNfJ46WpGhaWiqdjcBf_jdkD_XpaxF-cPHCd0tg' }
+        { course: 'braille-basico', lesson: 'escritura-regleta', title: 'Escritura con Regleta y Punzón', duration: '12:20', level: 'Intermedio', module: 'Módulo 2', background: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDagdBHmrZt6XPYfHdPHsF_EfwPns0gjzYx9BIB9JDgzPSxYdFnKcjpHIjle9jziX1XJC3DE0PS8M6l0PC44KFqyrTxCN0QvEUG4rlPBFmd0nEQsvPWV6BjYZkiI843OddfaF54Xgl68OhjNkqU5mqS0bi6JnqHto9llG19_V50StftWn1Q8WLlX6_6RRGzUiVpRJUmSyXxSYBd37aZTfqDsYoU8bdYiu3sTshA0Zn7X2x50htrCVMr4A' }
       ]
     }
   };
@@ -207,30 +271,267 @@
     youtubeId = m ? m[1] : null;
   }
 
-  var playerSection = document.querySelector('.relative.bg-primary.overflow-hidden');
-  if (playerSection && youtubeId) {
-    playerSection.innerHTML = '<iframe class="absolute inset-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/' + youtubeId + '?autoplay=1" allow="autoplay; fullscreen" allowfullscreen style="border:0"></iframe>';
+var playerSection = document.querySelector('.relative.bg-primary.overflow-hidden');
+var playerContainer = document.getElementById('player-container');
+var resumeOverlay = document.getElementById('resume-overlay');
+var resumeBtn = document.getElementById('resume-btn');
+var completeBadge = document.getElementById('complete-badge');
+var progressSaveIndicator = document.getElementById('progress-save-indicator');
+
+var savedProgressKey = 'bl_video_progress_' + courseSlug + '_' + lessonSlug;
+var player = null;
+var saveTimeout = null;
+
+function getSavedProgress() {
+  try {
+    var data = localStorage.getItem(savedProgressKey);
+    return data ? JSON.parse(data) : null;
+  } catch(e) { return null; }
+}
+
+function saveProgress(currentTime, totalDuration) {
+  try {
+    var data = {
+      currentTime: currentTime,
+      totalDuration: totalDuration,
+      timestamp: Date.now()
+    };
+    localStorage.setItem(savedProgressKey, JSON.stringify(data));
+  } catch(e) {}
+}
+
+function markCompleted(totalDuration, currentTime) {
+  try {
+    localStorage.setItem(savedProgressKey + '_completed', '1');
+  } catch(e) {}
+}
+
+function isCompleted() {
+  try {
+    return localStorage.getItem(savedProgressKey + '_completed') === '1';
+  } catch(e) { return false; }
+}
+
+function showResumeUI(savedData, youtubeId) {
+  if (savedData && savedData.currentTime > 0) {
+    if (isCompleted()) {
+      // Video ya terminado: mostrar overlay con "Ver de nuevo" y pausar
+      completeBadge.style.display = 'inline-block';
+      resumeBtn.style.display = 'flex';
+      resumeBtn.innerHTML = '<span class="material-symbols-outlined text-[24px]">replay</span> Ver de nuevo';
+      resumeBtn.onclick = function() {
+        resumeOverlay.style.display = 'none';
+        try { localStorage.removeItem(savedProgressKey + '_completed'); } catch(e) {}
+        if (player && typeof player.seekTo === 'function') {
+          player.seekTo(0, true);
+          player.playVideo();
+        } else if (player && typeof player.playVideo === 'function') {
+          player.playVideo();
+        }
+      };
+      if (player && typeof player.pauseVideo === 'function') player.pauseVideo();
+      resumeOverlay.style.display = 'flex';
+    } else {
+      // Mantener progreso/posición y reproducir automáticamente sin requerir clic
+      completeBadge.style.display = 'none';
+      resumeBtn.style.display = 'none';
+      resumeOverlay.style.display = 'none';
+    }
+  } else {
+    resumeOverlay.style.display = 'none';
+    if (player && typeof player.playVideo === 'function') {
+      player.playVideo();
+    }
   }
+}
+
+function hideResumeUI() {
+  resumeOverlay.style.display = 'none';
+}
+
+window.onYouTubeIframeAPIReady = function() {};
+
+if (playerSection && youtubeId) {
+  playerSection.style.position = 'relative';
+  playerContainer.style.width = '100%';
+  playerContainer.style.height = '100%';
+
+  var savedData = getSavedProgress();
+  var totalSeconds = 0;
+  var timeParts = lesson.duration.split(':');
+  totalSeconds = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1]);
+
+  var savedPct = 0;
+  if (savedData && savedData.currentTime > 0 && !isCompleted()) {
+    savedPct = Math.min(100, (savedData.currentTime / totalSeconds) * 100);
+  } else if (!isNaN(progressOverride)) {
+    savedPct = Math.min(100, Math.max(0, progressOverride));
+  } else {
+    savedPct = lesson.progress || 0;
+  }
+
+  var progressBarEl = document.getElementById('progress-bar');
+  if (progressBarEl) progressBarEl.style.width = savedPct + '%';
+
+  window.onYouTubeIframeAPIReady = function() {
+    player = new YT.Player(playerContainer, {
+      videoId: youtubeId,
+      playerVars: { autoplay: 1, rel: 0, modestbranding: 1, playsinline: 1 },
+      events: {
+        onReady: function(event) {
+          if (savedData && savedData.currentTime > 0 && !isCompleted()) {
+            // Reproducir automáticamente el video seleccionado en la posición guardada
+            try { event.target.seekTo(savedData.currentTime, true); } catch(e) {}
+            event.target.playVideo();
+            hideResumeUI();
+            // Sincronizar barra y tiempo al retomar
+            try {
+              var pctResume = totalSeconds > 0 ? Math.min(100, (savedData.currentTime / totalSeconds)*100) : 0;
+              if (progressBarEl) progressBarEl.style.width = pctResume + '%';
+              var mc = Math.floor(savedData.currentTime / 60);
+              var sc = Math.floor(savedData.currentTime % 60);
+              var tEl = document.getElementById('time-current');
+              if (tEl) tEl.textContent = mc + ':' + (sc < 10 ? '0' : '') + sc;
+            } catch(e2) {}
+          } else if (savedData && isCompleted()) {
+            showResumeUI(savedData, youtubeId);
+          } else {
+            // Sin progreso previo: ocultar overlay e intentar reproducir automáticamente.
+            showResumeUI(null);
+          }
+        },
+        onStateChange: function(event) {
+          if (event.data === YT.PlayerState.PLAYING) {
+            hideResumeUI();
+            if (typeof btnPlayPause !== 'undefined' && btnPlayPause) btnPlayPause.textContent = 'pause';
+          }
+          if (event.data === YT.PlayerState.PAUSE || event.data === YT.PlayerState.ENDED) {
+            if (typeof btnPlayPause !== 'undefined' && btnPlayPause) btnPlayPause.textContent = 'play_arrow';
+            var currentTime = player.getCurrentTime();
+            var duration = player.getDuration();
+            saveProgress(currentTime, duration);
+            var pct = (currentTime / duration) * 100;
+            if (progressBarEl) progressBarEl.style.width = pct + '%';
+            if (currentTime >= duration * 0.9 && duration > 0) {
+              markCompleted(duration, currentTime);
+              completeBadge.style.display = 'inline-block';
+              resumeBtn.style.display = 'none';
+            }
+          }
+          if (event.data === YT.PlayerState.ENDED) {
+            if (progressBarEl) progressBarEl.style.width = '100%';
+            markCompleted(totalSeconds, totalSeconds);
+            completeBadge.style.display = 'inline-block';
+            resumeBtn.style.display = 'none';
+          }
+        }
+      }
+    });
+
+    setInterval(function() {
+      if (player && player.getPlayerState && player.getPlayerState() === YT.PlayerState.PLAYING) {
+        var currentTime = player.getCurrentTime();
+        var duration = player.getDuration();
+        if (duration > 0) {
+          saveProgress(currentTime, duration);
+          var mins = Math.floor(currentTime / 60);
+          var secs = Math.floor(currentTime % 60);
+          var timeCurrentEl = document.getElementById('time-current');
+          if (timeCurrentEl) timeCurrentEl.textContent = mins + ':' + (secs < 10 ? '0' : '') + secs;
+          var pct = (currentTime / duration) * 100;
+          if (progressBarEl) progressBarEl.style.width = pct + '%';
+          if (currentTime >= duration * 0.9) {
+            markCompleted(duration, currentTime);
+            completeBadge.style.display = 'inline-block';
+            resumeBtn.style.display = 'none';
+          }
+          if (saveTimeout) clearTimeout(saveTimeout);
+          saveTimeout = setTimeout(function() {
+            progressSaveIndicator.classList.add('show');
+            setTimeout(function() { progressSaveIndicator.classList.remove('show'); }, 1000);
+          }, 500);
+        }
+      }
+    }, 3000);
+  };
+
+  window.addEventListener('beforeunload', function() {
+    if (player && typeof player.getCurrentTime === 'function') {
+      saveProgress(player.getCurrentTime(), player.getDuration());
+    }
+  });
+  // Móviles y cambios de pestaña: beforeunload no siempre dispara.
+  function saveNow() {
+    try {
+      if (player && typeof player.getCurrentTime === 'function' && typeof player.getDuration === 'function') {
+        saveProgress(player.getCurrentTime(), player.getDuration());
+      }
+    } catch(e) {}
+  }
+  window.addEventListener('pagehide', saveNow);
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) saveNow();
+  });
+
+  // Controles propios del reproductor (estaban sin acción).
+  var btnPlayPause = document.getElementById('btn-playpause');
+  if (btnPlayPause) {
+    btnPlayPause.addEventListener('click', function() {
+      if (!player || typeof player.getPlayerState !== 'function') return;
+      if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+        player.pauseVideo();
+        btnPlayPause.textContent = 'play_arrow';
+      } else {
+        hideResumeUI();
+        player.playVideo();
+        btnPlayPause.textContent = 'pause';
+      }
+    });
+  }
+  function seekBy(seconds) {
+    if (!player || typeof player.getCurrentTime !== 'function' || typeof player.seekTo !== 'function') return;
+    var t = player.getCurrentTime() + seconds;
+    if (t < 0) t = 0;
+    try {
+      var d = player.getDuration();
+      if (d > 0 && t > d) t = d;
+    } catch(e) {}
+    player.seekTo(t, true);
+  }
+  var btnReplay = document.getElementById('btn-replay');
+  if (btnReplay) btnReplay.addEventListener('click', function() { hideResumeUI(); seekBy(-10); });
+  var btnForward = document.getElementById('btn-forward');
+  if (btnForward) btnForward.addEventListener('click', function() { hideResumeUI(); seekBy(10); });
+}
 
   // --- Render ---
   document.title = lesson.title + ' - Mundo Braille';
 
   document.getElementById('lesson-title').textContent = lesson.title;
-  document.getElementById('course-name').textContent = course.name;
   document.getElementById('lesson-meta').innerHTML = 'Curso: <span id="course-name">' + course.name + '</span> • Prof. ' + course.instructor;
-
   // Background
   var bgEl = document.getElementById('video-background');
   if (bgEl && lesson.background) {
     bgEl.style.backgroundImage = 'url(' + lesson.background + ')';
   }
 
-  // Duration & progress
+  // Duration & progress — respeta progreso/posición guardada por video
   var timeTotalEl = document.getElementById('time-total');
   if (timeTotalEl) timeTotalEl.textContent = lesson.duration;
-  var pct = !isNaN(progressOverride) ? Math.min(100, Math.max(0, progressOverride)) : lesson.progress;
-  var progressBarEl = document.getElementById('progress-bar');
-  if (progressBarEl) progressBarEl.style.width = pct + '%';
+  var savedForBar = getSavedProgress();
+  var pct;
+  if (savedForBar && savedForBar.currentTime > 0 && !isCompleted()) {
+    var totBar = 0; try { var tpBar = lesson.duration.split(':'); totBar = parseInt(tpBar[0])*60 + parseInt(tpBar[1]); } catch(e) {}
+    pct = totBar > 0 ? Math.min(100, (savedForBar.currentTime / totBar)*100) : (lesson.progress || 0);
+  } else if (!isNaN(progressOverride)) {
+    pct = Math.min(100, Math.max(0, progressOverride));
+  } else {
+    pct = lesson.progress || 0;
+  }
+  var progressBarEl2 = document.getElementById('progress-bar');
+  if (progressBarEl2) progressBarEl2.style.width = pct + '%';
+  // Mantener sincronizada la barra interna usada por el player (si existe)
+  try { if (typeof progressBarEl !== 'undefined' && progressBarEl && progressBarEl2 !== progressBarEl) progressBarEl.style.width = pct + '%'; } catch(e) {}
 
   // Related lessons
   var relatedBox = document.getElementById('related-lessons');

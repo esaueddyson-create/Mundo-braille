@@ -21,6 +21,19 @@
     background: #000613;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
   }
+  /* Cajetilla interactiva de Palabras: puntos siempre circulares de 56px.
+     Mayor especificidad para no depender del orden de la hoja de Tailwind
+     (si solo un eje ganaba la cascada, el punto quedaba como bastón). */
+  #palabras-dots .braille-dot-cell {
+    width: 56px; height: 56px;
+    min-width: 56px; min-height: 56px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+  }
+  /* La cajetilla se ajusta justo al tamaño de los puntos (sin ancho suelto) */
+  #palabras-dots {
+    width: fit-content;
+  }
   .option-card {
     transition: all 0.2s;
   }
@@ -121,7 +134,7 @@
 </a>
 <a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="reproductor_leccion.html">
 <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">smart_display</span>
-<span class="text-label-sm font-label-sm">Videos</span>
+<span class="text-label-sm font-label-sm">Mi aprendizaje</span>
 </a>
 <a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="ejercicios_interactivos.html">
 <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">assignment</span>
@@ -175,7 +188,7 @@
     function wordToBraille(w) {
       return w.toUpperCase().split('').map(function(ch) { return alphaMap[ch] || null; }).filter(Boolean);
     }
-    window.BrailleWords = ["hola","mama","sol","abeja","casa","luz","pan","mesa","libro","agua"].map(function(w) {
+    window.BrailleWords = ["hola","mama","sol","abeja","casa","luz","pan","mesa","libro","agua","luna","perro","gato","flor","cielo","mar","fuego","aire","noche","dia","mano","ojo","boca","pie","vaca","toro","oso","pato","pez","arbol"].map(function(w) {
       return { word: w, braille: wordToBraille(w) };
     });
   }
@@ -185,7 +198,8 @@
       categories: {
         "alfabeto": { page: "ejercicio_practica.html", course: "braille-basico", lesson: "alphabet-eval" },
         "numeros": { page: "ejercicio_practica.html", course: "numeros", lesson: "numeros-eval" },
-        "palabras": { page: "ejercicio_practica.html", course: "palabras", lesson: "palabras-eval" }
+        "palabras": { page: "ejercicio_practica.html", course: "palabras", lesson: "palabras-eval" },
+        "musica": { page: "ejercicio_practica.html", course: "musica", lesson: "notas-musicales-eval" }
       },
       getExercise: function(lesson) { return null; },
       openCategory: function(slug) { var c = this.categories[slug]; if(c) window.location.href = c.page + "?course=" + encodeURIComponent(c.course) + "&lesson=" + encodeURIComponent(c.lesson); },
@@ -207,9 +221,53 @@
     };
   }
 
+  try {
   var params = new URLSearchParams(window.location.search);
   var courseSlug = params.get('course') || 'braille-basico';
   var lessonSlug = params.get('lesson') || 'leccion-letra-b';
+  var levelParam = parseInt(params.get('level'), 10) || 1;
+
+  // Claves y totales de evaluación: DEBEN declararse aquí arriba, antes del
+  // despacho a buildAlphabetEvaluation/buildNumerosEvaluation/buildPalabrasEvaluation
+  // (esas funciones hacen early return y lo declarado abajo nunca se asignaría).
+  var ALPHA_EVAL_KEY = 'bl_alphabet_eval';
+  var ALPHA_EVAL_LS_KEY = 'bl_alphabet_eval';
+  var ALPHA_PROGRESS_KEY = 'alphabet_progress'; // via BrailleStore -> bl_alphabet_progress
+  var ALFABETO_PUNTOS_CLAIMED_KEY = 'alfabeto_puntos_claimed';
+  var NUMEROS_EVAL_KEY = 'bl_numeros_eval';
+  var NUMEROS_EVAL_LS_KEY = 'bl_numeros_eval';
+  var NUMEROS_PROGRESS_KEY = 'numeros_progress';
+  var PALABRAS_EVAL_KEY = 'bl_palabras_eval';
+  var PALABRAS_EVAL_LS_KEY = 'bl_palabras_eval';
+  var PALABRAS_PROGRESS_KEY = 'palabras_progress';
+  // Total fijo: 30 ejercicios de palabras (Alfabeto=26, Números=10).
+  var PALABRAS_TOTAL = 30;
+
+  function getLevelProgressLocal(category) {
+    try {
+      var data = JSON.parse(localStorage.getItem('bl_level_progress') || '{}');
+      return data[category] || { currentLevel: 1, completed: [true, false, false] };
+    } catch(e) { return { currentLevel: 1, completed: [true, false, false] }; }
+  }
+  var LEVELS_LOCAL = {
+    'braille-basico': { totalLevels: 3 },
+    'numeros': { totalLevels: 3 },
+    'palabras': { totalLevels: 3 }
+  };
+  function isLevelAccessible(course, level) {
+    var catMap = { 'braille-basico': 'alfabeto', 'numeros': 'numeros', 'palabras': 'palabras' };
+    var cat = catMap[course];
+    if (!cat) return true;
+    var def = LEVELS_LOCAL[course];
+    if (!def || !def.totalLevels) return true;
+    if (level < 1 || level > def.totalLevels) return false;
+    var progress = getLevelProgressLocal(cat);
+    return level <= progress.currentLevel;
+  }
+  if (!isLevelAccessible(courseSlug, levelParam)) {
+    document.getElementById('main-content').innerHTML = '<p class="text-center text-on-surface-variant py-20">Este nivel está bloqueado. Completa el nivel anterior para desbloquearlo.</p>';
+    return;
+  }
 
   // Update streak
   var progress = window.BrailleStore.getProgress();
@@ -254,7 +312,11 @@
 
   if (lessonSlug === 'alphabet-eval') {
     setBackToEjercicios();
-    buildAlphabetEvaluation();
+    if (window.isQuechuaMode && window.isQuechuaMode() && window.BrailleQuechuaAlphabet) {
+      buildQuechuaAlphabetEvaluation();
+    } else {
+      buildAlphabetEvaluation();
+    }
     return;
   }
 
@@ -726,10 +788,6 @@
     });
   }
 
-    var ALPHA_EVAL_KEY = 'bl_alphabet_eval';
-  var ALPHA_EVAL_LS_KEY = 'bl_alphabet_eval';
-  var ALPHA_PROGRESS_KEY = 'alphabet_progress'; // via BrailleStore -> bl_alphabet_progress
-
   function getAlphaEval() {
     // 1) sessionStorage (sesión actual)
     try {
@@ -788,6 +846,7 @@
     var src = window.BrailleAlphabet || [];
     var base = [];
     for (var k = 0; k < src.length; k++) { var lt = src[k].letter; if (lt >= 'A' && lt <= 'Z') base.push(lt); }
+    if (base.length === 0) { base = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']; }
     if (base.length !== 26) { base.sort(function(a,b){ return a.localeCompare(b); }); if (base.length > 26) base = base.slice(0,26); }
     var out;
     do {
@@ -807,7 +866,6 @@
   }
 
   // --- Puntuación Alfabeto según dificultad (reutiliza lógica puntos existente) ---
-  var ALFABETO_PUNTOS_CLAIMED_KEY = 'alfabeto_puntos_claimed';
   function getAlfabetoDificultadPuntos(dots) {
     var c = 0; for (var i = 0; i < dots.length; i++) if (dots[i]) c++;
     if (c <= 2) return { nivel: 'Fácil', puntos: 100 };
@@ -829,7 +887,50 @@
     return true;
   }
 
+  // Progreso REAL único (igual que la tarjeta): letras únicas completadas.
+  function getAlfabetoDoneSet() {
+    var s = {};
+    try {
+      var lessons = (window.BrailleStore && window.BrailleStore.getProgress) ? (window.BrailleStore.getProgress().lessons || {}) : {};
+      Object.keys(lessons).forEach(function(k) {
+        if (k.indexOf('alfabeto-letra-') === 0) s[k.slice(15).toUpperCase()] = true;
+      });
+    } catch (e) {}
+    try {
+      getAlfabetoPuntosClaimed().forEach(function(l) { s[(l || '').toUpperCase()] = true; });
+    } catch (e2) {}
+    return s;
+  }
+  // Busca el primer ejercicio NO completado recorriendo el orden desde startIdx (con vuelta).
+  // Devuelve el índice o -1 si todo está completo.
+  function findNextPending(order, startIdx, isDone) {
+    if (!order || !order.length) return -1;
+    for (var k = 0; k < order.length; k++) {
+      var idx = (startIdx + k) % order.length;
+      if (!isDone(order[idx])) return idx;
+    }
+    return -1;
+  }
+
   function buildAlphabetEvaluation() {
+    if (!window.BrailleAlphabet || !Array.isArray(window.BrailleAlphabet) || window.BrailleAlphabet.length === 0) {
+      window.BrailleAlphabet = [
+        { letter: "A", dots: [1,0,0,0,0,0] }, { letter: "B", dots: [1,1,0,0,0,0] },
+        { letter: "C", dots: [1,0,0,1,0,0] }, { letter: "D", dots: [1,0,0,1,1,0] },
+        { letter: "E", dots: [1,0,0,0,1,0] }, { letter: "F", dots: [1,1,0,1,0,0] },
+        { letter: "G", dots: [1,1,0,1,1,0] }, { letter: "H", dots: [1,1,0,0,1,0] },
+        { letter: "I", dots: [0,1,0,1,0,0] }, { letter: "J", dots: [0,1,0,1,1,0] },
+        { letter: "K", dots: [1,0,1,0,0,0] }, { letter: "L", dots: [1,1,1,0,0,0] },
+        { letter: "M", dots: [1,0,1,1,0,0] }, { letter: "N", dots: [1,0,1,1,1,0] },
+        { letter: "O", dots: [1,0,1,0,1,0] }, { letter: "P", dots: [1,1,1,1,0,0] },
+        { letter: "Q", dots: [1,1,1,1,1,0] }, { letter: "R", dots: [1,1,1,0,1,0] },
+        { letter: "S", dots: [0,1,1,1,0,0] }, { letter: "T", dots: [0,1,1,1,1,0] },
+        { letter: "U", dots: [1,0,1,0,0,1] }, { letter: "V", dots: [1,1,1,0,0,1] },
+        { letter: "W", dots: [0,1,0,1,1,1] }, { letter: "X", dots: [1,0,1,1,0,1] },
+        { letter: "Y", dots: [1,0,1,1,1,1] }, { letter: "Z", dots: [1,0,1,0,1,1] },
+        { letter: "Ñ", dots: [1,1,1,1,1,1] }
+      ];
+    }
     var indexParam = parseInt(params.get('i'), 10);
     var hasIndex = params.has('i') && !isNaN(indexParam);
 
@@ -863,15 +964,30 @@
     }
     setAlphaEval(order, index);
 
+    // Sincronizar con la tarjeta: saltar letras ya completadas y mostrar el
+    // progreso REAL (completadas/26), no la posición del orden (index+1).
+    var doneSet = getAlfabetoDoneSet();
+    var doneCount = Object.keys(doneSet).length;
+    if (doneCount >= 26) { showAlphabetCongrats(); return; }
+    var pendingIdx = findNextPending(order, index, function(l) { return !!doneSet[(l || '').toUpperCase()]; });
+    if (pendingIdx === -1) { showAlphabetCongrats(); return; }
+    if (pendingIdx !== index) {
+      index = pendingIdx;
+      setAlphaEval(order, index);
+      try { window.history.replaceState(null, '', 'ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=' + index); } catch (e2) {}
+    }
+
     var letter = order[index];
     var entry = null;
     for (var k = 0; k < window.BrailleAlphabet.length; k++) {
       if (window.BrailleAlphabet[k].letter === letter) { entry = window.BrailleAlphabet[k]; break; }
     }
+    if (!entry) { order = shuffleLetters(); index = 0; letter = order[index]; for (var m = 0; m < window.BrailleAlphabet.length; m++) { if (window.BrailleAlphabet[m].letter === letter) { entry = window.BrailleAlphabet[m]; break; } } }
+    if (!entry) { var mc = document.getElementById('main-content'); if (mc) mc.innerHTML = '<p class="text-center text-on-surface-variant py-20">Error de configuración del Alfabeto.</p>'; return; }
 
     var ex = {
       label: 'Evaluación de Alfabeto',
-      progressCurrent: index + 1,
+      progressCurrent: Math.min(doneCount, 26),
       progressTotal: 26,
       character: entry.letter,
       dots: entry.dots
@@ -891,8 +1007,8 @@
       } else {
         if (window.BrailleStore) BrailleStore.completeLesson('alfabeto-letra-' + letter.toLowerCase());
         // Ya reclamado: no otorgar de nuevo, continuar sin ventana para no duplicar
-        var nextDup = index + 1;
-        if (nextDup >= 26) { clearAlphaEval(); showAlphabetCongrats(); } else { setAlphaEval(order, nextDup); window.location.href = 'ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=' + nextDup; }
+        var freshDup = getAlfabetoDoneSet();
+        if (Object.keys(freshDup).length >= 26) { clearAlphaEval(); showAlphabetCongrats(); } else { setAlphaEval(order, index + 1); window.location.href = 'ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=' + (index + 1); }
         return;
       }
       // 5-8: ventana felicitación con puntos exactos
@@ -906,24 +1022,323 @@
         if (aceptado) return;
         aceptado = true;
         if (modal) modal.classList.add('hidden');
-        // 9-10: cerrar y continuar flujo normal
-        var next = index + 1;
-        if (next >= 26) {
+        // 9-10: cerrar y continuar flujo normal (verificar fin real, no fin del orden)
+        var freshDone = getAlfabetoDoneSet();
+        if (Object.keys(freshDone).length >= 26) {
           clearAlphaEval();
           showAlphabetCongrats();
         } else {
-          setAlphaEval(order, next);
-          window.location.href = 'ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=' + next;
+          setAlphaEval(order, index + 1);
+          window.location.href = 'ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=' + (index + 1);
         }
       }
       if (btnAceptar) btnAceptar.onclick = continuarTrasAceptar;
     });
   }
-// ===== NÚMEROS EVAL - espejo exacto de Alfabeto, adaptado a números (0-9) =====
-  var NUMEROS_EVAL_KEY = 'bl_numeros_eval';
-  var NUMEROS_EVAL_LS_KEY = 'bl_numeros_eval';
-  var NUMEROS_PROGRESS_KEY = 'numeros_progress';
+// ===== ALFABETO QUECHUA EVAL - espejo de Alfabeto con las 18 letras oficiales (solo modo Quechua) =====
+// Vocales: A, I, U. Consonantes: CH, H, K, L, LL, M, N, Ñ, P, Q, R, S, T, W, Y.
+var QU_ALPHA_EVAL_KEY = 'bl_alphabet_eval_qu';
+var QU_ALPHA_PROGRESS_KEY = 'alphabet_progress_qu';
+var QU_PUNTOS_CLAIMED_KEY = 'alfabeto_qu_puntos_claimed';
+var QU_TOTAL = 18;
 
+function getQuechuaAlphaEval() {
+  try {
+    var raw = sessionStorage.getItem(QU_ALPHA_EVAL_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  try {
+    var rawLS = localStorage.getItem(QU_ALPHA_EVAL_KEY);
+    if (rawLS) return JSON.parse(rawLS);
+  } catch (e2) {}
+  try {
+    if (window.BrailleStore) {
+      var p = BrailleStore.get(QU_ALPHA_PROGRESS_KEY);
+      if (p && p.order && typeof p.index === 'number') return { order: p.order, index: p.index };
+    }
+  } catch (e3) {}
+  return null;
+}
+
+function setQuechuaAlphaEval(order, index) {
+  var data = JSON.stringify({ order: order, index: index });
+  try { sessionStorage.setItem(QU_ALPHA_EVAL_KEY, data); } catch (e) {}
+  try { localStorage.setItem(QU_ALPHA_EVAL_KEY, data); } catch (e2) {}
+  try {
+    if (window.BrailleStore) {
+      BrailleStore.set(QU_ALPHA_PROGRESS_KEY, { index: index, total: QU_TOTAL, order: order, updatedAt: new Date().toISOString() });
+      var prog = BrailleStore.getProgress();
+      if (!prog.lessons['alfabeto-qu-iniciado']) {
+        prog.lessons['alfabeto-qu-iniciado'] = { started: true, date: new Date().toISOString() };
+        BrailleStore.setProgress(prog);
+      }
+    }
+  } catch (e3) {}
+}
+
+function clearQuechuaAlphaEval() {
+  try { sessionStorage.removeItem(QU_ALPHA_EVAL_KEY); } catch (e) {}
+  try { localStorage.removeItem(QU_ALPHA_EVAL_KEY); } catch (e2) {}
+}
+
+function shuffleQuechua() {
+  var src = window.BrailleQuechuaAlphabet || [];
+  var base = [];
+  for (var k = 0; k < src.length; k++) { if (src[k].grapheme) base.push(src[k].grapheme); }
+  if (base.length === 0) { base = ['A','I','U','CH','H','K','L','LL','M','N','Ñ','P','Q','R','S','T','W','Y']; }
+  var out;
+  do {
+    out = base.slice();
+    for (var i = out.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = out[i]; out[i] = out[j]; out[j] = tmp;
+    }
+  } while (isSorted(out));
+  return out;
+}
+
+function getQuechuaPuntosClaimed() {
+  try { var arr = window.BrailleStore ? BrailleStore.get(QU_PUNTOS_CLAIMED_KEY) : null; return Array.isArray(arr) ? arr.slice() : []; } catch(e){ return []; }
+}
+function isQuechuaPuntosClaimed(g) {
+  return getQuechuaPuntosClaimed().indexOf((g || '').toUpperCase()) !== -1;
+}
+function marcarQuechuaPuntosClaimed(g) {
+  g = (g || '').toUpperCase();
+  var arr = getQuechuaPuntosClaimed();
+  if (arr.indexOf(g) !== -1) return false;
+  arr.push(g);
+  try { if (window.BrailleStore) BrailleStore.set(QU_PUNTOS_CLAIMED_KEY, arr); } catch(e){}
+  return true;
+}
+
+function getQuechuaDoneSet() {
+  var s = {};
+  try {
+    var lessons = (window.BrailleStore && window.BrailleStore.getProgress) ? (window.BrailleStore.getProgress().lessons || {}) : {};
+    Object.keys(lessons).forEach(function(k) {
+      if (k.indexOf('alfabeto-qu-') === 0) s[k.slice(13).toUpperCase()] = true;
+    });
+  } catch (e) {}
+  try {
+    getQuechuaPuntosClaimed().forEach(function(g) { s[(g || '').toUpperCase()] = true; });
+  } catch (e2) {}
+  return s;
+}
+
+function quechuaDifficulty(cells) {
+  var c = 0;
+  for (var i = 0; i < cells.length; i++) for (var j = 0; j < cells[i].length; j++) if (cells[i][j]) c++;
+  if (c <= 2) return { nivel: 'Fácil', puntos: 100 };
+  if (c === 3) return { nivel: 'Media', puntos: 200 };
+  return { nivel: 'Difícil', puntos: 300 };
+}
+
+function showQuechuaCongrats() {
+  document.getElementById('congrats-message').textContent = 'Has completado las 18 letras del alfabeto quechua.';
+  document.getElementById('completion-overlay').classList.add('hidden');
+  document.getElementById('congrats-overlay').classList.remove('hidden');
+}
+
+function buildEvaluationCells(ex, onComplete) {
+  window.__ejercicioActual = ex;
+  var userDots = ex.cells.map(function() { return [0,0,0,0,0,0]; });
+  var html = '';
+
+  // Progress
+  html += '<section class="space-y-stack-sm">';
+  html += '<div class="flex justify-between items-center">';
+  html += '<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">' + ex.label + '</span>';
+  html += '<span class="text-title-md font-title-md font-bold text-secondary">' + ex.progressCurrent + '/' + ex.progressTotal + '</span>';
+  html += '</div>';
+  html += '<div class="w-full bg-surface-container-highest rounded-full h-3 overflow-hidden">';
+  html += '<div class="h-full bg-secondary-container rounded-full shadow-inner transition-all duration-1000 ease-out" style="width:' + (ex.progressCurrent / ex.progressTotal * 100) + '%"></div>';
+  html += '</div>';
+  html += '</section>';
+
+  // Grafía + cajetillas interactivas (una por celda Braille de la grafía)
+  html += '<section class="bg-surface-container-lowest rounded-2xl custom-shadow border border-outline-variant/30 p-8 space-y-8">';
+  html += '<div class="text-center">';
+  html += '<div class="text-8xl font-bold text-primary">' + ex.character + '</div>';
+  html += '<div class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-widest mt-1">Letra</div>';
+  html += '</div>';
+  function evalDot(ci, idx) {
+    return '<div class="braille-dot-cell cursor-pointer hover:brightness-75 transition-all duration-150 w-14 h-14" data-cell="' + ci + '" data-idx="' + idx + '" role="button" tabindex="0" aria-label="Punto de la celda Braille" aria-pressed="false"></div>';
+  }
+  html += '<div id="eval-dots" class="flex flex-wrap justify-center gap-4 p-4 bg-surface-container rounded-2xl max-w-xs mx-auto">';
+  for (var ci = 0; ci < ex.cells.length; ci++) {
+    html += '<div class="flex flex-col items-center gap-3">';
+    html += '<div class="flex gap-3">' + evalDot(ci, 0) + evalDot(ci, 3) + '</div>';
+    html += '<div class="flex gap-3">' + evalDot(ci, 1) + evalDot(ci, 4) + '</div>';
+    html += '<div class="flex gap-3">' + evalDot(ci, 2) + evalDot(ci, 5) + '</div>';
+    html += '</div>';
+  }
+  html += '</div>';
+  html += '</section>';
+
+  // Feedback + check button
+  html += '<div class="max-w-sm mx-auto w-full space-y-4">';
+  html += '<div id="eval-feedback" class="text-center text-body-md font-body-md min-h-[2rem]"></div>';
+  html += '<button id="btn-eval" class="w-full bg-primary text-on-primary font-bold py-4 rounded-2xl tracking-widest transition-all duration-300 uppercase shadow-lg hover:brightness-110 active:scale-[0.98]">Comprobar respuesta</button>';
+  html += '</div>';
+
+  main.innerHTML = html;
+
+  var dots = document.querySelectorAll('#eval-dots .braille-dot-cell');
+  dots.forEach(function(dot) {
+    var cellIdx = parseInt(dot.getAttribute('data-cell'), 10);
+    var idx = parseInt(dot.getAttribute('data-idx'), 10);
+    function toggleDot() {
+      userDots[cellIdx][idx] = userDots[cellIdx][idx] ? 0 : 1;
+      dot.classList.toggle('active', !!userDots[cellIdx][idx]);
+      dot.setAttribute('aria-pressed', userDots[cellIdx][idx] ? 'true' : 'false');
+      document.getElementById('eval-feedback').innerHTML = '';
+      playExerciseSound('dot');
+    }
+    dot.addEventListener('click', toggleDot);
+    dot.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleDot();
+      }
+    });
+  });
+
+  document.getElementById('btn-eval').addEventListener('click', function() {
+    playExerciseSound('click');
+    var correct = userDots.length === ex.cells.length;
+    if (correct) {
+      for (var ci = 0; ci < ex.cells.length; ci++) {
+        for (var i = 0; i < 6; i++) {
+          if (userDots[ci][i] !== ex.cells[ci][i]) { correct = false; break; }
+        }
+        if (!correct) break;
+      }
+    }
+    if (correct) {
+      playExerciseSound('success');
+      if (onComplete) {
+        onComplete();
+        return;
+      }
+      if (window.BrailleStore) BrailleStore.completeLesson(lessonSlug);
+      if (CourseRouter.isLastStep(lessonSlug)) {
+        handleCompletion(ex);
+      } else {
+        CourseRouter.goNext(lessonSlug);
+      }
+     } else {
+       playExerciseSound('error');
+       var fb = document.getElementById('eval-feedback');
+       fb.innerHTML = '<span class="text-red-500 font-bold">La combinación de puntos no es correcta. Inténtalo de nuevo.</span>';
+       fb.style.animation = 'shake 0.4s ease';
+       setTimeout(function() { fb.style.animation = ''; }, 500);
+     }
+  });
+}
+
+function buildQuechuaAlphabetEvaluation() {
+  if (!window.BrailleQuechuaAlphabet || !Array.isArray(window.BrailleQuechuaAlphabet) || window.BrailleQuechuaAlphabet.length === 0) {
+    var mc = document.getElementById('main-content');
+    if (mc) mc.innerHTML = '<p class="text-center text-on-surface-variant py-20">Error de configuración del Alfabeto.</p>';
+    return;
+  }
+  var indexParam = parseInt(params.get('i'), 10);
+  var hasIndex = params.has('i') && !isNaN(indexParam);
+
+  var order, index;
+  var persisted = getQuechuaAlphaEval();
+  if (hasIndex) {
+    order = (persisted && Array.isArray(persisted.order) && persisted.order.length) ? persisted.order : shuffleQuechua();
+    var requestedAlpha = Math.min(Math.max(indexParam, 0), QU_TOTAL - 1);
+    if (persisted && typeof persisted.index === 'number' && persisted.index > requestedAlpha) {
+      index = Math.min(Math.max(persisted.index, 0), Math.min(QU_TOTAL - 1, (persisted.order ? persisted.order.length - 1 : QU_TOTAL - 1)));
+      try { window.history.replaceState(null, '', 'ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=' + index); } catch (e2) {}
+    } else {
+      index = requestedAlpha;
+    }
+  } else {
+    if (persisted && Array.isArray(persisted.order) && persisted.order.length && typeof persisted.index === 'number') {
+      order = persisted.order;
+      index = Math.min(Math.max(persisted.index, 0), Math.min(QU_TOTAL - 1, order.length - 1));
+      if (index >= QU_TOTAL) { order = shuffleQuechua(); index = 0; }
+    } else {
+      order = shuffleQuechua();
+      index = 0;
+    }
+    try {
+      var newUrl = 'ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=' + index;
+      if (window.location.search.indexOf('i=') === -1) window.history.replaceState(null, '', newUrl);
+    } catch (e) {}
+  }
+  setQuechuaAlphaEval(order, index);
+
+  var doneSet = getQuechuaDoneSet();
+  var doneCount = Object.keys(doneSet).length;
+  if (doneCount >= QU_TOTAL) { showQuechuaCongrats(); return; }
+  var pendingIdx = findNextPending(order, index, function(g) { return !!doneSet[g]; });
+  if (pendingIdx === -1) { showQuechuaCongrats(); return; }
+  if (pendingIdx !== index) {
+    index = pendingIdx;
+    setQuechuaAlphaEval(order, index);
+    try { window.history.replaceState(null, '', 'ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=' + index); } catch (e2) {}
+  }
+
+  var grapheme = order[index];
+  var entry = null;
+  for (var k = 0; k < window.BrailleQuechuaAlphabet.length; k++) {
+    if (window.BrailleQuechuaAlphabet[k].grapheme === grapheme) { entry = window.BrailleQuechuaAlphabet[k]; break; }
+  }
+  if (!entry) { order = shuffleQuechua(); index = 0; grapheme = order[index]; for (var m = 0; m < window.BrailleQuechuaAlphabet.length; m++) { if (window.BrailleQuechuaAlphabet[m].grapheme === grapheme) { entry = window.BrailleQuechuaAlphabet[m]; break; } } }
+  if (!entry) { var mc2 = document.getElementById('main-content'); if (mc2) mc2.innerHTML = '<p class="text-center text-on-surface-variant py-20">Error de configuración del Alfabeto.</p>'; return; }
+
+  var ex = {
+    label: 'Evaluación de Alfabeto',
+    progressCurrent: Math.min(doneCount, QU_TOTAL),
+    progressTotal: QU_TOTAL,
+    character: entry.grapheme,
+    cells: entry.cells
+  };
+
+  buildEvaluationCells(ex, function() {
+    var dif = quechuaDifficulty(entry.cells);
+    var puntos = dif.puntos;
+    var esNueva = !isQuechuaPuntosClaimed(grapheme);
+    var puntosOtorgados = 0;
+    if (esNueva) {
+      if (window.BrailleStore) BrailleStore.completeLesson('alfabeto-qu-' + grapheme.toLowerCase());
+      try { if (window.BrailleStore && window.BrailleStore.addPoints) BrailleStore.addPoints(puntos); } catch(e){}
+      marcarQuechuaPuntosClaimed(grapheme);
+      puntosOtorgados = puntos;
+    } else {
+      if (window.BrailleStore) BrailleStore.completeLesson('alfabeto-qu-' + grapheme.toLowerCase());
+      var freshDup = getQuechuaDoneSet();
+      if (Object.keys(freshDup).length >= QU_TOTAL) { clearQuechuaAlphaEval(); showQuechuaCongrats(); } else { setQuechuaAlphaEval(order, index + 1); window.location.href = 'ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=' + (index + 1); }
+      return;
+    }
+    var modal = document.getElementById('alfabeto-puntos-modal');
+    var valorEl = document.getElementById('alfabeto-puntos-valor');
+    var btnAceptar = document.getElementById('alfabeto-puntos-aceptar');
+    if (valorEl) valorEl.textContent = '+' + puntosOtorgados + ' puntokuna';
+    if (modal) modal.classList.remove('hidden');
+    var aceptado = false;
+    function continuarTrasAceptar() {
+      if (aceptado) return;
+      aceptado = true;
+      if (modal) modal.classList.add('hidden');
+      var freshDone = getQuechuaDoneSet();
+      if (Object.keys(freshDone).length >= QU_TOTAL) {
+        clearQuechuaAlphaEval();
+        showQuechuaCongrats();
+      } else {
+        setQuechuaAlphaEval(order, index + 1);
+        window.location.href = 'ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=' + (index + 1);
+      }
+    }
+    if (btnAceptar) btnAceptar.onclick = continuarTrasAceptar;
+  });
+}
+// ===== NÚMEROS EVAL - espejo exacto de Alfabeto, adaptado a números (0-9) =====
   function getNumerosEval() {
     try {
       var raw = sessionStorage.getItem(NUMEROS_EVAL_KEY);
@@ -965,6 +1380,7 @@
 
   function shuffleNumbers() {
     var base = window.BrailleNumbers.map(function(e) { return e.number; });
+    if (base.length === 0) { base = ['1','2','3','4','5','6','7','8','9','0']; }
     var out;
     do {
       out = base.slice();
@@ -982,7 +1398,28 @@
     document.getElementById('congrats-overlay').classList.remove('hidden');
   }
 
+  // Progreso REAL único (igual que la tarjeta): números únicos completados.
+  function getNumerosDoneSet() {
+    var s = {};
+    try {
+      var lessons = (window.BrailleStore && window.BrailleStore.getProgress) ? (window.BrailleStore.getProgress().lessons || {}) : {};
+      Object.keys(lessons).forEach(function(k) {
+        if (k.indexOf('numeros-numero-') === 0) s[k.slice(15)] = true;
+      });
+    } catch (e) {}
+    return s;
+  }
+
   function buildNumerosEvaluation() {
+    if (!window.BrailleNumbers || !Array.isArray(window.BrailleNumbers) || window.BrailleNumbers.length === 0) {
+      window.BrailleNumbers = [
+        { number: "1", dots: [1,0,0,0,0,0] }, { number: "2", dots: [1,1,0,0,0,0] },
+        { number: "3", dots: [1,0,0,1,0,0] }, { number: "4", dots: [1,0,0,1,1,0] },
+        { number: "5", dots: [1,0,0,0,1,0] }, { number: "6", dots: [1,1,0,1,0,0] },
+        { number: "7", dots: [1,1,0,1,1,0] }, { number: "8", dots: [1,1,0,0,1,0] },
+        { number: "9", dots: [0,1,0,1,0,0] }, { number: "0", dots: [0,1,0,1,1,0] }
+      ];
+    }
     var indexParam = parseInt(params.get('i'), 10);
     var hasIndex = params.has('i') && !isNaN(indexParam);
     var order, index;
@@ -1011,37 +1448,47 @@
       } catch (e) {}
     }
     setNumerosEval(order, index);
+    // Sincronizar con la tarjeta: saltar números ya completados y mostrar el
+    // progreso REAL (completados/10), no la posición del orden (index+1).
+    var numDoneSet = getNumerosDoneSet();
+    var numDoneCount = Object.keys(numDoneSet).length;
+    if (numDoneCount >= 10) { showNumerosCongrats(); return; }
+    var numPendingIdx = findNextPending(order, index, function(n) { return !!numDoneSet[n]; });
+    if (numPendingIdx === -1) { showNumerosCongrats(); return; }
+    if (numPendingIdx !== index) {
+      index = numPendingIdx;
+      setNumerosEval(order, index);
+      try { window.history.replaceState(null, '', 'ejercicio_practica.html?course=numeros&lesson=numeros-eval&i=' + index); } catch (e2) {}
+    }
     var numStr = order[index];
     var entry = null;
     for (var k = 0; k < window.BrailleNumbers.length; k++) {
       if (window.BrailleNumbers[k].number === numStr) { entry = window.BrailleNumbers[k]; break; }
     }
+    if (!entry) { order = shuffleNumbers(); index = 0; numStr = order[index]; for (var m = 0; m < window.BrailleNumbers.length; m++) { if (window.BrailleNumbers[m].number === numStr) { entry = window.BrailleNumbers[m]; break; } } }
+    if (!entry) { var mc = document.getElementById('main-content'); if (mc) mc.innerHTML = '<p class="text-center text-on-surface-variant py-20">Error de configuración de Números.</p>'; return; }
+
     var ex = {
       label: 'Evaluación de Números',
-      progressCurrent: index + 1,
+      progressCurrent: Math.min(numDoneCount, 10),
       progressTotal: 10,
       character: entry.number,
       dots: entry.dots
     };
     buildEvaluation(ex, function() {
       if (window.BrailleStore) BrailleStore.completeLesson('numeros-numero-' + numStr);
-      var next = index + 1;
-      if (next >= 10) {
+      var freshNum = getNumerosDoneSet();
+      if (Object.keys(freshNum).length >= 10) {
         clearNumerosEval();
         showNumerosCongrats();
       } else {
-        setNumerosEval(order, next);
-        window.location.href = 'ejercicio_practica.html?course=numeros&lesson=numeros-eval&i=' + next;
+        setNumerosEval(order, index + 1);
+        window.location.href = 'ejercicio_practica.html?course=numeros&lesson=numeros-eval&i=' + (index + 1);
       }
     });
   }
 
   // ===== PALABRAS EVAL - espejo de Alfabeto/Números, basado en BrailleAlphabet =====
-  var PALABRAS_EVAL_KEY = 'bl_palabras_eval';
-  var PALABRAS_EVAL_LS_KEY = 'bl_palabras_eval';
-  var PALABRAS_PROGRESS_KEY = 'palabras_progress';
-  var PALABRAS_TOTAL = (window.BrailleWords ? window.BrailleWords.length : 10);
-
   function getPalabrasEval() {
     try { var raw = sessionStorage.getItem(PALABRAS_EVAL_KEY); if (raw) return JSON.parse(raw); } catch(e) {}
     try { var rawLS = localStorage.getItem(PALABRAS_EVAL_LS_KEY); if (rawLS) return JSON.parse(rawLS); } catch(e2) {}
@@ -1064,8 +1511,21 @@
     try { sessionStorage.removeItem(PALABRAS_EVAL_KEY); } catch(e) {}
     try { localStorage.removeItem(PALABRAS_EVAL_LS_KEY); } catch(e2) {}
   }
+
+  // Progreso REAL único (igual que la tarjeta): palabras únicas completadas.
+  function getPalabrasDoneSet() {
+    var s = {};
+    try {
+      var lessons = (window.BrailleStore && window.BrailleStore.getProgress) ? (window.BrailleStore.getProgress().lessons || {}) : {};
+      Object.keys(lessons).forEach(function(k) {
+        if (k.indexOf('palabras-palabra-') === 0) s[k.slice(17)] = true;
+      });
+    } catch (e) {}
+    return s;
+  }
   function shufflePalabras() {
     var base = window.BrailleWords.map(function(e){ return e.word; });
+    if (base.length === 0) { base = ['hola','mama','sol','abeja','casa','luz','pan','mesa','libro','agua','luna','perro','gato','flor','cielo','mar','fuego','aire','noche','dia','mano','ojo','boca','pie','vaca','toro','oso','pato','pez','arbol']; }
     var out;
     do {
       out = base.slice();
@@ -1078,11 +1538,18 @@
     document.getElementById('completion-overlay').classList.add('hidden');
     document.getElementById('congrats-overlay').classList.remove('hidden');
   }
-   function buildPalabrasEvaluation() {
-     var indexParam = parseInt(params.get('i'), 10);
-     var hasIndex = params.has('i') && !isNaN(indexParam);
-     var order, index;
-     var persisted = getPalabrasEval();
+function buildPalabrasEvaluation() {
+      if (!window.BrailleWords || !Array.isArray(window.BrailleWords) || window.BrailleWords.length === 0) {
+        var alphaMap = {};
+        (window.BrailleAlphabet || []).forEach(function(e) { alphaMap[e.letter] = e.dots; });
+        window.BrailleWords = ["hola","mama","sol","abeja","casa","luz","pan","mesa","libro","agua","luna","perro","gato","flor","cielo","mar","fuego","aire","noche","dia","mano","ojo","boca","pie","vaca","toro","oso","pato","pez","arbol"].map(function(w) {
+          return { word: w, braille: w.toUpperCase().split('').map(function(ch) { return alphaMap[ch] || null; }).filter(Boolean) };
+        });
+      }
+      var indexParam = parseInt(params.get('i'), 10);
+      var hasIndex = params.has('i') && !isNaN(indexParam);
+      var order, index;
+      var persisted = getPalabrasEval();
      if (hasIndex) {
        order = (persisted && persisted.order && persisted.order.length === PALABRAS_TOTAL) ? persisted.order : shufflePalabras();
        var requestedPal = Math.min(Math.max(indexParam, 0), PALABRAS_TOTAL - 1);
@@ -1100,12 +1567,26 @@
        } else { order = shufflePalabras(); index = 0; }
        try { var newUrl = 'ejercicio_practica.html?course=palabras&lesson=palabras-eval&i=' + index; if (window.location.search.indexOf('i=') === -1) window.history.replaceState(null, '', newUrl); } catch(e) {}
      }
-     setPalabrasEval(order, index);
-     var wordStr = order[index];
-     var entry = null;
-     for (var k = 0; k < window.BrailleWords.length; k++) { if (window.BrailleWords[k].word === wordStr) { entry = window.BrailleWords[k]; break; } }
+      setPalabrasEval(order, index);
+      // Sincronizar con la tarjeta: saltar palabras ya completadas y mostrar el
+      // progreso REAL (completadas/10), no la posición del orden (index+1).
+      var palDoneSet = getPalabrasDoneSet();
+      var palDoneCount = Object.keys(palDoneSet).length;
+      if (palDoneCount >= PALABRAS_TOTAL) { showPalabrasCongrats(); return; }
+      var palPendingIdx = findNextPending(order, index, function(w) { return !!palDoneSet[w]; });
+      if (palPendingIdx === -1) { showPalabrasCongrats(); return; }
+      if (palPendingIdx !== index) {
+        index = palPendingIdx;
+        setPalabrasEval(order, index);
+        try { window.history.replaceState(null, '', 'ejercicio_practica.html?course=palabras&lesson=palabras-eval&i=' + index); } catch (e2) {}
+      }
+var wordStr = order[index];
+      var entry = null;
+      for (var k = 0; k < window.BrailleWords.length; k++) { if (window.BrailleWords[k].word === wordStr) { entry = window.BrailleWords[k]; break; } }
+      if (!entry) { order = shufflePalabras(); index = 0; wordStr = order[index]; for (var m = 0; m < window.BrailleWords.length; m++) { if (window.BrailleWords[m].word === wordStr) { entry = window.BrailleWords[m]; break; } } }
+      if (!entry) { var mc = document.getElementById('main-content'); if (mc) mc.innerHTML = '<p class="text-center text-on-surface-variant py-20">Error de configuración de Palabras.</p>'; return; }
 
-     // Estado de puntos para cada letra de la palabra
+      // Estado de puntos para cada letra de la palabra
      var userDotsArray = [];
      for (var l = 0; l < entry.braille.length; l++) { userDotsArray.push([0,0,0,0,0,0]); }
      var verified = false;
@@ -1115,10 +1596,10 @@ var html = '';
       html += '<section class="space-y-stack-sm">';
       html += '<div class="flex justify-between items-center">';
       html += '<span class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Palabras y Frases</span>';
-      html += '<span class="text-title-md font-title-md font-bold text-secondary">' + (index + 1) + '/' + PALABRAS_TOTAL + '</span>';
+      html += '<span class="text-title-md font-title-md font-bold text-secondary">' + Math.min(palDoneCount, PALABRAS_TOTAL) + '/' + PALABRAS_TOTAL + '</span>';
       html += '</div>';
       html += '<div class="w-full bg-surface-container-highest rounded-full h-3 overflow-hidden">';
-      html += '<div class="h-full bg-secondary-container rounded-full shadow-inner transition-all duration-1000 ease-out" style="width:' + ((index + 1) / PALABRAS_TOTAL * 100) + '%"></div>';
+      html += '<div class="h-full bg-secondary-container rounded-full shadow-inner transition-all duration-1000 ease-out" style="width:' + (Math.min(palDoneCount, PALABRAS_TOTAL) / PALABRAS_TOTAL * 100) + '%"></div>';
       html += '</div></section>';
 
       // Word display
@@ -1136,15 +1617,19 @@ var html = '';
       html += '<div id="palabras-current-label" class="text-label-sm font-label-sm text-on-surface-variant">Letra 1 de ' + entry.braille.length + ': <strong id="palabras-letter-char">' + wordStr[0] + '</strong></div>';
       html += '</div>';
 
-     // Interactive 6-dot cell
+     // Interactive 6-dot cell (misma estructura que la evaluación de Alfabeto:
+     // 3 filas de 2 puntos, contenedor centrado con ancho máximo)
      html += '<section class="bg-surface-container-lowest rounded-2xl custom-shadow border border-outline-variant/30 p-8">';
      html += '<div class="text-center mb-4"><p class="text-label-sm font-label-sm text-on-surface-variant">Construye la letra en Braille pulsando los puntos</p></div>';
-     html += '<div class="flex justify-center">';
-     html += '<div class="grid grid-cols-2 gap-3 p-4 bg-surface-container rounded-2xl" id="palabras-dots">';
+     html += '<div id="palabras-dots" class="flex flex-col items-center gap-3 p-4 bg-surface-container rounded-2xl w-fit max-w-xs mx-auto">';
      var orderDots = [0,3,1,4,2,5];
-     for (var j = 0; j < 6; j++) {
-       var i = orderDots[j];
-       html += '<div class="braille-dot-cell cursor-pointer hover:brightness-75 transition-all duration-150 w-14 h-14" data-idx="' + i + '"></div>';
+     for (var r = 0; r < 3; r++) {
+       html += '<div class="flex gap-3">';
+       for (var c = 0; c < 2; c++) {
+         var i = orderDots[r * 2 + c];
+         html += '<div class="braille-dot-cell cursor-pointer hover:brightness-75 transition-all duration-150 w-14 h-14" data-idx="' + i + '"></div>';
+       }
+       html += '</div>';
      }
      html += '</div></section>';
 
@@ -1206,12 +1691,12 @@ var html = '';
            feedback.innerHTML = '<span class="text-green-600 font-bold">✅ ¡Correcto! Pasa a la siguiente letra.</span>';
            verifyBtn.textContent = 'Comprobar';
          } else {
-           // All letters correct
-           verified = true;
-           if (window.BrailleStore) BrailleStore.completeLesson('palabras-palabra-' + wordStr);
-           var next = index + 1;
-           if (next >= PALABRAS_TOTAL) { clearPalabrasEval(); showPalabrasCongrats(); }
-           else { setPalabrasEval(order, next); window.location.href = 'ejercicio_practica.html?course=palabras&lesson=palabras-eval&i=' + next; }
+            // All letters correct
+            verified = true;
+            if (window.BrailleStore) BrailleStore.completeLesson('palabras-palabra-' + wordStr);
+            var freshPal = getPalabrasDoneSet();
+            if (Object.keys(freshPal).length >= PALABRAS_TOTAL) { clearPalabrasEval(); showPalabrasCongrats(); }
+            else { setPalabrasEval(order, index + 1); window.location.href = 'ejercicio_practica.html?course=palabras&lesson=palabras-eval&i=' + (index + 1); }
          }
        } else {
          playExerciseSound('error');
@@ -1280,6 +1765,11 @@ var html = '';
     buildTraduccion(exercise);
   } else {
     buildQuiz(exercise);
+  }
+
+} catch(e) {
+    var mc = document.getElementById('main-content');
+    if (mc) mc.innerHTML = '<p class="text-center text-on-surface-variant py-20">Error al cargar el ejercicio.</p>';
   }
 
 })();

@@ -91,7 +91,7 @@
 <!-- TopAppBar -->
 <header class="bg-surface border-b border-outline-variant fixed top-0 w-full z-50 shadow-sm flex items-center justify-center px-container-margin h-16">
 <div class="flex items-center gap-2">
-<img src="logo.jpg" alt="Logo Mundo Braille" class="w-8 h-8 rounded-full object-cover"/>
+<img src="logo.jpeg" alt="Logo Mundo Braille" class="w-8 h-8 rounded-full object-cover"/>
 <h1 class="text-title-md font-title-md font-extrabold text-primary">Mundo Braille</h1>
 </div>
 </header>
@@ -117,7 +117,7 @@
 </div>
 <div class="bg-white/50 backdrop-blur rounded-full px-4 py-2 flex items-center gap-1.5">
 <span class="material-symbols-outlined text-on-surface-variant text-lg" style="font-variation-settings: 'FILL' 1;">timer</span>
-<span class="text-on-surface-variant font-bold" id="reto-timer">30s</span>
+<span class="text-on-surface-variant font-bold" id="reto-timer">60s</span>
 </div>
 </div>
 </div>
@@ -148,11 +148,12 @@
   }
   .lab-station-card {
     position: relative; overflow: hidden;
-    border-radius: 24px; padding: 0;
-    cursor: pointer;
+    border-radius: 24px; cursor: pointer;
     transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
     border: 1px solid rgba(196,198,207,0.3);
     background: #ffffff;
+    padding: 28px 24px 24px;
+    display: flex; flex-direction: column; gap: 12px;
   }
   .lab-station-card:hover {
     transform: translateY(-6px) scale(1.02);
@@ -171,11 +172,11 @@
   .lab-station-card .station-icon-wrap {
     width: 56px; height: 56px; border-radius: 18px;
     display: flex; align-items: center; justify-content: center;
-    margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); flex-shrink: 0;
   }
   .lab-station-card .station-braille-preview {
     display: flex; gap: 4px; align-items: center; justify-content: center;
-    margin: 12px 0;
+    flex-shrink: 0;
   }
   .lab-station-card .station-braille-dot {
     width: 8px; height: 8px; border-radius: 50%;
@@ -184,24 +185,35 @@
   .lab-station-card .station-braille-dot.on {
     background: #feaa00; box-shadow: 0 2px 6px rgba(254,170,0,0.4);
   }
+  .lab-station-card .station-content {
+    display: flex; flex-direction: column; gap: 8px; flex: 1;
+  }
+  .lab-station-card .station-title {
+    font-family: 'Atkinson Hyperlegible Next', sans-serif;
+    font-weight: 800; font-size: 1.25rem; color: #1c1b1b; margin-bottom: 0;
+  }
+  .lab-station-card .station-desc {
+    font-family: 'Atkinson Hyperlegible Next', sans-serif;
+    font-weight: 400; font-size: 0.875rem; color: #43474e; line-height: 1.4; margin-bottom: 0;
+  }
+  .lab-station-card .station-progress-label {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-top: 4px;
+  }
   .lab-station-card .station-progress-track {
     width: 100%; height: 6px; border-radius: 3px;
-    background: #e5e2e1; overflow: hidden; margin-top: 14px;
+    background: #e5e2e1; overflow: hidden;
   }
   .lab-station-card .station-progress-fill {
     height: 100%; border-radius: 3px; width: 0%;
     background: linear-gradient(90deg, #feaa00, #ffcc80);
     transition: width 0.6s ease;
   }
-  .lab-station-card .station-progress-label {
-    display: flex; justify-content: space-between;
-    align-items: center; margin-top: 6px;
-  }
   .lab-station-card .station-arrow {
     width: 32px; height: 32px; border-radius: 50%;
     background: #feaa00; display: flex; align-items: center; justify-content: center;
     box-shadow: 0 4px 10px rgba(254,170,0,0.3);
-    transition: transform 0.3s;
+    transition: transform 0.3s; flex-shrink: 0;
   }
   .lab-station-card:hover .station-arrow { transform: translateX(3px); }
   .lab-station-card.station-alfabeto .station-icon-wrap { background: #d4e3ff; }
@@ -213,14 +225,6 @@
   .lab-station-card.station-palabras .station-icon-wrap { background: #e8f5e9; }
   .lab-station-card.station-palabras .station-glow { background: #e8f5e9; }
   .lab-station-card.station-palabras .station-progress-fill { background: linear-gradient(90deg, #2e7d32, #66bb6a); }
-  .lab-station-card .station-title {
-    font-family: 'Atkinson Hyperlegible Next', sans-serif;
-    font-weight: 800; font-size: 1.25rem; color: #1c1b1b; margin-bottom: 4px;
-  }
-  .lab-station-card .station-desc {
-    font-family: 'Atkinson Hyperlegible Next', sans-serif;
-    font-weight: 400; font-size: 0.875rem; color: #43474e; line-height: 1.4;
-  }
   @keyframes labFloat {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-4px); }
@@ -228,6 +232,32 @@
   .lab-station-card .station-deco { animation: labFloat 3s ease-in-out infinite; }
   .lab-station-card:nth-child(2) .station-deco { animation-delay: 0.5s; }
   .lab-station-card:nth-child(3) .station-deco { animation-delay: 1s; }
+  .lab-station-card {
+    text-decoration: none; color: inherit;
+  }
+  .lab-station-card.card-locked {
+    opacity: 0.45; pointer-events: none; cursor: not-allowed;
+  }
+  .lab-station-card.card-locked:hover { transform: none; box-shadow: none; }
+  .lab-station-card.card-locked .station-arrow { background: #c4c6cf; box-shadow: none; }
+  .lab-station-card.card-locked .station-braille-dot.on { background: #c4c6cf; box-shadow: none; }
+  .lab-station-card .level-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #feaa00; color: #fff; font-size: 11px; font-weight: 800;
+    font-family: 'Atkinson Hyperlegible Next', sans-serif; flex-shrink: 0;
+  }
+  .lab-station-card .level-info {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .lab-station-card .level-label {
+    font-family: 'Atkinson Hyperlegible Next', sans-serif;
+    font-weight: 700; font-size: 0.75rem; color: #43474e;
+  }
+  .lab-station-card .level-progress-text {
+    font-family: 'Atkinson Hyperlegible Next', sans-serif;
+    font-weight: 700; font-size: 0.75rem; color: #feaa00;
+  }
 </style>
 <section class="fade-in" style="animation-delay:0.1s">
   <div class="flex items-center gap-3 mb-stack-sm">
@@ -241,9 +271,9 @@
   </div>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
     <!-- Alfabeto -->
-    <div class="lab-station-card station-alfabeto p-6 sm:p-7" onclick="window.location.href='ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=0'">
+    <a href="ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=0&level=1" class="lab-station-card station-alfabeto p-6 sm:p-7 no-underline" onclick="window.location.href='ejercicio_practica.html?course=braille-basico&lesson=alphabet-eval&i=0&level=1'">
       <div class="station-glow"></div>
-      <div class="relative z-10">
+      <div class="relative z-10 flex flex-col flex-1 gap-3">
         <div class="station-icon-wrap station-deco">
           <span class="material-symbols-outlined text-2xl text-primary" style="font-variation-settings: 'FILL' 1;">abc</span>
         </div>
@@ -255,26 +285,31 @@
           <div class="station-braille-dot"></div>
           <div class="station-braille-dot"></div>
         </div>
-        <h3 class="station-title">Alfabeto Braille</h3>
-        <p class="station-desc">Aprende y practica las letras en Braille.</p>
-        <div class="station-progress-label">
-          <span class="text-label-sm font-label-sm font-bold text-primary">Progreso</span>
-          <span class="text-label-sm font-label-sm text-on-surface-variant" id="lab-alfabeto-count">Cargando...</span>
+        <div class="station-content">
+          <h3 class="station-title">Alfabeto Braille</h3>
+          <p class="station-desc">Aprende y practica las letras en Braille.</p>
+          <div class="station-progress-label">
+            <div class="level-info">
+              <span class="level-badge" id="lab-alfabeto-level-badge">1</span>
+              <span class="level-label">Nivel</span>
+            </div>
+            <span class="level-progress-text" id="lab-alfabeto-count">0%</span>
+          </div>
+          <div class="station-progress-track">
+            <div class="station-progress-fill" id="lab-alfabeto-bar" style="width:0%"></div>
+          </div>
         </div>
-        <div class="station-progress-track">
-          <div class="station-progress-fill" id="lab-alfabeto-bar"></div>
-        </div>
-        <div class="flex items-center justify-end mt-3">
+        <div class="flex items-center justify-end mt-1">
           <div class="station-arrow">
             <span class="material-symbols-outlined text-on-primary-fixed text-sm" style="font-variation-settings: 'FILL' 0;">arrow_forward</span>
           </div>
         </div>
       </div>
-    </div>
+    </a>
     <!-- Numeros -->
-    <div class="lab-station-card station-numeros p-6 sm:p-7" onclick="window.location.href='ejercicio_practica.html?course=numeros&lesson=numeros-eval&i=0'">
+    <div class="lab-station-card station-numeros p-6 sm:p-7" onclick="window.location.href='ejercicio_practica.html?course=numeros&lesson=numeros-eval&i=0&level=1'">
       <div class="station-glow"></div>
-      <div class="relative z-10">
+      <div class="relative z-10 flex flex-col flex-1 gap-3">
         <div class="station-icon-wrap station-deco">
           <span class="material-symbols-outlined text-2xl text-primary" style="font-variation-settings: 'FILL' 1;">123</span>
         </div>
@@ -286,16 +321,21 @@
           <div class="station-braille-dot"></div>
           <div class="station-braille-dot"></div>
         </div>
-        <h3 class="station-title">Números</h3>
-        <p class="station-desc">Practica la representación de números en Braille.</p>
-        <div class="station-progress-label">
-          <span class="text-label-sm font-label-sm font-bold text-primary">Progreso</span>
-          <span class="text-label-sm font-label-sm text-on-surface-variant" id="lab-numeros-count">Cargando...</span>
+        <div class="station-content">
+          <h3 class="station-title">Números</h3>
+          <p class="station-desc">Practica la representación de números en Braille.</p>
+          <div class="station-progress-label">
+            <div class="level-info">
+              <span class="level-badge" id="lab-numeros-level-badge">1</span>
+              <span class="level-label">Nivel</span>
+            </div>
+            <span class="level-progress-text" id="lab-numeros-count">0%</span>
+          </div>
+          <div class="station-progress-track">
+            <div class="station-progress-fill" id="lab-numeros-bar" style="width:0%"></div>
+          </div>
         </div>
-        <div class="station-progress-track">
-          <div class="station-progress-fill" id="lab-numeros-bar"></div>
-        </div>
-        <div class="flex items-center justify-end mt-3">
+        <div class="flex items-center justify-end mt-1">
           <div class="station-arrow">
             <span class="material-symbols-outlined text-on-primary-fixed text-sm" style="font-variation-settings: 'FILL' 0;">arrow_forward</span>
           </div>
@@ -303,9 +343,9 @@
       </div>
     </div>
     <!-- Palabras -->
-    <div class="lab-station-card station-palabras p-6 sm:p-7" onclick="window.location.href='ejercicio_practica.html?course=palabras&lesson=palabras-eval&i=0'">
+    <div class="lab-station-card station-palabras p-6 sm:p-7" onclick="window.location.href='ejercicio_practica.html?course=palabras&lesson=palabras-eval&i=0&level=1'">
       <div class="station-glow"></div>
-      <div class="relative z-10">
+      <div class="relative z-10 flex flex-col flex-1 gap-3">
         <div class="station-icon-wrap station-deco">
           <span class="material-symbols-outlined text-2xl text-primary" style="font-variation-settings: 'FILL' 1;">translate</span>
         </div>
@@ -317,16 +357,21 @@
           <div class="station-braille-dot on"></div>
           <div class="station-braille-dot on"></div>
         </div>
-        <h3 class="station-title">Palabras</h3>
-        <p class="station-desc">Pon en práctica el Braille formando palabras.</p>
-        <div class="station-progress-label">
-          <span class="text-label-sm font-label-sm font-bold text-primary">Progreso</span>
-          <span class="text-label-sm font-label-sm text-on-surface-variant" id="lab-palabras-count">Cargando...</span>
+        <div class="station-content">
+          <h3 class="station-title">Palabras</h3>
+          <p class="station-desc">Pon en práctica el Braille formando palabras.</p>
+          <div class="station-progress-label">
+            <div class="level-info">
+              <span class="level-badge" id="lab-palabras-level-badge">1</span>
+              <span class="level-label">Nivel</span>
+            </div>
+            <span class="level-progress-text" id="lab-palabras-count">0%</span>
+          </div>
+          <div class="station-progress-track">
+            <div class="station-progress-fill" id="lab-palabras-bar" style="width:0%"></div>
+          </div>
         </div>
-        <div class="station-progress-track">
-          <div class="station-progress-fill" id="lab-palabras-bar"></div>
-        </div>
-        <div class="flex items-center justify-end mt-3">
+        <div class="flex items-center justify-end mt-1">
           <div class="station-arrow">
             <span class="material-symbols-outlined text-on-primary-fixed text-sm" style="font-variation-settings: 'FILL' 0;">arrow_forward</span>
           </div>
@@ -388,8 +433,8 @@
 <p class="text-label-sm font-label-sm text-on-surface-variant" id="prog-badges-count">0 obtenidas</p>
 <div class="flex flex-wrap gap-2 mt-2" id="prog-badges-list"></div>
 </div>
-<!-- Progreso por categoria -->
-<h3 class="text-body-md font-body-md font-bold text-primary mb-4">Progreso por categoria</h3>
+<!-- Progreso por Cajetilla -->
+<h3 class="text-body-md font-body-md font-bold text-primary mb-4">Progreso por Cajetilla</h3>
 <div class="space-y-5">
 <div>
 <div class="flex justify-between mb-2">
@@ -420,54 +465,6 @@
 </div>
 </div>
 </div>
-</section>
-
-<!-- ========== CREA UNA ACTIVIDAD ========== -->
-<section class="fade-in" style="animation-delay:0.3s">
-<div class="flex items-center gap-2 mb-stack-sm">
-<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">post_add</span>
-<h2 class="text-title-md font-title-md section-title text-primary">Crea una actividad</h2>
-</div>
-<div class="bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/30">
-<p class="text-body-md font-body-md text-on-surface-variant mb-5">Diseña ejercicios personalizados para el aula.</p>
-<form id="crea-form" class="space-y-4" onsubmit="return CreaActivity.handleSubmit(event)">
-<div>
-<label class="text-label-sm font-label-sm font-bold text-primary block mb-1">Nombre de la actividad</label>
-<input type="text" id="crea-nombre" class="input-field" placeholder="Ej: Practica de la letra A" required/>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div>
-<label class="text-label-sm font-label-sm font-bold text-primary block mb-1">Categoria</label>
-<select id="crea-categoria" class="input-field">
-<option value="alfabeto">Alfabeto</option>
-<option value="numeros">Numeros</option>
-<option value="palabras">Palabras</option>
-</select>
-</div>
-<div>
-<label class="text-label-sm font-label-sm font-bold text-primary block mb-1">Puntos</label>
-<select id="crea-puntos" class="input-field">
-<option value="10">10 pts</option>
-<option value="25">25 pts</option>
-<option value="50">50 pts</option>
-<option value="100">100 pts</option>
-</select>
-</div>
-</div>
-<div>
-<label class="text-label-sm font-label-sm font-bold text-primary block mb-1">Descripcion</label>
-<textarea id="crea-descripcion" class="input-field" placeholder="Describe la actividad..." required></textarea>
-</div>
-<button type="submit" class="btn-primary w-full flex items-center justify-center gap-2">
-<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">add_circle</span>
-Crear Actividad
-</button>
-</form>
-<div id="crea-resultado" class="mt-3 text-center min-h-[1.5rem]"></div>
-<div id="crea-list" class="mt-5 space-y-2"></div>
-</div>
-</section>
-
 </main>
 
 <!-- Pop-up felicitación Reto del día -->
@@ -493,7 +490,7 @@ Crear Actividad
 </a>
 <a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="reproductor_leccion.html">
 <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">smart_display</span>
-<span class="text-label-sm font-label-sm">Videos</span>
+<span class="text-label-sm font-label-sm">Mi aprendizaje</span>
 </a>
 <a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container p-2 hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all" href="ejercicios_interactivos.html">
 <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 0;">assignment</span>
@@ -514,15 +511,70 @@ Crear Actividad
     currentBraille: null,
     currentPoints: 20,
     STORAGE_KEY: 'bl_reto_palabras_usadas',
+    TIME_LIMIT: 60,
+    timeLeft: 60,
+    timerId: null,
+
+    // --- Modo Quechua: el reto usa SOLO palabras del alfabeto quechua
+    // (18 letras: A, I, U + 15 consonantes) y claves de guardado separadas
+    // (sufijo _qu) para no mezclar el progreso con el modo español.
+    isQU: function() { return window.isQuechuaMode && window.isQuechuaMode(); },
+    qkey: function(base) { return this.isQU() ? base + '_qu' : base; },
+    wordPool: function() {
+      if (this.isQU() && window.BrailleQuechuaWordList && window.BrailleQuechuaWordList.length) {
+        return window.BrailleQuechuaWordList;
+      }
+      return window.BrailleWords || [];
+    },
+
+    // --- Cuenta regresiva 60s → 0s (inicia al comenzar el reto) ---
+    updateTimerDisplay: function() {
+      var el = document.getElementById('reto-timer');
+      if (el) el.textContent = this.timeLeft + 's';
+    },
+    stopTimer: function() {
+      if (this.timerId) { clearInterval(this.timerId); this.timerId = null; }
+    },
+    startTimer: function() {
+      var self = this;
+      self.stopTimer();
+      self.timeLeft = self.TIME_LIMIT;
+      self.updateTimerDisplay();
+      self.timerId = setInterval(function() {
+        self.timeLeft--;
+        if (self.timeLeft <= 0) {
+          self.timeLeft = 0;
+          self.updateTimerDisplay();
+          self.stopTimer();
+          self.onTimeUp();
+        } else {
+          self.updateTimerDisplay();
+        }
+      }, 1000);
+    },
+    onTimeUp: function() {
+      if (this.isDailyCompleted()) return;
+      this._timedOut = true;
+      var feedback = document.getElementById('reto-feedback');
+      var pts = this.currentPoints || 20;
+      // El usuario pierde puntos y el reto queda como no completado (no se avanza)
+      try {
+        if (window.BrailleStore && BrailleStore.addPoints) {
+          var updated = BrailleStore.addPoints(-pts);
+          if (updated.totalPoints < 0) {
+            var prog = BrailleStore.getProgress();
+            prog.totalPoints = 0;
+            BrailleStore.setProgress(prog);
+          }
+        }
+      } catch(e) {}
+      try { if (typeof updateProgress === 'function') updateProgress(); } catch(e2) {}
+      if (feedback) feedback.innerHTML = '<span class="font-bold" style="color:#c62828;">⏰ ¡Tiempo agotado! Perdiste ' + pts + ' puntos. Reto no completado.</span>';
+      if (this.isQU() && feedback) feedback.innerHTML = '<span class="font-bold" style="color:#c62828;">⏰ ¡Pacha tukurun! ' + pts + ' puntokunata chinkarunki. Sasachakuyqa mana tukusqachu.</span>';
+    },
 
     // Dificultad según puntos Braille de la palabra (estable, basada en letras del Alfabeto Braille)
     // 🟢 Fácil (1-2 puntos promedio) → +20 | 🟡 Media (3 puntos promedio) → +35 | 🔴 Difícil (4+ promedio) → +50
-    getDifficulty: function(dots) {
-      var c = 0; for (var i=0;i<dots.length;i++) if(dots[i]) c++;
-      if (c <= 2) return { level: 'Fácil', points: 20, icon: '🟢' };
-      if (c === 3) return { level: 'Media', points: 35, icon: '🟡' };
-      return { level: 'Difícil', points: 50, icon: '🔴' };
-    },
     getWordDifficulty: function(brailleArr) {
       if (!brailleArr || !brailleArr.length) return { level: 'Fácil', points: 20, icon: '🟢' };
       var total = 0; for (var i=0;i<brailleArr.length;i++) for (var j=0;j<brailleArr[i].length;j++) if(brailleArr[i][j]) total++;
@@ -533,14 +585,14 @@ Crear Actividad
     },
 
     getUsedWords: function() {
-      try { var v = JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch(e) { return []; }
+      try { var v = JSON.parse(localStorage.getItem(this.qkey(this.STORAGE_KEY)) || '[]'); return Array.isArray(v) ? v : []; } catch(e) { return []; }
     },
     saveUsedWords: function(arr) {
-      try { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(arr)); } catch(e) {}
+      try { localStorage.setItem(this.qkey(this.STORAGE_KEY), JSON.stringify(arr)); } catch(e) {}
     },
     getNextWord: function() {
-      // Fuente única: BrailleWords generado desde BrailleAlphabet en app.js (ej: casa, hola, sol...)
-      var words = window.BrailleWords || [];
+      // Fuente única: BrailleWords en español; BrailleQuechuaWordList en modo Quechua
+      var words = this.wordPool();
       if (!words.length) {
         var alpha = window.BrailleAlphabet || [];
         var len = 4;
@@ -568,24 +620,24 @@ Crear Actividad
       try { return new Date().toLocaleDateString('en-CA'); } catch(e) { return new Date().toISOString().slice(0,10); }
     },
     getDailySet: function() {
-      try { var v = JSON.parse(localStorage.getItem(this.DAILY_KEY) || 'null'); return Array.isArray(v) ? v : null; } catch(e) { return null; }
+      try { var v = JSON.parse(localStorage.getItem(this.qkey(this.DAILY_KEY)) || 'null'); return Array.isArray(v) ? v : null; } catch(e) { return null; }
     },
     saveDailySet: function(arr) {
-      try { localStorage.setItem(this.DAILY_KEY, JSON.stringify(arr)); } catch(e) {}
+      try { localStorage.setItem(this.qkey(this.DAILY_KEY), JSON.stringify(arr)); } catch(e) {}
     },
     getDailyIdx: function() {
-      try { var v = parseInt(localStorage.getItem(this.IDX_KEY) || '0',10); return isNaN(v)?0:v; } catch(e){ return 0; }
+      try { var v = parseInt(localStorage.getItem(this.qkey(this.IDX_KEY)) || '0',10); return isNaN(v)?0:v; } catch(e){ return 0; }
     },
     saveDailyIdx: function(i) {
-      try { localStorage.setItem(this.IDX_KEY, String(i)); } catch(e){}
+      try { localStorage.setItem(this.qkey(this.IDX_KEY), String(i)); } catch(e){}
     },
     getInverseIdx: function() {
-      try { var v = parseInt(localStorage.getItem(this.INVERSE_KEY) || '-1',10); return isNaN(v)?-1:v; } catch(e){ return -1; }
+      try { var v = parseInt(localStorage.getItem(this.qkey(this.INVERSE_KEY)) || '-1',10); return isNaN(v)?-1:v; } catch(e){ return -1; }
     },
-    saveInverseIdx: function(i) { try { localStorage.setItem(this.INVERSE_KEY, String(i)); } catch(e){} },
+    saveInverseIdx: function(i) { try { localStorage.setItem(this.qkey(this.INVERSE_KEY), String(i)); } catch(e){} },
     ensureDailySet: function() {
       var today = this.getTodayStr();
-      var storedDate = null; try { storedDate = localStorage.getItem(this.DATE_KEY); } catch(e){}
+      var storedDate = null; try { storedDate = localStorage.getItem(this.qkey(this.DATE_KEY)); } catch(e){}
       var daily = this.getDailySet();
       var idx = this.getDailyIdx();
       var inv = this.getInverseIdx();
@@ -599,11 +651,11 @@ Crear Actividad
         var invIdx = Math.floor(Math.random()*3);
         this.saveDailySet(picks);
         this.saveInverseIdx(invIdx);
-        try { localStorage.setItem(this.DATE_KEY, today); } catch(e){}
+        try { localStorage.setItem(this.qkey(this.DATE_KEY), today); } catch(e){}
         this.saveDailyIdx(0);
         return { words: picks, idx: 0, inverseIdx: invIdx, today: today };
       }
-      var wordsList = (window.BrailleWords||[]).map(function(e){return e.word;});
+      var wordsList = this.wordPool().map(function(e){return e.word;});
       if (wordsList.length) {
         var valid = daily.every(function(w){ return wordsList.indexOf(w)!==-1; });
         if (!valid) {
@@ -624,11 +676,15 @@ Crear Actividad
       var s = this.ensureDailySet();
       if (s.idx >= 3) return null;
       var word = s.words[s.idx];
-      // Resolver braille desde BrailleWords (fuente única)
+      // Resolver braille desde el pool activo (fuente única por idioma)
       var found = null;
-      var list = window.BrailleWords||[];
+      var list = this.wordPool();
       for(var i=0;i<list.length;i++) if(list[i].word===word){ found=list[i]; break; }
       if (found) return found;
+      if (this.isQU() && window.quechuaWordToBraille) {
+        var qb = window.quechuaWordToBraille(word);
+        if (qb) return { word: word, braille: qb };
+      }
       // Fallback: construir desde BrailleAlphabet
       var map={}; (window.BrailleAlphabet||[]).forEach(function(e){ map[e.letter.toLowerCase()]=e.dots; });
       var b=[]; for(var c=0;c<word.length;c++){ var d=map[word[c]]; if(d) b.push(d.slice()); }
@@ -723,21 +779,29 @@ Crear Actividad
       var inputWrap = document.getElementById('reto-input-wrap');
       var daily = this.ensureDailySet();
       if (daily.idx >= 3) {
-        feedback.innerHTML = '<span class="font-bold" style="color:#2e7d32;">🎉 ¡Completaste los 3 retos de hoy!</span>';
+        this.stopTimer();
+        feedback.innerHTML = '<span class="font-bold" style="color:#2e7d32;">🎉 ¡Completaste los 3 retos de hoy!<br>Vuelve mañana para nuevos retos.</span>';
+        if (this.isQU()) feedback.innerHTML = '<span class="font-bold" style="color:#2e7d32;">🎉 ¡Kimsa p\'unchaw sasachakuykunata tukurunki!<br>Paqarinta kutimuy, musuq sasachakuykunapaq.</span>';
         var hint2 = document.getElementById('reto-hint-text');
-        if (hint2) hint2.textContent = 'Vuelve mañana para 3 nuevos retos';
+        if (hint2) { hint2.textContent = ''; hint2.style.display = 'none'; }
         var container = document.getElementById('reto-word-display');
-        if (container) container.innerHTML = '<p class="text-body-md font-body-md text-on-surface-variant text-center py-4">Has terminado los desafíos diarios.</p>';
+        if (container) { container.innerHTML = ''; container.style.display = 'none'; }
         if (labelEl) labelEl.classList.add('hidden');
+        if (inputWrap) inputWrap.style.display = 'none';
         var btnV = document.getElementById('btn-verificar');
         var inp2 = document.getElementById('reto-palabra-input');
-        if (btnV) btnV.disabled = true; if (btnV) btnV.style.opacity='0.5';
+        if (btnV) { btnV.disabled = true; btnV.style.display = 'none'; }
         if (inp2) inp2.disabled = true;
         return;
       }
+      var hintActive = document.getElementById('reto-hint-text');
+      if (hintActive) hintActive.style.display = '';
+      var containerActive = document.getElementById('reto-word-display');
+      if (containerActive) containerActive.style.display = '';
+      if (inputWrap) inputWrap.style.display = '';
       var btnV2 = document.getElementById('btn-verificar');
       var inp3 = document.getElementById('reto-palabra-input');
-      if (btnV2) { btnV2.disabled = false; btnV2.style.opacity='1'; }
+      if (btnV2) { btnV2.disabled = false; btnV2.style.opacity='1'; btnV2.style.display=''; }
       if (inp3) inp3.disabled = false;
 
       feedback.innerHTML = '';
@@ -755,22 +819,23 @@ Crear Actividad
       var ptsEl = document.getElementById('reto-puntos');
       if (ptsEl) ptsEl.textContent = '+' + diff.points;
       var hint = document.getElementById('reto-hint-text');
+      var QUH = this.isQU();
       if (isInverse) {
-        if (hint) hint.textContent = 'Reto ' + (daily.idx+1) + '/3 — Forma la palabra en Braille';
-        if (labelEl) { labelEl.textContent = 'Palabra: ' + entry.word.toUpperCase(); labelEl.classList.remove('hidden'); }
+        if (hint) hint.textContent = QUH ? ('Sasachakuy ' + (daily.idx+1) + '/3 — Simita Braillepi ruwakuy') : ('Reto ' + (daily.idx+1) + '/3 — Forma la palabra en Braille');
+        if (labelEl) { labelEl.textContent = (QUH ? 'Simi: ' : 'Palabra: ') + entry.word.toUpperCase(); labelEl.classList.remove('hidden'); }
         if (inputWrap) inputWrap.classList.add('hidden');
         this.renderInverse(entry.braille);
       } else {
-        if (hint) hint.textContent = 'Reto ' + (daily.idx+1) + '/3 — ¿Qué palabra forman estas cajetillas?';
+        if (hint) hint.textContent = QUH ? ('Sasachakuy ' + (daily.idx+1) + '/3 — ¿Ima simtan kay cajitillakuna rikuchin?') : ('Reto ' + (daily.idx+1) + '/3 — ¿Qué palabra forman estas cajetillas?');
         if (labelEl) labelEl.classList.add('hidden');
         if (inputWrap) inputWrap.classList.remove('hidden');
         this.renderWord(entry.braille);
         if (inp) inp.focus();
       }
+      // Iniciar cuenta regresiva de 60s al comenzar el reto
+      this._timedOut = false;
+      this.startTimer();
     },
-
-    // Mantener wireDots por compatibilidad (no usado en modo palabra, cajetillas son estáticas)
-    wireDots: function() {},
 
     // --- Pop-up felicitación ---
     showPopup: function(frase, pts, icon) {
@@ -779,7 +844,7 @@ Crear Actividad
       var puntosEl = document.getElementById('reto-popup-puntos');
       var confetti = document.getElementById('reto-confetti');
       if (fraseEl) fraseEl.textContent = frase;
-      if (puntosEl) puntosEl.textContent = '⭐ +' + pts + ' puntos';
+      if (puntosEl) puntosEl.textContent = '⭐ +' + pts + (RetoDia.isQU() ? ' puntokuna' : ' puntos');
       // Confeti sencillo: estrellas
       if (confetti) {
         confetti.innerHTML = '';
@@ -812,6 +877,10 @@ Crear Actividad
         feedback.innerHTML = '<span class="font-bold" style="color:#2e7d32;">🎉 ¡Completaste los 3 retos de hoy!</span>';
         return;
       }
+      if (this._timedOut) {
+        feedback.innerHTML = '<span class="font-bold" style="color:#c62828;">⏰ ¡Tiempo agotado! Reto no completado.</span>';
+        return;
+      }
       var isInverse = (this.currentMode === 'inverso');
       var correct = false;
       if (isInverse) {
@@ -833,6 +902,7 @@ Crear Actividad
         correct = normalizedInput !== '' && normalizedInput === normalizedExpected;
       }
       if (correct) {
+        this.stopTimer();
         var pts = this.currentPoints || 35;
         var diff = this.getWordDifficulty(this.currentBraille);
         pts = diff.points;
@@ -841,8 +911,10 @@ Crear Actividad
         var badgeId = 'points_' + updated.totalPoints;
         BrailleStore.addBadge(badgeId);
         var frases = ['🎉 ¡Excelente trabajo!','👏 ¡Muy bien!','⭐ ¡Lo hiciste genial!','🔥 ¡Sigue así!','🏆 ¡Perfecto!','✨ ¡Buen trabajo!'];
+        if (this.isQU()) frases = ['🎉 ¡Allinmi, yachaq!','👏 ¡Kusirikuy!','⭐ ¡Ancha allin!','🔥 ¡Hinalla qatiy!','🏆 ¡Tukurunki!','✨ ¡Sumaq ruray!'];
         var frase = frases[Math.floor(Math.random()*frases.length)];
         this._pendingAdvance = true;
+        updateLabCounts();
         updateProgress();
         this.showPopup(frase, pts, diff.icon);
       } else {
@@ -851,22 +923,168 @@ Crear Actividad
     }
   };
 
+  var LEVELS = {
+    alfabeto: { totalItems: 26, levelSize: 9, totalLevels: 3 },
+    numeros: { totalItems: 10, levelSize: 4, totalLevels: 3 },
+    palabras: { totalItems: 30, levelSize: 10, totalLevels: 3 }
+  };
+
+  var CATEGORY_STORAGE_KEY = {
+    alfabeto: 'bl_alphabet_eval',
+    numeros: 'bl_numeros_eval',
+    palabras: 'bl_palabras_eval'
+  };
+
+  function getLevelProgress(category) {
+    try {
+      var data = JSON.parse(localStorage.getItem('bl_level_progress') || '{}');
+      if (!data[category]) {
+        data[category] = { currentLevel: 1, completed: [false, false, false] };
+        localStorage.setItem('bl_level_progress', JSON.stringify(data));
+      }
+      return data[category];
+    } catch(e) {
+      return { currentLevel: 1, completed: [false, false, false] };
+    }
+  }
+
+  function setLevelProgress(category, progress) {
+    try {
+      var data = JSON.parse(localStorage.getItem('bl_level_progress') || '{}');
+      data[category] = progress;
+      localStorage.setItem('bl_level_progress', JSON.stringify(data));
+    } catch(e) {}
+  }
+
+  function computeLevelProgressFromStorage(category) {
+    var key = CATEGORY_STORAGE_KEY[category];
+    if (!key) return null;
+    var QU = (category === 'alfabeto') && isQU();
+    if (QU) key = 'bl_alphabet_eval_qu';
+    try {
+      var raw = localStorage.getItem(key);
+      if (!raw) raw = sessionStorage.getItem(key);
+      if (!raw) {
+        var bk = { alfabeto: QU ? 'alphabet_progress_qu' : 'alphabet_progress', numeros: 'numeros_progress', palabras: 'palabras_progress' };
+        var bs = window.BrailleStore ? window.BrailleStore.get(bk[category]) : null;
+        if (bs && bs.order && typeof bs.index === 'number') raw = JSON.stringify({ order: bs.order, index: bs.index });
+      }
+      if (!raw) return null;
+      var data = JSON.parse(raw);
+      if (data && typeof data.index === 'number') {
+        var def = LEVELS[category];
+        if (category === 'alfabeto' && isQU()) def = { totalItems: 18, levelSize: 6, totalLevels: 3 };
+        var completed = [false, false, false];
+        var idx = data.index;
+        var levelSize = def.levelSize;
+        var remaining = idx + 1;
+        for (var l = 0; l < def.totalLevels; l++) {
+          var itemsInLevel = (l === def.totalLevels - 1) ? (def.totalItems - l * levelSize) : levelSize;
+          if (remaining > itemsInLevel) {
+            completed[l] = true;
+            remaining -= itemsInLevel;
+          } else {
+            break;
+          }
+        }
+        var currentLevel = 1;
+        for (var c = 0; c < completed.length; c++) {
+          if (!completed[c]) { currentLevel = c + 1; break; }
+          currentLevel = c + 2;
+        }
+        if (currentLevel > def.totalLevels) currentLevel = def.totalLevels;
+        return { currentLevel: currentLevel, completed: completed };
+      }
+    } catch(e) {}
+    return null;
+  }
+
+  function getLevelProgressPercent(category) {
+    var progress = getLevelProgress(category);
+    var def = LEVELS[category];
+    if (!def) return 0;
+    var completedLevels = progress.completed.filter(function(c){ return c; }).length;
+    return Math.round((completedLevels / def.totalLevels) * 100);
+  }
+
+  // FUENTE ÚNICA: totales fijos por categoría (nunca undefined).
+  // Alfabeto: 26 ejercicios (18 letras quechuas en modo Quechua) | Números: 10 | Palabras: 10/30.
+  // Claves en BrailleStore: 'alfabeto-letra-x' / 'alfabeto-qu-x' / 'numeros-numero-x' / 'palabras-palabra-x'.
+  // Porcentaje proporcional: pct = round(count / total * 100).
+  var CATEGORY_TOTALS = { alfabeto: 26, numeros: 10, palabras: 30 };
+  window.CATEGORY_TOTALS = CATEGORY_TOTALS;
+  function isQU() { return window.isQuechuaMode && window.isQuechuaMode(); }
+  function getRealCategoryProgress(category) {
+    var totals = CATEGORY_TOTALS;
+    var QU = (category === 'alfabeto') && isQU();
+    var prefixes = {
+      alfabeto: QU ? 'alfabeto-qu-' : 'alfabeto-letra-',
+      numeros: 'numeros-numero-',
+      palabras: 'palabras-palabra-'
+    };
+    var total = (QU ? 28 : (totals[category] || 1));
+    var prefix = prefixes[category] || '';
+    try {
+      var lessons = {};
+      if (window.BrailleStore && window.BrailleStore.getProgress) {
+        var prog = window.BrailleStore.getProgress();
+        lessons = (prog && prog.lessons) || {};
+      }
+      var count = Object.keys(lessons).filter(function(k) { return k.indexOf(prefix) === 0; }).length;
+      // Respaldo: si aún no hay lecciones pero existe avance del eval, úsalo
+      // (bl_alphabet_eval / bl_numeros_eval / bl_palabras_eval guardan {order, index}).
+      if (count === 0) {
+        try {
+          var evalKeys = { alfabeto: QU ? 'bl_alphabet_eval_qu' : 'bl_alphabet_eval', numeros: 'bl_numeros_eval', palabras: 'bl_palabras_eval' };
+          var raw = localStorage.getItem(evalKeys[category]) || sessionStorage.getItem(evalKeys[category]);
+          if (raw) {
+            var d = JSON.parse(raw);
+            if (d && typeof d.index === 'number' && d.index > 0) {
+              count = Math.min(d.index, total);
+            }
+          }
+        } catch (e2) {}
+      }
+      if (count > total) count = total;
+      var pct = total > 0 ? Math.round((count / total) * 100) : 0;
+      return { count: count, total: total, pct: pct };
+    } catch (e) {
+      return { count: 0, total: total, pct: 0 };
+    }
+  }
+
   function updateLabCounts() {
-    // PLACEHOLDER VISUAL - no conecta con datos reales en este paso de diseño
-    var ae = document.getElementById('lab-alfabeto-count');
-    if (ae) ae.textContent = '0%';
-    var ne = document.getElementById('lab-numeros-count');
-    if (ne) ne.textContent = '0%';
-    var pe = document.getElementById('lab-palabras-count');
-    if (pe) pe.textContent = '0%';
-    // Barras vacías (0%) - reservado para futuro progreso dinámico
+    var categories = ['alfabeto', 'numeros', 'palabras'];
+    categories.forEach(function(cat) {
+      var storageProgress = computeLevelProgressFromStorage(cat);
+      var progress;
+      if (storageProgress) {
+        progress = storageProgress;
+        setLevelProgress(cat, progress);
+      } else {
+        progress = getLevelProgress(cat);
+      }
+      // El % de la tarjeta refleja el progreso REAL de ejercicios, no niveles.
+      // Proporcional: pct = round(count / total * 100) → ej. 1/26=4%, 5/10=50%.
+      var real = getRealCategoryProgress(cat);
+      var countEl = document.getElementById('lab-' + cat + '-count');
+      var barEl = document.getElementById('lab-' + cat + '-bar');
+      var badgeEl = document.getElementById('lab-' + cat + '-level-badge');
+      if (countEl) {
+        countEl.textContent = real.count + '/' + real.total + ' · ' + real.pct + '%';
+        countEl.setAttribute('title', real.count + ' de ' + real.total + ' ejercicios completados');
+      }
+      if (barEl) barEl.style.width = real.pct + '%';
+      if (badgeEl) badgeEl.textContent = progress.currentLevel;
+    });
   }
 
   function updateProgress() {
     var prog = BrailleStore.getProgress();
     var streak = prog.streak || 0;
     var lessons = prog.lessons || {};
-    var lessonCount = Object.keys(lessons).length;
+    var lessonKeys = Object.keys(lessons).filter(function(k) { return k.indexOf('-iniciado') === -1; });
+    var lessonCount = lessonKeys.length;
     var totalPoints = prog.totalPoints || 0;
     var badges = prog.badges || [];
     var levelInfo = BrailleStore.getLevelInfo(totalPoints);
@@ -901,58 +1119,26 @@ Crear Actividad
       }).join('');
     }
 
-    var aP = Math.min(Object.keys(lessons).filter(function(k){ return k.indexOf('alfabeto-letra-')===0; }).length / 26 * 100, 100);
-    var nP = Math.min(Object.keys(lessons).filter(function(k){ return k.indexOf('numeros-numero-')===0; }).length / 10 * 100, 100);
-    var pP = Math.min(Object.keys(lessons).filter(function(k){ return k.indexOf('palabras-palabra-')===0; }).length / 4 * 100, 100);
+    var aR = getRealCategoryProgress('alfabeto');
+    var nR = getRealCategoryProgress('numeros');
+    var pR = getRealCategoryProgress('palabras');
 
-    setBar('prog-alfabeto', aP);
-    setBar('prog-numeros', nP);
-    setBar('prog-palabras', pP);
+    setBar('prog-alfabeto', aR.pct, aR.count, aR.total);
+    setBar('prog-numeros', nR.pct, nR.count, nR.total);
+    setBar('prog-palabras', pR.pct, pR.count, pR.total);
   }
 
-  function setBar(id, pct) {
+  function setBar(id, pct, count, total) {
     var bar = document.getElementById(id + '-bar');
     var pctEl = document.getElementById(id + '-pct');
     if (bar) bar.style.width = pct + '%';
-    if (pctEl) pctEl.textContent = Math.round(pct) + '%';
+    if (pctEl) {
+      pctEl.textContent = Math.round(pct) + '%';
+      if (typeof count === 'number' && typeof total === 'number') {
+        pctEl.setAttribute('title', count + ' de ' + total + ' ejercicios completados');
+      }
+    }
   }
-
-  var CreaActivity = {
-    handleSubmit: function(e) {
-      e.preventDefault();
-      var nombre = document.getElementById('crea-nombre').value.trim();
-      var categoria = document.getElementById('crea-categoria').value;
-      var descripcion = document.getElementById('crea-descripcion').value.trim();
-      if (!nombre || !descripcion) return false;
-      var activities = [];
-      try { activities = JSON.parse(localStorage.getItem('bl_custom_activities') || '[]'); } catch(err) { activities = []; }
-      activities.push({ id: Date.now(), nombre: nombre, categoria: categoria, descripcion: descripcion, fecha: new Date().toISOString() });
-      try { localStorage.setItem('bl_custom_activities', JSON.stringify(activities)); } catch(err) {}
-      document.getElementById('crea-resultado').innerHTML = '<span class="font-bold" style="color:#2e7d32;">Actividad "' + nombre + '" creada!</span>';
-      document.getElementById('crea-nombre').value = '';
-      document.getElementById('crea-descripcion').value = '';
-      this.renderList();
-      return false;
-    },
-    renderList: function() {
-      var activities = [];
-      try { activities = JSON.parse(localStorage.getItem('bl_custom_activities') || '[]'); } catch(err) { activities = []; }
-      var list = document.getElementById('crea-list');
-      if (!list) return;
-      if (activities.length === 0) { list.innerHTML = '<p class="text-on-surface-variant text-center py-3 text-body-md font-body-md">Sin actividades creadas</p>'; return; }
-      var labels = { alfabeto:'Alfabeto', numeros:'Numeros', palabras:'Palabras' };
-      var html = '';
-      activities.forEach(function(a) {
-        html += '<div class="activity-item flex items-center gap-3 p-3 bg-surface-container-highest rounded-2xl border border-outline-variant/20">' +
-          '<div class="w-10 h-10 rounded-xl bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-sm">' + a.categoria.charAt(0).toUpperCase() + '</div>' +
-          '<div class="flex-1"><p class="text-body-md font-body-md font-bold text-primary">' + a.nombre + '</p><p class="text-label-sm font-label-sm text-on-surface-variant">' + (labels[a.categoria]||a.categoria) + ' - ' + a.descripcion.substring(0,30) + '</p></div>' +
-          '<span class="material-symbols-outlined text-on-surface-variant text-xl" style="font-variation-settings:\'FILL\' 1;">check_circle</span>' +
-        '</div>';
-      });
-      list.innerHTML = html;
-    },
-    init: function() { this.renderList(); }
-  };
 
   RetoDia.init();
   // Pop-up Continuar: cierra y avanza al siguiente reto
@@ -970,18 +1156,23 @@ Crear Actividad
         } else {
           if (fb) fb.innerHTML = '';
         }
-        setTimeout(function(){ RetoDia.generate(); updateProgress(); }, 250);
+        setTimeout(function(){ RetoDia.generate(); updateLabCounts(); updateProgress(); }, 250);
       }
     });
     popupEl.addEventListener('click', function(e){ if(e.target===popupEl) { popupBtn.click(); }});
   }
   updateLabCounts();
   updateProgress();
-  CreaActivity.init();
 
-  var refreshAll = function() { updateLabCounts(); updateProgress(); CreaActivity.init(); };
+  var refreshAll = function() { updateLabCounts(); updateProgress(); };
   window.addEventListener('focus', refreshAll);
   window.addEventListener('pageshow', refreshAll);
+  // Actualización automática si el progreso cambia en otra pestaña/ventana
+  window.addEventListener('storage', function(e) {
+    if (!e.key || e.key.indexOf('bl_') === 0) refreshAll();
+  });
+  // Exponer para que otros scripts puedan forzar el refresco
+  window.refreshLabProgress = refreshAll;
 })();
 </script>
 </body></html>

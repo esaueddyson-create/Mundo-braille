@@ -74,7 +74,7 @@
 
   // --------- Helpers de explicación ----------
   function joinPuntos(arr) {
-    return arr.length > 1 ? arr.join(", ") : arr.join(", ");
+    return arr.join(", ");
   }
 
   // Explica por qué la selección de puntos es incorrecta

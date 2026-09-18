@@ -4,52 +4,152 @@
 
 // --- Navigation Active Tab ---
 (function initNavigation() {
-  const pageMap = {
+  var pageMap = {
     "index.html": "home",
     "ejercicios_interactivos.html": "explore",
     "reproductor_leccion.html": "videos",
     "ejercicio_practica.html": "explore",
+    "musica.html": "explore",
     "perfil_usuario.html": "profile"
   };
 
-  const currentPage = window.location.pathname.split("/").pop() || "index.html";
-  const activeTab = pageMap[currentPage] || "home";
+  function normalizeFile(raw) {
+    if (!raw) return "";
+    try {
+      raw = String(raw).split("?")[0].split("#")[0].trim();
+      var parts = raw.split("/");
+      var last = parts.pop() || "";
+      return last.trim().toLowerCase();
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function getCurrentFile() {
+    var f = "";
+    try { f = normalizeFile(window.location.pathname); } catch (e) { f = ""; }
+    var hrefLower = "";
+    try { hrefLower = String(window.location.href).toLowerCase(); } catch (e2) {}
+    // Fallback: si pathname no dio archivo ( "/" , "" , file:// sin nombre ), buscar en href
+    if (!f || f === "/" ) {
+      for (var k in pageMap) { if (hrefLower.indexOf(k.toLowerCase()) !== -1) return k.toLowerCase(); }
+    }
+    if (!f) {
+      for (var k2 in pageMap) { if (hrefLower.indexOf(k2.toLowerCase()) !== -1) return k2.toLowerCase(); }
+      f = "index.html";
+    }
+    // Si el archivo detectado no está en pageMap pero la URL contiene uno conocido, usar ese
+    if (!pageMap[f]) {
+      for (var k3 in pageMap) { if (hrefLower.indexOf(k3.toLowerCase()) !== -1) return k3.toLowerCase(); }
+    }
+    return f;
+  }
 
   var activeClasses = ["bg-secondary-container", "dark:bg-secondary", "text-on-secondary-container", "dark:text-on-secondary", "rounded-full", "px-5", "py-1", "translate-y-[-2px]"];
   var inactiveClasses = ["text-on-surface-variant", "dark:text-on-tertiary-container", "p-2", "hover:bg-surface-container-highest", "dark:hover:bg-on-tertiary-fixed-variant"];
 
-  document.querySelectorAll("nav a").forEach(function(link) {
-    const href = link.getAttribute("href");
-    if (!href || href === "#") return;
-    link.classList.remove.apply(link.classList, activeClasses);
-    link.classList.add.apply(link.classList, inactiveClasses);
-    var icon = link.querySelector(".material-symbols-outlined");
-    if (icon) icon.removeAttribute("style");
+  function paintNavigation() {
+    var currentPage = getCurrentFile();
+    var activeTab = pageMap[currentPage] || "home";
 
-    const linkPage = href.split("/").pop();
-    const tab = pageMap[linkPage];
-    if (tab === activeTab) {
-      link.classList.add.apply(link.classList, activeClasses);
-      link.classList.remove.apply(link.classList, inactiveClasses);
-      if (icon) icon.setAttribute("style", "font-variation-settings: 'FILL' 1;");
-    }
-  });
+    var links = document.querySelectorAll("nav.fixed.bottom-0 a[href]");
+    if (!links || links.length === 0) links = document.querySelectorAll("nav a[href]");
+
+    links.forEach(function(link) {
+      var href = link.getAttribute("href");
+      if (!href || href === "#") return;
+      var linkPage = normalizeFile(href);
+      if (!linkPage || !pageMap[linkPage]) return;
+
+      // Reset a estado inactivo primero (solo estilos de navegación)
+      link.classList.remove.apply(link.classList, activeClasses);
+      // Evitar duplicar clases inactivas
+      inactiveClasses.forEach(function(c){ if(!link.classList.contains(c)) link.classList.add(c); });
+      link.removeAttribute("aria-current");
+      var icon = link.querySelector(".material-symbols-outlined");
+      if (icon) icon.setAttribute("style", "font-variation-settings: 'FILL' 0;");
+
+      var tab = pageMap[linkPage];
+      if (tab === activeTab) {
+        link.classList.add.apply(link.classList, activeClasses);
+        link.classList.remove.apply(link.classList, inactiveClasses);
+        link.setAttribute("aria-current", "page");
+        if (icon) icon.setAttribute("style", "font-variation-settings: 'FILL' 1;");
+      }
+    });
+  }
+
+  function schedulePaint(){ try{ paintNavigation(); }catch(e){} }
+
+  // Pintar en cuanto el nav exista
+  schedulePaint();
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", schedulePaint);
+  }
+  window.addEventListener("pageshow", schedulePaint);
+  // Reintento por si el nav se inyecta tarde
+  setTimeout(schedulePaint, 100);
+  setTimeout(schedulePaint, 500);
 })();
 
 // --- Font Scale Override Styles (injected after Tailwind for proper cascade) ---
+// Escala global: el nivel de "Tamaño del Texto" (Mi perfil, 1-4) se guarda en
+// --font-scale y TODAS estas reglas lo multiplican, de modo que el cambio se
+// aplica a todos los textos de todas las pantallas (no solo a algunas clases).
 (function injectFontScaleStyles() {
   if (document.getElementById("font-scale-overrides")) return;
   var style = document.createElement("style");
   style.id = "font-scale-overrides";
   style.textContent = [
-    ".text-body-lg { font-size: calc(18px * var(--font-scale, 1)); }",
-    ".text-label-sm { font-size: calc(14px * var(--font-scale, 1)); }",
-    ".text-title-md { font-size: calc(20px * var(--font-scale, 1)); }",
-    ".text-body-md { font-size: calc(16px * var(--font-scale, 1)); }",
-    ".text-headline-lg { font-size: calc(32px * var(--font-scale, 1)); }",
-    ".text-headline-lg-mobile { font-size: calc(28px * var(--font-scale, 1)); }",
-    ".text-display-lg { font-size: calc(40px * var(--font-scale, 1)); }",
-    ".text-title-sm { font-size: calc(14px * var(--font-scale, 1)); }"
+    // Escala tipográfica propia (bases de tailwind-config.js)
+    ".text-body-lg { font-size: calc(18px * var(--font-scale, 1)) !important; }",
+    ".text-body-md { font-size: calc(16px * var(--font-scale, 1)) !important; }",
+    ".text-body-sm { font-size: calc(14px * var(--font-scale, 1)) !important; }",
+    ".text-title-lg { font-size: calc(24px * var(--font-scale, 1)) !important; }",
+    ".text-title-md { font-size: calc(20px * var(--font-scale, 1)) !important; }",
+    ".text-title-sm { font-size: calc(14px * var(--font-scale, 1)) !important; }",
+    ".text-label-lg { font-size: calc(16px * var(--font-scale, 1)) !important; }",
+    ".text-label-md { font-size: calc(16px * var(--font-scale, 1)) !important; }",
+    ".text-label-sm { font-size: calc(14px * var(--font-scale, 1)) !important; }",
+    ".text-headline-lg { font-size: calc(clamp(22px, 6.5vw, 32px) * var(--font-scale, 1)) !important; }",
+    ".text-headline-lg-mobile { font-size: calc(clamp(20px, 6vw, 28px) * var(--font-scale, 1)) !important; }",
+    ".text-display-lg { font-size: calc(clamp(28px, 8vw, 40px) * var(--font-scale, 1)) !important; }",
+    // Utilidades por defecto de Tailwind usadas en la app
+    ".text-xs { font-size: calc(12px * var(--font-scale, 1)) !important; }",
+    ".text-sm { font-size: calc(14px * var(--font-scale, 1)) !important; }",
+    ".text-base { font-size: calc(16px * var(--font-scale, 1)) !important; }",
+    ".text-lg { font-size: calc(18px * var(--font-scale, 1)) !important; }",
+    ".text-xl { font-size: calc(20px * var(--font-scale, 1)) !important; }",
+    ".text-2xl { font-size: calc(24px * var(--font-scale, 1)) !important; }",
+    ".text-3xl { font-size: calc(30px * var(--font-scale, 1)) !important; }",
+    ".text-4xl { font-size: calc(36px * var(--font-scale, 1)) !important; }",
+    ".text-5xl { font-size: calc(48px * var(--font-scale, 1)) !important; }",
+    ".text-6xl { font-size: calc(60px * var(--font-scale, 1)) !important; }",
+    ".text-7xl { font-size: calc(72px * var(--font-scale, 1)) !important; }",
+    ".text-8xl { font-size: calc(clamp(3rem, 18vw, 6rem) * var(--font-scale, 1)) !important; }",
+    ".text-9xl { font-size: calc(128px * var(--font-scale, 1)) !important; }",
+    // Tamaños arbitrarios text-[Npx] usados en la app (etiquetas, iconos, emojis)
+    ".text-\\[10px\\] { font-size: calc(10px * var(--font-scale, 1)) !important; }",
+    ".text-\\[16px\\] { font-size: calc(16px * var(--font-scale, 1)) !important; }",
+    ".text-\\[20px\\] { font-size: calc(20px * var(--font-scale, 1)) !important; }",
+    ".text-\\[24px\\] { font-size: calc(24px * var(--font-scale, 1)) !important; }",
+    ".text-\\[28px\\] { font-size: calc(28px * var(--font-scale, 1)) !important; }",
+    ".text-\\[32px\\] { font-size: calc(32px * var(--font-scale, 1)) !important; }",
+    ".text-\\[36px\\] { font-size: calc(36px * var(--font-scale, 1)) !important; }",
+    ".text-\\[44px\\] { font-size: calc(44px * var(--font-scale, 1)) !important; }",
+    ".text-\\[48px\\] { font-size: calc(48px * var(--font-scale, 1)) !important; }",
+    // Excepciones responsive de shared.css (misma especificidad + escala)
+    "header h1 { font-size: calc(clamp(14px, 4vw, 20px) * var(--font-scale, 1)) !important; }",
+    "nav.fixed.bottom-0 .material-symbols-outlined { font-size: calc(clamp(20px, 6vw, 24px) * var(--font-scale, 1)) !important; }",
+    "nav.fixed.bottom-0 .text-label-sm { font-size: calc(clamp(10px, 2.8vw, 12px) * var(--font-scale, 1)) !important; }",
+    ".stat-card .text-3xl { font-size: calc(30px * var(--font-scale, 1)) !important; }",
+    // Popup Braille (unidades vw -> tambien escalan)
+    "#braille-popup .popup-image { font-size: calc(clamp(64px, 22vw, 160px) * var(--font-scale, 1)) !important; }",
+    "#braille-popup .popup-letter { font-size: calc(clamp(48px, 16vw, 120px) * var(--font-scale, 1)) !important; }",
+    "#braille-popup .popup-word { font-size: calc(clamp(16px, 4.5vw, 28px) * var(--font-scale, 1)) !important; }",
+    // Entradas de texto: escalan pero sin bajar de 16px (evita zoom auto en iOS)
+    "input[type=\"text\"], input[type=\"email\"], input[type=\"password\"], textarea, select, .input-field { font-size: calc(max(16px, 16px * var(--font-scale, 1))) !important; }",
+    "#traduccion-input { font-size: calc(clamp(18px, 5vw, 28px) * var(--font-scale, 1)) !important; }"
   ].join("\n");
   document.head.appendChild(style);
 })();
@@ -79,120 +179,119 @@
   } catch (e) {}
 })();
 
-// --- ADHD Mode Focus Tracking ---
+// --- ADHD Mode: zona de enfoque persistente ---
+// Con el Modo TDAH activo, el usuario toca una zona de la pantalla (sección,
+// tarjeta, formulario, encabezado, navegación o ventana modal) y SOLO esa zona
+// queda resaltada mientras el resto de la interfaz se atenúa, para reducir
+// distracciones. Tocar otra zona mueve el resaltado; tocar la misma zona (o el
+// fondo) lo libera. Al desactivar el modo todo vuelve a la normalidad.
+// No interfiere con la interacción: nunca hace preventDefault ni stopPropagation.
 (function initADHDTracking() {
-  var highlightTimers = [];
+  var currentZone = null;
 
   function isADHD() {
     return document.body.classList.contains('adhd-mode');
+  }
+
+  // Unidad visual resaltable: contenedores de pantalla y ventanas modales.
+  var ZONE_SELECTOR = 'section, article, li, form, header, nav, .tactile-card, .option-card, .popup-card, [role="dialog"], #braille-popup, #reto-popup, #mf-feedback-toast';
+
+  function findZone(target) {
+    if (!target || target === document.body || target === document.documentElement) return null;
+    try {
+      if (target.closest) {
+        var z = target.closest(ZONE_SELECTOR);
+        if (z && z !== document.body && z !== document.documentElement) return z;
+      }
+    } catch (e) {}
+    // Respaldo: bloque de nivel superior dentro de main.
+    try {
+      var main = document.querySelector('main');
+      var n = target;
+      while (n && n.parentElement && n.parentElement !== main && n.parentElement !== document.body) {
+        n = n.parentElement;
+      }
+      if (n && n.parentElement === main) return n;
+    } catch (e2) {}
+    return null;
   }
 
   function ensurePosition(el) {
     if (!el || el === document.body || el === document.documentElement) return;
     if (getComputedStyle(el).position === 'static') {
       el.style.position = 'relative';
+      el.setAttribute('data-adhd-pos', '1');
     }
   }
 
-  function clearHighlights(delay) {
-    if (delay) {
-      var t = setTimeout(function() {
-        document.querySelectorAll('.adhd-highlight').forEach(function(el) {
-          el.classList.remove('adhd-highlight');
-          if (el.style.position === 'relative' && !el.hasAttribute('data-adhd-pos')) {
-            el.style.position = '';
-          }
-        });
-      }, delay);
-      highlightTimers.push(t);
+  function restorePosition(el) {
+    if (!el) return;
+    if (el.hasAttribute('data-adhd-pos')) {
+      el.style.position = '';
+      el.removeAttribute('data-adhd-pos');
+    }
+  }
+
+  function select(zone) {
+    if (!isADHD() || !zone) return;
+    if (currentZone === zone) return;
+    clearSelection(false);
+    currentZone = zone;
+    ensurePosition(zone);
+    zone.classList.add('adhd-highlight');
+    document.body.classList.add('adhd-focus');
+  }
+
+  function clearSelection(removeFocus) {
+    if (currentZone) {
+      currentZone.classList.remove('adhd-highlight');
+      restorePosition(currentZone);
+      currentZone = null;
+    } else {
+      // Limpieza de restos (compatibilidad con versiones anteriores).
+      document.querySelectorAll('.adhd-highlight').forEach(function(el) {
+        el.classList.remove('adhd-highlight');
+        restorePosition(el);
+        if (el.style.position === 'relative' && !el.hasAttribute('data-adhd-pos')) {
+          el.style.position = '';
+        }
+      });
+    }
+    if (removeFocus !== false) document.body.classList.remove('adhd-focus');
+  }
+
+  // Limpieza pública (la usa Mi perfil al desactivar el modo).
+  window.clearADHDZone = function() { clearSelection(true); };
+
+  // Toque/clic: selecciona la zona, o libera si se repite zona o es fondo.
+  document.addEventListener('click', function(e) {
+    if (!isADHD()) return;
+    var zone = null;
+    try { zone = findZone(e.target); } catch (err) { zone = null; }
+    if (!zone || zone === currentZone) {
+      clearSelection(true);
       return;
     }
-    document.querySelectorAll('.adhd-highlight').forEach(function(el) {
-      el.classList.remove('adhd-highlight');
-      if (el.style.position === 'relative' && !el.hasAttribute('data-adhd-pos')) {
-        el.style.position = '';
+    select(zone);
+  }, true);
+
+  // Teclado/lector: al enfocar, la zona del elemento queda resaltada.
+  document.addEventListener('focusin', function(e) {
+    if (!isADHD()) return;
+    var zone = null;
+    try { zone = findZone(e.target); } catch (err) { zone = null; }
+    if (zone && zone !== currentZone) select(zone);
+  });
+
+  // Si el modo se apaga por cualquier vía, se restaura todo.
+  if (typeof MutationObserver !== 'undefined' && document.body) {
+    var bodyObs = new MutationObserver(function() {
+      if (!isADHD() && (currentZone || document.body.classList.contains('adhd-focus'))) {
+        clearSelection(true);
       }
     });
+    bodyObs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
   }
-
-  function findInteractive(el) {
-    while (el && el !== document.body) {
-      var tag = el.tagName.toLowerCase();
-      if (tag === 'a' || tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea' ||
-          el.hasAttribute('onclick') || el.getAttribute('role') === 'button' ||
-          el.hasAttribute('tabindex') || el.classList.contains('tactile-card') ||
-          el.classList.contains('option-card') || el.classList.contains('cursor-pointer')) {
-        return el;
-      }
-      if (el.hasAttribute('data-category') || el.classList.contains('group')) {
-        return el;
-      }
-      el = el.parentElement;
-    }
-    return null;
-  }
-
-  function highlightFocused(el) {
-    if (!isADHD()) return;
-    highlightTimers.forEach(clearTimeout);
-    highlightTimers = [];
-    clearHighlights();
-
-    if (!el) return;
-    var target = findInteractive(el) || el;
-    if (target === document.body || target === document.documentElement) return;
-
-    ensurePosition(target);
-    target.classList.add('adhd-highlight');
-
-    // Also highlight parent container for spatial context
-    var parent = target.parentElement;
-    while (parent && parent !== document.body) {
-      if (parent.classList.contains('tactile-card') || parent.classList.contains('option-card') ||
-          parent.tagName === 'SECTION' || parent.tagName === 'ARTICLE' || parent.tagName === 'LI' ||
-          parent.tagName === 'NAV') {
-        ensurePosition(parent);
-        parent.classList.add('adhd-highlight');
-        break;
-      }
-      parent = parent.parentElement;
-    }
-  }
-
-  document.addEventListener('touchstart', function(e) {
-    highlightFocused(e.target);
-  }, { passive: true });
-
-  document.addEventListener('focusin', function(e) {
-    highlightFocused(e.target);
-  });
-
-  document.addEventListener('mousedown', function(e) {
-    highlightFocused(e.target);
-  });
-
-  document.addEventListener('touchend', function() {
-    clearHighlights(300);
-  });
-
-  document.addEventListener('focusout', function() {
-    clearHighlights(200);
-  });
-
-  document.addEventListener('mouseup', function() {
-    clearHighlights(200);
-  });
-
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Tab' || e.key === 'Enter' || e.key === ' ') {
-      setTimeout(function() {
-        var focused = document.activeElement;
-        if (focused && focused !== document.body && isADHD()) {
-          highlightFocused(focused);
-        }
-      }, 50);
-    }
-  });
 })();
 
 // --- Header Scroll Shadow ---
@@ -1152,7 +1251,118 @@ window.ExerciseBank = {
     ],
     successMessage: "¡Perfecto! Has completado todos los ejercicios de palabras.",
     next: null
+  },
+
+  // ==================== MÚSICA ====================
+
+  "notas-musicales-eval": {
+    mode: "lesson",
+    category: "musica",
+    label: "Música en Braille",
+    progressCurrent: 1,
+    progressTotal: 6,
+    character: "♪",
+    dots: [0,1,0,0,1,0],
+    interactive: true,
+    description: 'Forma la <b>Nota Musical</b> activando los puntos <b>2 y 5</b> del cajetín Braille.',
+    audioLabel: "Escuchar nota",
+    mnemonic: 'Ejemplo: <b>♪</b> de <u>Nota Musical</u>.',
+    next: "identificar-nota"
+  },
+
+  "identificar-nota": {
+    mode: "quiz",
+    category: "musica",
+    label: "Música en Braille",
+    progressCurrent: 2,
+    progressTotal: 6,
+    character: "♪",
+    dots: [0,1,0,0,1,0],
+    question: "Identifica el símbolo de la Nota Musical en Braille",
+    hint: "Selecciona la celda Braille correcta.",
+    options: [
+      { dots: [0,1,0,0,1,0], label: "♪" },
+      { dots: [0,1,1,0,0,0], label: "♩" },
+      { dots: [0,1,0,0,0,1], label: "♫" },
+      { dots: [1,1,0,0,0,1], label: "♬" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! Has representado la Nota Musical en Braille.",
+    next: "notas-corchea"
+  },
+
+  "notas-corchea": {
+    mode: "lesson",
+    category: "musica",
+    label: "Música en Braille",
+    progressCurrent: 3,
+    progressTotal: 6,
+    character: "♩",
+    dots: [0,1,1,0,0,0],
+    interactive: true,
+    description: 'Forma la <b>Corchea</b> activando los puntos <b>2 y 3</b> del cajetín Braille.',
+    audioLabel: "Escuchar nota",
+    mnemonic: 'Ejemplo: <b>♩</b> de <u>Corchea</u>.',
+    next: "identificar-corchea"
+  },
+
+  "identificar-corchea": {
+    mode: "quiz",
+    category: "musica",
+    label: "Música en Braille",
+    progressCurrent: 4,
+    progressTotal: 6,
+    character: "♩",
+    dots: [0,1,1,0,0,0],
+    question: "Identifica la Corchea en Braille",
+    hint: "Selecciona la celda Braille correcta.",
+    options: [
+      { dots: [0,1,1,0,0,0], label: "♩" },
+      { dots: [0,1,0,0,1,0], label: "♪" },
+      { dots: [0,1,0,0,0,1], label: "♫" },
+      { dots: [0,1,0,0,0,0], label: "♭" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! Has representado la Corchea en Braille.",
+    next: "notas-bemol"
+  },
+
+  "notas-bemol": {
+    mode: "lesson",
+    category: "musica",
+    label: "Música en Braille",
+    progressCurrent: 5,
+    progressTotal: 6,
+    character: "♭",
+    dots: [0,1,0,0,0,0],
+    interactive: true,
+    description: 'Forma el <b>Bemol</b> activando solo el punto <b>2</b> del cajetín Braille.',
+    audioLabel: "Escuchar nota",
+    mnemonic: 'Ejemplo: <b>♭</b> de <u>Bemol</u>.',
+    next: "identificar-bemol"
+  },
+
+  "identificar-bemol": {
+    mode: "quiz",
+    category: "musica",
+    label: "Música en Braille",
+    progressCurrent: 6,
+    progressTotal: 6,
+    character: "♭",
+    dots: [0,1,0,0,0,0],
+    question: "Identifica el Símbolo en Braille",
+    hint: "Selecciona la celda Braille correcta.",
+    options: [
+      { dots: [0,1,0,0,0,0], label: "♭" },
+      { dots: [0,1,0,0,1,0], label: "♪" },
+      { dots: [0,1,1,0,0,0], label: "♩" },
+      { dots: [1,1,0,0,0,1], label: "♬" }
+    ],
+    correctIndex: 0,
+    successMessage: "¡Correcto! Has representado el Bemol en Braille.",
+    next: null
   }
+
 };
 
 // --- Alfabeto Braille (A-Z + Ñ) tabla compartida - FUENTE ÚNICA DE VERDAD ---
@@ -1187,6 +1397,122 @@ window.BrailleAlphabet = [
   { letter: "Ñ", dots: [1,1,1,1,1,1] }
 ];
 
+// --- Alfabeto Quechua (Runasimi) - FUENTE ÚNICA DE VERDAD ---
+// Solo se usa cuando el modo Quechua está activo. Contiene EXACTAMENTE las
+// 18 letras del alfabeto quechua oficial, en este orden:
+// Vocales (3): A, I, U. Consonantes (15): CH, H, K, L, LL, M, N, Ñ,
+// P, Q, R, S, T, W, Y.
+// No incluye E, O ni otras letras, combinaciones aspiradas o glotalizadas.
+// Convención Braille para esta app (celdas de 6 puntos [d1..d6]):
+// - Grafías de una letra: celda estándar del Braille español.
+// - Dígrafos CH y LL: dos celdas (CH=C+H, LL=L+L).
+window.BrailleQuechuaAlphabet = [
+  { grapheme: "A",  cells: [[1,0,0,0,0,0]] },
+  { grapheme: "I",  cells: [[0,1,0,1,0,0]] },
+  { grapheme: "U",  cells: [[1,0,1,0,0,1]] },
+  { grapheme: "CH", cells: [[1,0,0,1,0,0],[1,1,0,0,1,0]] },
+  { grapheme: "H",  cells: [[1,1,0,0,1,0]] },
+  { grapheme: "K",  cells: [[1,0,1,0,0,0]] },
+  { grapheme: "L",  cells: [[1,1,1,0,0,0]] },
+  { grapheme: "LL", cells: [[1,1,1,0,0,0],[1,1,1,0,0,0]] },
+  { grapheme: "M",  cells: [[1,0,1,1,0,0]] },
+  { grapheme: "N",  cells: [[1,0,1,1,1,0]] },
+  { grapheme: "Ñ",  cells: [[1,1,1,1,1,1]] },
+  { grapheme: "P",  cells: [[1,1,1,1,0,0]] },
+  { grapheme: "Q",  cells: [[1,1,1,1,1,0]] },
+  { grapheme: "R",  cells: [[1,1,1,0,1,0]] },
+  { grapheme: "S",  cells: [[0,1,1,1,0,0]] },
+  { grapheme: "T",  cells: [[0,1,1,1,1,0]] },
+  { grapheme: "W",  cells: [[0,1,0,1,1,1]] },
+  { grapheme: "Y",  cells: [[1,0,1,1,1,1]] }
+];
+
+// Palabra ejemplo (quechua) + emoji por cada letra, mismo orden y grafías.
+window.BrailleQuechuaWords = [
+  { grapheme: "A",  word: "atuq",   emoji: "🦊" },
+  { grapheme: "I",  word: "inti",   emoji: "☀️" },
+  { grapheme: "U",  word: "urpi",   emoji: "🕊️" },
+  { grapheme: "CH", word: "chaski", emoji: "🏃" },
+  { grapheme: "H",  word: "hatun",  emoji: "🐘" },
+  { grapheme: "K",  word: "killa",  emoji: "🌙" },
+  { grapheme: "L",  word: "laqhu",  emoji: "🌿" },
+  { grapheme: "LL", word: "llama",  emoji: "🦙" },
+  { grapheme: "M",  word: "mama",   emoji: "🤱" },
+  { grapheme: "N",  word: "nina",   emoji: "🔥" },
+  { grapheme: "Ñ",  word: "ñan",    emoji: "🛤️" },
+  { grapheme: "P",  word: "pacha",  emoji: "🌍" },
+  { grapheme: "Q",  word: "quri",   emoji: "🪙" },
+  { grapheme: "R",  word: "runa",   emoji: "🧑" },
+  { grapheme: "S",  word: "sara",   emoji: "🌽" },
+  { grapheme: "T",  word: "tuta",   emoji: "🌃" },
+  { grapheme: "W",  word: "wasi",   emoji: "🏠" },
+  { grapheme: "Y",  word: "yaku",   emoji: "💧" }
+];
+
+// Convierte una palabra quechua a celdas Braille (aplanadas) usando SOLO las
+// 18 letras (coincidencia más larga: CH y LL antes que sus letras simples).
+// Devuelve null si la palabra contiene letras fuera del alfabeto quechua.
+window.quechuaWordToBraille = function(word) {
+  if (!word) return null;
+  var map = {};
+  window.BrailleQuechuaAlphabet.forEach(function(e) { map[e.grapheme] = e.cells; });
+  var s = String(word).toLowerCase().replace(/[’‘`]/g, "'");
+  var order = ["CH", "LL",
+               "A", "I", "U", "H", "K", "L", "M", "N", "Ñ", "P", "Q", "R", "S", "T", "W", "Y"];
+  var cells = [];
+  var i = 0;
+  while (i < s.length) {
+    var matched = null;
+    for (var k = 0; k < order.length; k++) {
+      var g = order[k];
+      if (s.substr(i, g.length).toUpperCase() === g) { matched = g; break; }
+    }
+    if (!matched || !map[matched]) return null;
+    var gc = map[matched];
+    for (var c = 0; c < gc.length; c++) cells.push(gc[c].slice());
+    i += matched.length;
+  }
+  return cells.length ? cells : null;
+};
+
+// Palabras quechuas para el Reto del día (todas tokenizables con las 18 letras).
+window.BrailleQuechuaWordList = (function() {
+  var list = ["mama", "wasi", "yaku", "tuta", "nina", "sara", "runa", "llama",
+              "allqu", "tayta", "chaski", "hatun", "yachay", "qillqa", "simi", "inti"];
+  var out = [];
+  list.forEach(function(w) {
+    var b = window.quechuaWordToBraille(w);
+    if (b) out.push({ word: w, braille: b });
+  });
+  return out;
+})();
+
+// Renderiza una o varias celdas Braille de 6 puntos como SVG (multicelda en fila).
+// cells: [[d1..d6], ...]. opts: {active, inactive, stroke}.
+window.BrailleCellsSVG = function(cells, cls, opts) {
+  var o = opts || {};
+  var activeFill = o.active || "#000613";
+  var inactiveFill = o.inactive || "#e5e2e1";
+  var inactiveStroke = o.stroke || "#c4c6cf";
+  var pos = [[12,14],[12,30],[12,46],[38,14],[38,30],[38,46]];
+  var n = Math.max(1, cells.length);
+  var svg = '<svg viewBox="0 0 ' + (50 * n) + ' 70" class="' + (cls || "w-full h-16") + '" xmlns="http://www.w3.org/2000/svg">';
+  for (var ci = 0; ci < cells.length; ci++) {
+    var ox = ci * 50;
+    for (var d = 0; d < 6; d++) {
+      var fill = cells[ci][d] ? activeFill : inactiveFill;
+      var stroke = cells[ci][d] ? activeFill : inactiveStroke;
+      svg += '<circle cx="' + (pos[d][0] + ox) + '" cy="' + pos[d][1] + '" r="6" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1"/>';
+    }
+  }
+  return svg + "</svg>";
+};
+
+// Atajo: ¿está activo el modo Quechua?
+window.isQuechuaMode = function() {
+  return !!(window.AppLang && window.AppLang.isQuechua && window.AppLang.isQuechua());
+};
+
 // --- Números Braille (0-9) tabla compartida - espejo de Alfabeto ---
 window.BrailleNumbers = [
   { number: "1", dots: [1,0,0,0,0,0] },
@@ -1212,11 +1538,21 @@ window.BrailleWords = (function(){
     }).filter(Boolean);
   }
   // Lista curada: solo letras A-Z, sin tildes/ñ, correcta según alfabeto
-  var list = ["hola","mama","sol","abeja","casa","luz","pan","mesa","libro","agua"];
+  var list = ["hola","mama","sol","abeja","casa","luz","pan","mesa","libro","agua","luna","perro","gato","flor","cielo","mar","fuego","aire","noche","dia","mano","ojo","boca","pie","vaca","toro","oso","pato","pez","arbol"];
   return list.map(function(w){
     return { word: w, braille: wordToBraille(w) };
   });
 })();
+
+// --- Música Braille ---
+window.BrailleMusic = [
+  { name: "Nota Musical", sym: "♪", dots: [0,1,0,0,1,0] },
+  { name: "Corchea", sym: "♩", dots: [0,1,1,0,0,0] },
+  { name: "Fusa", sym: "♫", dots: [0,1,0,0,0,1] },
+  { name: "Compás", sym: "♬", dots: [1,1,0,0,0,1] },
+  { name: "Bemol", sym: "♭", dots: [0,1,0,0,0,0] },
+  { name: "Sostenido", sym: "♯", dots: [0,1,1,0,1,0] }
+];
 
 // --- Course Router (centralized navigation) ---
 window.CourseRouter = {
@@ -1225,7 +1561,8 @@ window.CourseRouter = {
     "numeros":   { page: "ejercicio_practica.html", course: "numeros",        lesson: "numeros-eval" },
     "palabras":  { page: "ejercicio_practica.html", course: "palabras",       lesson: "palabras-eval" },
     "lectura":   { page: "ejercicio_practica.html", course: "braille-basico", lesson: "leccion-letra-b" },
-    "escritura": { page: "ejercicio_practica.html", course: "braille-basico", lesson: "identificar-letra-a" }
+    "escritura": { page: "ejercicio_practica.html", course: "braille-basico", lesson: "identificar-letra-a" },
+    "musica":   { page: "ejercicio_practica.html", course: "musica",        lesson: "notas-musicales-eval" }
   },
 
   nextSteps: {
@@ -1311,3 +1648,316 @@ window.CourseRouter = {
     window.history.back();
   }
 };
+
+// --- Idioma Quechua (Runasimi) - Traducción global de la interfaz ---
+// Cuando se activa "Quechua" en Mi perfil, toda la interfaz visible
+// (menús, botones, títulos, mensajes y configuraciones de todas las
+// pantallas) se muestra en quechua sureño del Perú. Al desactivarlo,
+// todo vuelve al español. Funciona también con contenido generado
+// dinámicamente (tarjetas, ejercicios, resultados) mediante un
+// MutationObserver. Los iconos (material-symbols) nunca se traducen.
+window.AppLang = (function() {
+  var DICT = {
+    // Navegación principal
+    "Inicio": "Qallariy",
+    "Mi aprendizaje": "Yachayniy",
+    "Ejercicios": "Ruraykuna",
+    "Perfil": "Ñuqamanta",
+    "Mi Perfil": "Ñuqamanta",
+    // Inicio
+    "¡Hola, Aprendiz!": "¡Rimaykullayki, yachaq!",
+    "Continúa tu camino": "Ñannikita qatiy",
+    "Empieza tu camino": "Ñannikita qallariy",
+    "Cajetillas Braille": "Braille cajitillakuna",
+    "Alfabeto": "Achahala",
+    "Números": "Yupaykuna",
+    "Numeros": "Yupaykuna",
+    "Escritura": "Qillqay",
+    "Música": "Taki",
+    "Videos recomendados para ti": "Qanpaq akllasqa videokuna",
+    "Ver todos": "Tukuyta qhaway",
+    "Los más populares": "Aswan riqsisqakuna",
+    "Historia del Braille Digital": "Digital Braillepa wiñaynin",
+    "Introducción al Alfabeto Braille": "Braille achahalata riqsiy",
+    "Escritura con Regleta y Punzón": "Reglawan punzunwan qillqay",
+    "Aprende el Alfabeto Braille": "Braille achahalata yachay",
+    "Lectura en Braille Paso a Paso": "Braillepi ñawinchay, allmanta",
+    "Números en Braille": "Yupaykuna Braillepi",
+    // Alfabeto / Números / Música / Signos
+    "Alfabeto Braille": "Achahala Braille",
+    "Aprende cada letra del alfabeto con su representación en puntos Braille.": "Sapa qillqata Braille unchakunawan yachay.",
+    "Números Braille": "Yupaykuna Braille",
+    "Aprende cada número con su representación en puntos Braille y un ejemplo.": "Sapa yupayta Braille unchakunawan yachay, rikch'ayniyuq.",
+    "0 ejemplos": "0 rikch'aykuna",
+    "Música en Braille": "Taki Braillepi",
+    "Aprende a leer y escribir notas musicales en Braille.": "Braillepi taki unanchakunata ñawinchayta qillqaytapas yachay.",
+    "Signos de puntuación": "Unanchakuna",
+    "Conoce los signos de puntuación en Braille y su escritura.": "Braillepi unanchakunata riqsiy, qillqayta yachay.",
+    // Mi perfil
+    "Aprendiz Mundo Braille": "Braille yachaq",
+    "Estudiante": "Yachaq",
+    "3 EN CURSO": "3 purichkaq",
+    "Uso de la Regleta y el Punzón": "Reglata punzunta llamk'achiy",
+    "Apasionado por el aprendizaje del Braille y la comunicación inclusiva. Estudiante comprometido con dominar el sistema de lectura y escritura táctil para construir un mundo más accesible.": "Braille yachayta tukuykuq rimanakuytapas munakuq yachaqmi kani.",
+    "Preferencias de lectura del usuario": "Ñawinchay akllaykikuna",
+    "Tamaño del Texto": "Qillqap hatunnin",
+    "Pequeño": "Uchuy",
+    "Normal": "Kikin",
+    "Grande": "Hatun",
+    "Muy grande": "Ancha hatun",
+    "Modo Oscuro": "Tuta modo",
+    "Reduce la fatiga visual en entornos oscuros.": "Tutapi ñawikunata samachin.",
+    "Modo TDAH": "TDAH modo",
+    "Interfaz simplificada, sin animaciones y mayor contraste.": "Sasalla chawpi, mana kuyuywan, ancha rikhuriywan.",
+    "Cambia toda la aplicación al quechua (runasimi).": "Tukuy aplicacionta runasimiman tikray.",
+    "Cerrar sesión": "Sesión wichq'ay",
+    // Acceso / Registro
+    "Bienvenido de nuevo": "Kutimunki, allinmi",
+    "Ingresa para continuar tu aprendizaje": "Yachaynikita qatinkapak yaykuy",
+    "Ingresa un correo válido.": "Allin correota yaykuchiy.",
+    "Contraseña": "Pakasqa simi",
+    "Ingresa tu contraseña.": "Pakasqa simikita yaykuchiy.",
+    "¿Olvidaste tu contraseña?": "¿Pakasqa simikita qunqarunki?",
+    "Recuérdame": "Yuyariway",
+    "Iniciar sesión": "Yaykuy",
+    "Inicia sesión": "Yaykuy",
+    "¿Aún no tienes cuenta?": "¿Manaraq cuentayki kanchu?",
+    "Crea una gratis": "Hukta ruwakuy yanqalla",
+    "Crea tu cuenta": "Cuentaykita ruwakuy",
+    "Comienza tu viaje con el Braille": "Braillewan puriykita qallariy",
+    "Nombre completo": "Hunt'asqa suti",
+    "Escribe tu nombre.": "Sutikita qillqay.",
+    "La contraseña debe tener al menos 6 caracteres.": "Pakasqa simipi 6 sanampakunamanta aswan kanan.",
+    "Confirmar contraseña": "Pakasqa simita takyachiy",
+    "Las contraseñas no coinciden.": "Pakasqa simikuna mana kikinchu.",
+    "Crear Cuenta": "Cuenta ruwakuy",
+    // Ejercicios y práctica
+    "Siguiente": "Qatiq",
+    "Anterior": "Ñawpaq",
+    "Comprobar": "Takyachiy",
+    "Reintentar": "Yapamanta",
+    "Continuar": "Qatiy",
+    "Volver": "Kutiy",
+    "Volver a ejercicios": "Ruraykunaman kutiy",
+    "Aceptar": "Chaskiy",
+    "¡Correcto!": "¡Allinmi!",
+    "¡Felicidades!": "¡Kusirikuy!",
+    "¡Respuesta correcta!": "¡Allin kutichiy!",
+    "Has completado exitosamente todos los ejercicios de esta actividad.": "Tukuy ruraykunata allinta tukurunki.",
+    "Escuchar pronunciación": "Rimayta uyarikuy",
+    "Escuchar nota": "Takita uyarikuy",
+    "Escribe la palabra:": "Simita qillqay:",
+    "Escribe aquí...": "Kaypi qillqay...",
+    "Letra": "Qillqa",
+    "Número": "Yupay",
+    "Ejercicio no encontrado.": "Rurayqa mana tarisqachu.",
+    "Error al cargar el ejercicio.": "Rurayta churaypi pantay.",
+    "Evaluación de Alfabeto": "Achahala takyachiy",
+    "Comprobar respuesta": "Kutichiyta takyachiy",
+    "La combinación de puntos no es correcta. Inténtalo de nuevo.": "Unchakunap huñusqan mana allinchu. Yapamanta ruray.",
+    "Error de configuración del Alfabeto.": "Achahala churaypi pantay.",
+    "Punto de la celda Braille": "Cajitillap unchan",
+    "Este nivel está bloqueado. Completa el nivel anterior para desbloquearlo.": "Kay pataqa wichq'asqam. Ñawpaq patata tukuy, kicharinaykipaq.",
+    "Traduce la siguiente palabra en Braille:": "Braillepi simita tikrachiy:",
+    "¿Qué palabra es?": "¿Ima simitaq?",
+    "Escribe la palabra en texto convencional.": "Simita qillqay.",
+    "Construye la palabra en Braille": "Simita Braillepi ruwakuy",
+    "Construye la letra en Braille pulsando los puntos": "Unchakunata ñit'ispa qillqata ruwakuy",
+    "Pulsa los puntos para formar cada letra": "Sapa qillqapak unchakunata ñit'iy",
+    "Selecciona la celda Braille correcta.": "Allin Braille cajitillata akllay.",
+    "Observa las celdas activas (el primer símbolo es el signo de número).": "K'ancharisqa cajitillakunata qhaway.",
+    "¿Qué número representan estos puntos Braille?": "¿Ima yupaytan kay Braille unchakuna rikuchin?",
+    "Palabras y Frases": "Simikuna",
+    "Palabras": "Simikuna",
+    // Ejercicios interactivos
+    "Reto del dia": "P'unchaw sasachakuy",
+    "Desafio de hoy": "Kunan p'unchaw sasachakuy",
+    "Identifica el Braille": "Brailleta riqsiy",
+    "Observa las cajetillas Braille y escribe la palabra correcta": "Braille cajitillakunata qhaway, allin simita qillqay",
+    "Laboratorio Braille": "Braille llamk'ana",
+    "Explora y practica el Braille de forma interactiva.": "Brailleta maskhay, ruraykuy.",
+    "Aprende y practica las letras en Braille.": "Braillepi qillqakunata yachay, ruraykuy.",
+    "Nivel": "Pata",
+    "Practica la representación de números en Braille.": "Braillepi yupaykunata ruraykuy.",
+    "Pon en práctica el Braille formando palabras.": "Simikunata ruwaspa Brailleta ruraykuy.",
+    "Mi progreso": "Ñuqap wiñayniy",
+    "Puntos totales": "Tukuy puntokuna",
+    "Racha": "Kuti kuti",
+    "Lecciones": "Yachaykuna",
+    "Puntos": "Puntokuna",
+    "Insignias": "Suñaykuna",
+    "0 obtenidas": "0 chaskisqakuna",
+    "Progreso por Cajetilla": "Cajitillakunapi wiñay",
+    "¡EXCELENTE!": "¡ALLINMI!",
+    "¡Has formado correctamente la palabra!": "¡Simita allinta ruwarunki!",
+    "🎉 ¡Completaste los 3 retos de hoy!": "🎉 ¡Kimsa p'unchaw sasachakuykunata tukurunki!",
+    "Vuelve mañana para nuevos retos.": "Paqarinta kutimuy, musuq sasachakuykunapaq.",
+    "⏰ ¡Tiempo agotado! Reto no completado.": "⏰ ¡Pacha tukurun! Sasachakuyqa mana tukusqachu.",
+    "❌ Inténtalo nuevamente.": "❌ Yapamanta ruray.",
+    // Reproductor
+    "Completado": "Tukusqa",
+    "Progreso guardado": "Wiñay waqaychasqa",
+    "Continuar viendo": "Qhawayta qatiy",
+    "Ver de nuevo": "Musuqmanta qhaway",
+    "Curso:": "Yachay:",
+    "Lecciones Relacionadas": "Tinkisqa yachaykuna",
+    // Modelo de ejercicio
+    "Ejercicios Interactivos": "Ruraykuna",
+    "Practica y domina el sistema Braille con estas actividades.": "Kay ruranakunawan Brailleta yachay.",
+    "Categorías de Ejercicio": "Ruray layakuna",
+    "Aprende las letras del alfabeto Braille con lecciones y ejercicios interactivos.": "Achahala qillqakunata yachaykunawan ruraykunawan yachay.",
+    "6 Actividades": "6 ruranakuna",
+    "Domina los números en Braille mediante lecciones y práctica guiada.": "Yupaykunata yachaykunawan ruraykuy.",
+    "4 Actividades": "4 ruranakuna",
+    "Traduce palabras escritas en Braille a texto convencional.": "Braillepi qillqasqa simikunata tikrachiy.",
+    // Títulos de pestaña (segmentos antes de " - ")
+    "Iniciar Sesión": "Yaykuy",
+    "Educación Inclusiva": "Tukuykuq yachay",
+    "Video Player": "Video qhaway",
+    "Práctica": "Ruray",
+    // Generales
+    "Guardar": "Waqaychay",
+    "Error": "Pantay"
+  };
+
+  var quechua = false;
+  var titleEs = null;
+
+  function norm(s) { return String(s).replace(/\s+/g, " ").trim(); }
+
+  function t(es) {
+    var k = norm(es);
+    return DICT.hasOwnProperty(k) ? DICT[k] : es;
+  }
+
+  function isQuechua() { return quechua; }
+
+  function acceptNode(node) {
+    var p = node.parentElement;
+    if (!p) return NodeFilter.FILTER_REJECT;
+    var tag = p.tagName;
+    if (tag === "SCRIPT" || tag === "STYLE" || tag === "NOSCRIPT") return NodeFilter.FILTER_REJECT;
+    if (p.classList && p.classList.contains("material-symbols-outlined")) return NodeFilter.FILTER_REJECT;
+    return NodeFilter.FILTER_ACCEPT;
+  }
+
+  function translateTextNode(node) {
+    if (node.__qu) return;
+    var orig = node.nodeValue;
+    if (!orig || !norm(orig)) return;
+    var key = norm(orig);
+    if (DICT.hasOwnProperty(key)) {
+      node.__es = orig;
+      node.nodeValue = DICT[key];
+      node.__qu = true;
+    }
+  }
+
+  function restoreTextNode(node) {
+    if (node.__qu) {
+      node.nodeValue = node.__es;
+      node.__qu = false;
+    }
+  }
+
+  var ATTRS = ["placeholder", "aria-label", "title"];
+
+  function translateAttrs(el) {
+    if (!el.getAttribute) return;
+    for (var i = 0; i < ATTRS.length; i++) {
+      var attr = ATTRS[i];
+      var v = el.getAttribute(attr);
+      if (!v) continue;
+      var key = norm(v);
+      if (DICT.hasOwnProperty(key)) {
+        var flag = "__es_" + attr;
+        if (!el[flag]) el[flag] = v;
+        if (el.getAttribute(attr) !== DICT[key]) el.setAttribute(attr, DICT[key]);
+        el.__quAttr = true;
+      }
+    }
+  }
+
+  function restoreAttrs(el) {
+    if (!el.__quAttr || !el.getAttribute) return;
+    for (var i = 0; i < ATTRS.length; i++) {
+      var attr = ATTRS[i];
+      var flag = "__es_" + attr;
+      if (el[flag]) el.setAttribute(attr, el[flag]);
+    }
+    el.__quAttr = false;
+  }
+
+  function walk(root, textFn, elFn) {
+    if (!root) return;
+    if (root.nodeType === 3) { textFn(root); return; }
+    if (!root.nodeType || root.nodeType !== 1) return;
+    if (root.tagName === "SCRIPT" || root.tagName === "STYLE" || root.tagName === "NOSCRIPT") return;
+    if (root.classList && root.classList.contains("material-symbols-outlined")) return;
+    elFn(root);
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: acceptNode });
+    var n;
+    var batch = [];
+    while ((n = walker.nextNode())) batch.push(n);
+    for (var i = 0; i < batch.length; i++) textFn(batch[i]);
+    var els = root.querySelectorAll ? root.querySelectorAll("[placeholder],[aria-label],[title]") : [];
+    for (var j = 0; j < els.length; j++) {
+      var el = els[j];
+      if (el.classList && el.classList.contains("material-symbols-outlined")) continue;
+      elFn(el);
+    }
+  }
+
+  function applyTitle() {
+    if (titleEs === null) titleEs = document.title;
+    var parts = titleEs.split(" - ");
+    document.title = parts.map(function(p) { return t(p); }).join(" - ");
+  }
+
+  function restoreTitle() {
+    if (titleEs !== null) document.title = titleEs;
+  }
+
+  function apply() {
+    walk(document.body, translateTextNode, translateAttrs);
+    applyTitle();
+  }
+
+  function restore() {
+    walk(document.body, restoreTextNode, restoreAttrs);
+    restoreTitle();
+  }
+
+  function set(on) {
+    quechua = !!on;
+    try { document.documentElement.setAttribute("lang", quechua ? "qu" : "es"); } catch (e) {}
+    if (quechua) apply(); else restore();
+  }
+
+  // Traduce el contenido que se agregue después (tarjetas, ejercicios, toasts)
+  if (typeof MutationObserver !== "undefined") {
+    var obs = new MutationObserver(function(muts) {
+      if (!quechua) return;
+      for (var i = 0; i < muts.length; i++) {
+        var m = muts[i];
+        for (var j = 0; j < m.addedNodes.length; j++) {
+          var nd = m.addedNodes[j];
+          if (nd.nodeType === 3) translateTextNode(nd);
+          else if (nd.nodeType === 1) walk(nd, translateTextNode, translateAttrs);
+        }
+      }
+    });
+    if (document.body) obs.observe(document.body, { childList: true, subtree: true });
+    else document.addEventListener("DOMContentLoaded", function() {
+      obs.observe(document.body, { childList: true, subtree: true });
+    });
+  }
+
+  // Aplica la preferencia guardada en cada pantalla al cargar
+  try {
+    var prefs = JSON.parse(localStorage.getItem("bl_visualPrefs"));
+    if (prefs && prefs.quechua === true) set(true);
+  } catch (e) {}
+
+  return { t: t, isQuechua: isQuechua, set: set, apply: apply, restore: restore };
+})();
